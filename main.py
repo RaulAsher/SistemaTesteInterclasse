@@ -89,7 +89,7 @@ def turma():
 @app.route("/alunosPorTurma/<turma>")
 def alunosPorTurma(turma):
     alunos = buscarAlunosPorTurma(turma)
-      # função do model que retorna lista de alunos da turma
+    # função do model que retorna lista de alunos da turma
     return jsonify({"alunos": [{"matricula": a[0], "nome": a[1]} for a in alunos]})
 
 if __name__ == "__main__":
@@ -218,16 +218,11 @@ def rotaEditarEquipe(pk_equipe):
     return redirect("/cadastrarEquipe")
 
 #Deletar equipe
-@app.route("/deletarEquipe/<int:pk_equipe>", methods=["DELETE"])
+@app.route("/deletarEquipe/<int:pk_equipe>")
 def rotaDeletarEquipe(pk_equipe):
-    try:
-        deletarEquipe(pk_equipe)
-        return "OK"
-    except ValueError as e:
-        return str(e), 400
-    except Exception as e:
-        print("Erro ao deletar:", e)
-        return "ERRO", 500
+    resultado = deletarEquipe(pk_equipe)
+    return resultado  # retorna texto direto pro fetch()
+
 
 # Buscar alunos por turma (JSON)
 @app.route("/alunosPorTurma/<nome_turma>/<classificacao>")
@@ -363,6 +358,7 @@ def rotaBuscarPartidas():
     try:
         # 1. Busca no BD a lista completa de partidas da chave (com nomes das equipes)
         partidas_bd = buscarPartidasParaGestao(esporte, classificacao) 
+        print(partidas_bd)
 
         # 2. Prepara o JSON para o frontend
         partidas_json = []
@@ -433,7 +429,7 @@ def rotaRegistrarVencedor():
                     "proxima_etapa": proxima_etapa
                 })
             else:
-                 return jsonify({
+                return jsonify({
                     "status": "sucesso", 
                     "mensagem": "Vencedor salvo. Fim do chaveamento (campeão definido).",
                     "proxima_etapa": etapa_atual 

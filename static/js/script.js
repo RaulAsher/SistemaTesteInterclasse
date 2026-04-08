@@ -1,6 +1,8 @@
+// Barra superior e latera
 const btn = document.getElementById('menuToggle');
 const barraLateral = document.getElementById('barraLateral');
 
+//mudança de classe
 const setOpen = (open) => {
   barraLateral.classList.toggle('open', open);
   btn.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');

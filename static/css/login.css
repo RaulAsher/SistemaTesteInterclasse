@@ -1,3 +1,4 @@
+/* Criação de padrão de cores */
 :root {
   --cor-primaria: #122f4a;
   --cor-secundaria: #9cc7ec;
@@ -5,6 +6,7 @@
   --cor-card: #ebf0f7;
 }
 
+/* Configurações geral do site */
 * {
   margin: 0;
   padding: 0;
@@ -68,8 +70,10 @@ body {
   outline: none;
   font-size: 16px;
   color: var(--cor-primaria);
+  /* Rever esse "color: var(--cor-primaria);" */
 }
 
+/* Position: absolute usado para colocar ele do lado do input */
 .input-box i {
   position: absolute;
   right: 15px;
@@ -78,7 +82,6 @@ body {
   color: var(--cor-primaria);
   font-size: 20px;
 }
-
 
 
 /* Opções */

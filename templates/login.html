@@ -10,21 +10,29 @@
 </head>
 
 <body>
+  <!-- Container login -->
   <div class="login-container">
+
     <div class="login-box">
+
       <div class="avatar">
         <i class='bx bxs-user-circle'></i>
       </div>
+
       <h1>Bem-vindo</h1>
+
       <form action="/login" method="post">
+
         <div class="input-box">
           <input placeholder="Usuário" name="usuario" required>
           <i class="bx bxs-user"></i>
         </div>
+
         <div class="input-box">
           <input type="password" placeholder="Senha" name="senha" required>
           <i class="bx bxs-lock-alt"></i>
         </div>
+
         <div class="options">
           <label>
             <input type="checkbox">
@@ -32,11 +40,14 @@
           </label>
           <a href="#">Esqueci a senha</a>
         </div>
+
         <button type="submit" class="login-btn">Entrar</button>
       </form>
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
       {% for category, message in messages %}
+      
+      <!-- Mensagem de erro no login (usuario não encontrado ou senha incorreta) -->
       <div class="flash-card {{ category }}">
         <i class='bx bxs-error-circle'></i>
         <span>{{ message }}</span>

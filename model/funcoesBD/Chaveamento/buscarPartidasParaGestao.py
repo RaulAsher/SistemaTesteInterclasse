@@ -27,6 +27,7 @@ def buscarPartidasParaGestao(esporte, classificacao):
             # Filtra pelo esporte E classificação, e traz todas as etapas
             cursor.execute(query, (esporte, classificacao)) 
             return cursor.fetchall()
+        
     except mysql.connector.Error as err:
         print(f"Erro ao buscar partidas para gestão: {err}")
         return []

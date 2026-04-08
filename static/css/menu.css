@@ -16,6 +16,10 @@ body {
   /* Flexbox principal */
 }
 
+strong{
+  color: var(--cor-texto);
+}
+
 /* barraLateral */
 .barraLateral {
   width: 260px;
@@ -23,12 +27,10 @@ body {
   backdrop-filter: blur(8px);
   border-right: 1px solid var(--cor-borda);
   display: flex;
-  /* coluna interna */
-  flex-direction: column;
+  flex-direction: column; /* coluna interna */
   gap: 12px;
   padding: 20px 14px;
-  position: sticky;
-  /* fixa no topo ao rolar */
+  position: sticky; /* fixa no topo ao rolar */
   top: 0;
   height: 100vh;
   box-sizing: border-box;
@@ -41,7 +43,7 @@ body {
   align-items: center;
   gap: 10px;
   font-weight: 700;
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
 }
 
 .marca .logo {
@@ -51,17 +53,13 @@ body {
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  background-color: var(--cor-texto);
-  /* cor de fundo do avatar */
-  color: var(--cor-primaria);
-  /* cor do ícone */
+  background-color: var(--cor-texto); /* cor de fundo do avatar */
+  color: var(--cor-primaria); /* cor do ícone */
 }
 
 .marca .logo svg {
-  width: 60%;
-  /* ajusta tamanho do ícone dentro do círculo */
-  height: 60%;
-  /* mantém proporção */
+  width: 60%; /* ajusta tamanho do ícone dentro do círculo */
+  height: 60%; /* mantém proporção */
 }
 
 .marca .login-link {

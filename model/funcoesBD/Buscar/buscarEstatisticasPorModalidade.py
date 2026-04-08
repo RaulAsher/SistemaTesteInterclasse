@@ -16,4 +16,3 @@ def buscarEstatisticasPorModalidade(modalidade=None):
         return estatisticasBuscadas
     cursor.close()
     conexao.close()
-     

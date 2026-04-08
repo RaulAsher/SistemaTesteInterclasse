@@ -5,10 +5,10 @@ def alunosPorTurmaListaEquipes(nome_turma, classificacao):
     conexao = criarConexao()
     try:
         with conexao.cursor(dictionary=True) as cursor:
-            if classificacao == "Mista":
+            if classificacao == "Misto":
                 query = """
                     SELECT pk_matricula AS matricula,
-                           nome_aluno AS nome
+                        nome_aluno AS nome
                     FROM alunos
                     WHERE fk_nome_turma = %s
                 """
