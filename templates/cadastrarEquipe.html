@@ -2,8 +2,8 @@
 
 <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<main class="card-container">
+</head><main class="card-container">
+
 
 <!-- LISTA DE EQUIPES -->
     <section class="table-section">
@@ -29,12 +29,13 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Usado para separar as tuplas e pegar dados individuais -->
                 {% if equipes %}
                 {% for equipe in equipes %}
                 <tr>
+                    <!-- Equipe[n] usado para dizer (turma, esporte e genero) respectivamente -->
                     <td class="cor-tx">{{ equipe[2] }}</td>
                     <td class="cor-tx">{{ equipe[1] }}</td>
-                    
                     <td class="cor-tx">{{ equipe[3] }}</td>
                     
                     <td class="actions">

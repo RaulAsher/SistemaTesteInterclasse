@@ -12,15 +12,13 @@ body {
   font-family: "Poppins", sans-serif;
   color: var(--cor-texto);
   min-height: 100vh;
-  display: flex;
-  /* Flexbox principal */
+  display: flex; /* Flexbox principal */
 }
 
 strong{
   color: var(--cor-texto);
 }
 
-/* barraLateral */
 .barraLateral {
   width: 260px;
   background-color: var(--cor-primaria);
