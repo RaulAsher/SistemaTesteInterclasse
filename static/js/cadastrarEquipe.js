@@ -42,15 +42,16 @@ const btnConfirmar = document.getElementById("btnConfirmar");
 function confirmarDelecao(id, equipe) {
     textoConfirmacao.textContent = `Deseja realmente deletar a equipe ${equipe}?`;
     btnConfirmar.onclick = function () {
-        fetch(`/deletarEquipe/${id}`, { method: "DELETE" })
+        fetch(`/deletarEquipe/${id}`) // <-- sem method: "DELETE"
             .then(response => response.text())
             .then(result => {
-                modalConfirmacao.style.display = "none"; // fecha o modal
+                modalConfirmacao.style.display = "none";
 
                 if (result === "OK") {
-                    location.reload(); // recarrega sem mensagem
+                    location.reload();
                 } else {
-                    alert("Esta equipe não pode ser deletada pois está vinculada a uma partida.");
+                    alert("Erro ao deletar a equipe.");
+                    console.error("Resposta:", result);
                 }
             })
             .catch(error => {
@@ -62,6 +63,7 @@ function confirmarDelecao(id, equipe) {
 
     modalConfirmacao.style.display = "block";
 }
+
 
 btnCancelar.onclick = () => modalConfirmacao.style.display = "none";
 
@@ -110,14 +112,15 @@ function aplicarLimite(containerId) {
 function carregarAlunosTurma() {
     const turma = document.getElementById("turma").value;
     const classificacao = document.getElementById("descricao").value;
+    const modalidade = document.getElementById("esporte").value
 
-    if (!turma || !classificacao) {
+    if (!turma || !classificacao || !modalidade) {
         document.getElementById("alunosTurmaContainer").innerHTML =
             "<p>Selecione uma turma e classificação para listar os alunos.</p>";
         return;
     }
 
-    fetch(`/alunosPorTurma/${encodeURIComponent(turma)}/${encodeURIComponent(classificacao)}`)
+    fetch(`/alunosPorTurma/${encodeURIComponent(turma)}/${encodeURIComponent(classificacao)}/${encodeURIComponent(modalidade)}`)
         .then(response => response.json())
         .then(data => {
             let html = '';

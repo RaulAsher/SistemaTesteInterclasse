@@ -17,6 +17,10 @@ def gerar_chaveamento_sem_bye_contra_bye(equipes_ids):
     """
     Gera um chaveamento de mata-mata com semeadura, garantindo que BYEs não se enfrentem.
     
+    “BYE” (ou “BYEs” no plural) significa basicamente:
+
+    uma vaga automática para a próxima fase, sem precisar jogar.
+
     Args:
         equipes_ids (list): Uma lista de PKs (int) das equipes, JÁ ORDENADAS ou EMBARALHADAS
                             de acordo com a lógica de turmas/semeadura.
@@ -28,32 +32,37 @@ def gerar_chaveamento_sem_bye_contra_bye(equipes_ids):
     
     if n_equipes < 2:
         return []
+    
+    print('++++Gerando chaveamento++++')
 
     # Passo 1: Determinar o tamanho da chave e a quantidade de BYEs
-    potencia_de_2 = 2 ** math.ceil(math.log2(n_equipes))
-    n_byes = potencia_de_2 - n_equipes
+    equipes_necessarias = 2 ** math.ceil(math.log2(n_equipes))
+    n_byes = equipes_necessarias - n_equipes 
     
-    # As equipes que recebem BYE são as primeiras da lista
-    equipes_com_bye = equipes_ids[:n_byes]
-    equipes_sem_bye = equipes_ids[n_byes:]
+    print(f'Número de Byes: {n_byes}')
+
+    for i in range(n_byes):
+        equipes_ids.append(None)
 
     chaveamento_completo = []
     
     # Passo 2: Criar a primeira rodada com semeadura inversa (para equipes sem BYE)
     partidas_primeira_rodada = []
     
-    n_partidas_sem_bye = len(equipes_sem_bye) // 2
-    for i in range(n_partidas_sem_bye):
-        equipe_1 = equipes_sem_bye[i]
+    partidas = int(equipes_necessarias/2)
+    for i in range(partidas):
+        equipe_1 = equipes_ids[i]
         # Lógica de semeadura inversa: primeiro vs último, segundo vs penúltimo, etc.
-        equipe_2 = equipes_sem_bye[len(equipes_sem_bye) - 1 - i]
+        equipe_2 = equipes_ids[len(equipes_ids) - 1 - i]
         partidas_primeira_rodada.append([equipe_1, equipe_2])
     
     chaveamento_completo.append(partidas_primeira_rodada)
+    print(f'Cahveamento completo: {chaveamento_completo}')
     
-    # Passo 3: Simular as próximas rodadas
-    # Combina BYEs (que avançam automaticamente) com placeholders para os vencedores da 1ª rodada
-    rodada_atual = equipes_com_bye + [f"Vencedor da partida {i+1}" for i in range(len(partidas_primeira_rodada))]
+    # # Passo 3: Simular as próximas rodadas
+    # # Combina BYEs (que avançam automaticamente) com placeholders para os vencedores da 1ª rodada
+    rodada_atual = partidas_primeira_rodada
+    # print(f'Rodada Atual: {rodada_atual}')
     
     # Simula rodadas futuras (apenas para estruturar o chaveamento)
     while len(rodada_atual) > 1:
@@ -62,20 +71,58 @@ def gerar_chaveamento_sem_bye_contra_bye(equipes_ids):
         # Embaralha os participantes da rodada futura
         random.shuffle(rodada_atual)
         
+        print(f'Rodada Atual2: {rodada_atual}')
         # Pareamento
         for i in range(0, len(rodada_atual), 2):
             partidas_rodada.append([rodada_atual[i], rodada_atual[i+1]])
         
         chaveamento_completo.append(partidas_rodada)
+        print(f'Chaveamento completo: {chaveamento_completo}')
+        print(f'Partidas roda: {partidas_rodada}')
+        print(f'Valor de I: {i}')
         
         # Prepara a lista de "vencedores" para a próxima rodada
-        rodada_atual = [f"Vencedor da partida {i+1}" for i in range(len(partidas_rodada))]
+        rodada_atual = [None for i in range(len(partidas_rodada))]
+        print(f'Rodada Atual3: {rodada_atual}')
 
     return chaveamento_completo
 
 
+def getEquipe(partida):
+    if partida != None:
+        print(f"getEquipe - {partida}")
+        print(f"getEquipe -  2º if: {isinstance(partida, list)}")
+        if isinstance(partida, list):
+            print(f"getEquipe -  3º if: {partida[0] != None and partida[1] != None}")
+            if partida[0] != None and partida[1] != None:
+                return None
+            else:
+                return partida[0]
+        elif partida != None:
+            return partida
+    return None
+
+def getEquipeVencedora(equipe_casa, equipe_visitante, etapa):
+    if etapa > 1:
+        return None
+    elif equipe_casa is not None and equipe_visitante is not None:
+        return None
+    elif equipe_casa is None:
+        return equipe_visitante
+    else:
+        return equipe_casa
+
+def getPartidaDefinida(equipe_casa, equipe_visitante, etapa):
+    if etapa > 1:
+        return 'nao'
+    elif(equipe_casa is not None and equipe_visitante is not None):
+        return 'nao'
+    else:
+        return 'sim'
+    
 def salvar_partidas(chaveamento, esporte, classificacao):
     """Salva apenas as partidas da primeira rodada no banco de dados."""
+    print("++++++++ Salvar Partidas +++++++++++")
     conexao = criarConexao()
     if not conexao:
         print("Erro: Não foi possível conectar ao banco de dados para salvar as partidas.")
@@ -87,39 +134,66 @@ def salvar_partidas(chaveamento, esporte, classificacao):
     # Query para inserção na tabela 'partidas'
     query = """
         INSERT INTO partidas 
-            (fk_esporte, fk_descricao, fk_equipe_casa, fk_equipe_visitante, etapa)
+            (fk_esporte, fk_descricao, fk_equipe_casa, fk_equipe_visitante, etapa, definida, pk_partida_mae, pk_equipe_vencedora)
         VALUES 
-            (%s, %s, %s, %s, %s)
+            (%s, %s, %s, %s, %s, %s, %s, %s)
         """
-# A tupla de dados_partida já está correta com 5 elementos.
+    # A tupla de dados_partida já está correta com 5 elementos.
 
     # O chaveamento é uma lista de rodadas. Só salvamos a primeira (índice 0)
-    if chaveamento and chaveamento[0]:
-        etapa_atual = 1 # Primeira rodada
-        
-        for partida in chaveamento[0]:
-            equipe_casa = partida[0]
-            equipe_visitante = partida[1]
+    # print(f'Chaveamento: {chaveamento}')
+
+
+    etapa_atual = len(chaveamento)
+    lista_id_rodas_mae_anteriores =  []
+    for rodadas in reversed(chaveamento):
+        print(f'rodada: {rodadas}')
+        ids_rodadas_mae = []
+        print(f'Etapa atual: {etapa_atual}')
+        print(f'Lista Id Mãe Anterior: {lista_id_rodas_mae_anteriores}')
+        contador_rodadas = 0
+        for partida in rodadas:
+            print(f'Lista Id Proxima Mãe: {ids_rodadas_mae}')
+
+            equipe_casa =  getEquipe(partida[0])
+            equipe_visitante = getEquipe(partida[1])
             
-            # Verificação para ignorar BYEs (que aparecem como strings 'Vencedor...')
             # Na primeira rodada, todas as entradas que são PKs (int) são partidas reais.
-            if isinstance(equipe_casa, int) and isinstance(equipe_visitante, int):
-                dados_partida = (
-                    esporte, 
-                    classificacao, 
-                    equipe_casa, 
-                    equipe_visitante, 
-                    etapa_atual
-                )
-                try:
-                    cursor.execute(query, dados_partida)
-                    partidas_inseridas += 1
-                except mysql.connector.Error as err:
-                    print(f"Erro ao inserir partida no BD: {err}")
+            dados_partida = (
+                esporte, 
+                classificacao, 
+                equipe_casa, 
+                equipe_visitante, 
+                etapa_atual,
+                getPartidaDefinida(equipe_casa, equipe_visitante, etapa_atual),
+                None if etapa_atual == len(chaveamento) else lista_id_rodas_mae_anteriores[0],
+                getEquipeVencedora(equipe_casa, equipe_visitante, etapa_atual)
+            )
+            try:
+                print(f"Dados inseridos: {dados_partida}")
+                cursor.execute(query, dados_partida)
+                conexao.commit()
+                id_gerado = cursor.lastrowid
+                print(f'Id gerado Banco: {id_gerado}')
+
+                ids_rodadas_mae.append(id_gerado)
+                contador_rodadas+=1
+                if(contador_rodadas == 2):
+                    lista_id_rodas_mae_anteriores.pop(0)
+                    contador_rodadas = 0
+                partidas_inseridas += 1
+                print(f'Partidas inseridas repeticao: {partidas_inseridas}')
+            except mysql.connector.Error as err:
+                print(f"Erro ao inserir partida no BD: {err}")
+        lista_id_rodas_mae_anteriores.clear()
+        lista_id_rodas_mae_anteriores = ids_rodadas_mae
+        etapa_atual-=1
     
-    conexao.commit()
+    print(f'Partidas inseridas Total: {partidas_inseridas}')
+
     cursor.close()
     conexao.close()
+
     return partidas_inseridas
 
 

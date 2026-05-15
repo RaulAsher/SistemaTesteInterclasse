@@ -9,7 +9,8 @@ def buscarJogadoresPorEquipe(id_equipe):
                        a.nome_aluno AS nome
                 FROM membros_equipe me
                 JOIN alunos a ON me.fk_matricula = a.pk_matricula
-                WHERE me.fk_equipe = %s
+                WHERE me.fk_equipe = %s 
+                order by a.nome_aluno
             """
             cursor.execute(query, (id_equipe,))
             return cursor.fetchall()

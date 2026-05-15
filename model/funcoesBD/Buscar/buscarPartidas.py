@@ -1,8 +1,8 @@
 from ..Cadastrar.criarConexao import criarConexao, database
 
-def buscarPartidas():
+def buscarPartidas(modalidade, classificacao):
     conexao = criarConexao()
-    #cursor = conexao.cursor(dictionary=True)
+    
     cursor = conexao.cursor(dictionary=True)
     cursor.execute(f'SELECT * FROM {database}.partidas')
     partidasBuscadas = cursor.fetchall()
