@@ -200,10 +200,9 @@ def rotaCadastrarEquipe():
     esporte = request.form.get("esporte")
     turma = request.form.get("turma")
     descricao = request.form.get("descricao")
-    nome_equipe = request.form.get("nome_equipe") or None
     alunos = request.form.getlist("alunos")
 
-    cadastrarEquipe(esporte, turma, descricao, nome_equipe, alunos)
+    cadastrarEquipe(esporte, turma, descricao, alunos)
     return redirect("/cadastrarEquipe")
 
 @app.route("/editarEquipe/<int:pk_equipe>", methods=["POST"])
@@ -211,10 +210,9 @@ def rotaEditarEquipe(pk_equipe):
     esporte = request.form.get("esporte")
     turma = request.form.get("turma")
     descricao = request.form.get("descricao")
-    nome_equipe = request.form.get("nome_equipe") or None
     alunos = request.form.getlist("alunos")
 
-    editarEquipe(pk_equipe, esporte, turma, descricao, nome_equipe, alunos)
+    editarEquipe(pk_equipe, esporte, turma, descricao, alunos)
     return redirect("/cadastrarEquipe")
 
 #Deletar equipe

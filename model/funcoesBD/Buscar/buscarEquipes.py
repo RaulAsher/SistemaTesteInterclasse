@@ -8,8 +8,7 @@ def buscarEquipes():
                 SELECT e.pk_equipe,
                        s.pk_esporte AS esporte,
                        t.pk_nome_turma AS turma,
-                       c.pk_descricao AS classificacao,
-                       e.nome_equipe
+                       c.pk_descricao AS classificacao
                 FROM equipes e
                 JOIN esportes s ON e.fk_esporte = s.pk_esporte
                 JOIN turmas t ON e.fk_nome_turma = t.pk_nome_turma

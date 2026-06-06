@@ -1,6 +1,6 @@
 from .criarConexao import criarConexao, database
 
-def cadastrarEquipe(esporte, turma, descricao, nome_equipe, alunos):
+def cadastrarEquipe(esporte, turma, descricao, alunos):
     conexao = criarConexao()
     try:
         with conexao.cursor() as cursor:
@@ -12,9 +12,9 @@ def cadastrarEquipe(esporte, turma, descricao, nome_equipe, alunos):
                 raise ValueError(f"O esporte só permite até {limite} jogadores.")
 
             cursor.execute("""
-                INSERT INTO equipes (fk_esporte, fk_nome_turma, fk_descricao, nome_equipe)
-                VALUES (%s, %s, %s, %s)
-            """, (esporte, turma, descricao, nome_equipe))
+                INSERT INTO equipes (fk_esporte, fk_nome_turma, fk_descricao)
+                VALUES (%s, %s, %s)
+            """, (esporte, turma, descricao))
             id_equipe = cursor.lastrowid
 
             for matricula in alunos:

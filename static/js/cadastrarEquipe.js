@@ -19,12 +19,11 @@ const modalEdicao = document.getElementById("modalEdicao");
 const closeEditBtn = document.getElementById("closeEditBtn");
 const formEdicao = document.getElementById("formEdicao");
 
-function abrirModalEdicao(id, esporte, turma, descricao, nomeEquipe) {
+function abrirModalEdicao(id, esporte, turma, descricao) {
     document.getElementById("editId").value = id;
     document.getElementById("editEsporte").value = esporte;
     document.getElementById("editTurma").value = turma;
     document.getElementById("editDescricao").value = descricao;
-    document.getElementById("editNomeEquipe").value = nomeEquipe || "";
 
     formEdicao.action = "/editarEquipe/" + id;
 

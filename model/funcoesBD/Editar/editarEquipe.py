@@ -1,6 +1,6 @@
 from ..Cadastrar.criarConexao import criarConexao, database
 
-def editarEquipe(pk_equipe, esporte, turma, descricao, nome_equipe, alunos):
+def editarEquipe(pk_equipe, esporte, turma, descricao, alunos):
     conexao = criarConexao()
     try:
         with conexao.cursor() as cursor:
@@ -14,9 +14,9 @@ def editarEquipe(pk_equipe, esporte, turma, descricao, nome_equipe, alunos):
             # Atualizar dados principais
             cursor.execute("""
                 UPDATE equipes
-                SET fk_esporte=%s, fk_nome_turma=%s, fk_descricao=%s, nome_equipe=%s
+                SET fk_esporte=%s, fk_nome_turma=%s, fk_descricao=%s
                 WHERE pk_equipe=%s
-            """, (esporte, turma, descricao, nome_equipe, pk_equipe))
+            """, (esporte, turma, descricao, pk_equipe))
 
             # Apagar jogadores antigos
             cursor.execute("DELETE FROM membros_equipe WHERE fk_equipe=%s", (pk_equipe,))
