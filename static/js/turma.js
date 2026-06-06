@@ -36,6 +36,7 @@ function confirmarDelecao(turma) {
     textoConfirmacao.textContent = `Deseja realmente deletar a turma ${turma}?`;
     btnConfirmar.href = "/deletarTurma/" + turma;
     modalConfirmacao.style.display = "block";
+    console.log(typeof(turma))
 }
 
 btnCancelar.onclick = () => modalConfirmacao.style.display = "none";

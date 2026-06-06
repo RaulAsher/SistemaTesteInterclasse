@@ -38,7 +38,7 @@
                     <td class="cor-tx">{{ aluno[0] }}</td>
                     <td class="actions">
                         <button class="btn btn-edit"
-                            onclick="abrirModalEdicao('{{ aluno[0] }}','{{ aluno[1] }}','{{ aluno[2] }}','{{ aluno[3] }}')">
+                            onclick="abrirModalEdicao('{{ aluno[0] }}','{{ aluno[1] }}','{{ aluno[2] }}','{{ aluno[3] }}', '{{ aluno[0] }}')">
                             Editar
                         </button>
                         <button class="btn btn-delete" onclick="confirmarDelecao('{{ aluno[0] }}','{{ aluno[1] }}')">
@@ -112,7 +112,8 @@
 
             <div class="form-group">
                 <label>Matrícula:</label>
-                <input type="text" name="matricula" id="editMatricula">
+                <input type="text" name="nova_matricula" id="editMatricula">
+                <input type="hidden" name="antiga_matricula" id="noteditMatricula">
             </div>
 
             <div class="form-group">

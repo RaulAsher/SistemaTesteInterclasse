@@ -14,10 +14,11 @@ const modalEdicao = document.getElementById("modalEdicao");
 const closeEditBtn = document.getElementById("closeEditBtn");
 const formEdicao = document.getElementById("formEdicao");
 
-function abrirModalEdicao(matricula, nome, turma, genero) {
+function abrirModalEdicao(matricula, nome, turma, genero, antiga_matricula) {
     document.getElementById("editMatricula").value = matricula;
     document.getElementById("editNome").value = nome;
     document.getElementById("editGenero").value = genero;
+    document.getElementById("noteditMatricula").value = antiga_matricula
 
     // Seleciona a turma correta
     const selectTurma = document.getElementById("editTurma");
