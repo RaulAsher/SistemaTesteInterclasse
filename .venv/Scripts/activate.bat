@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set "VIRTUAL_ENV=C:\Users\Matheus\Documents\Projetos_Programação\Porjetos_PI\2025\Interclasses\sistema-interclasse-G1-Matheus\.venv"
+set "VIRTUAL_ENV=C:\Users\Aluno\Documents\TCC-3TDSB\SistemaTesteInterclasse\.venv"
 
 if not defined PROMPT set PROMPT=$P$G
 
