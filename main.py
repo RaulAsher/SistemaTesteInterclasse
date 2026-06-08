@@ -202,20 +202,20 @@ def paginaCadastrarEquipe():
 def rotaCadastrarEquipe():
     esporte = request.form.get("esporte")
     turma = request.form.get("turma")
-    descricao = request.form.get("descricao")
+    genero = request.form.get("genero")
     alunos = request.form.getlist("alunos")
 
-    cadastrarEquipe(esporte, turma, descricao, alunos)
+    cadastrarEquipe(esporte, turma, genero, alunos)
     return redirect("/cadastrarEquipe")
 
 @app.route("/editarEquipe/<int:pk_equipe>", methods=["POST"])
 def rotaEditarEquipe(pk_equipe):
     esporte = request.form.get("esporte")
     turma = request.form.get("turma")
-    descricao = request.form.get("descricao")
+    genero = request.form.get("genero")
     alunos = request.form.getlist("alunos")
 
-    editarEquipe(pk_equipe, esporte, turma, descricao, alunos)
+    editarEquipe(pk_equipe, esporte, turma, genero, alunos)
     return redirect("/cadastrarEquipe")
 
 #Deletar equipe
@@ -368,7 +368,7 @@ def rotaBuscarPartidas():
             partidas_json.append({
                 "pk_partida": p['pk_partida'],
                 "esporte": p['fk_esporte'],
-                "classificacao": p['fk_descricao'],
+                "classificacao": p['fk_genero'],
                 "etapa": p['etapa'],
                 "fk_equipe_casa": p['fk_equipe_casa'],
                 "equipe_casa_nome": p['nome_equipe_casa'],

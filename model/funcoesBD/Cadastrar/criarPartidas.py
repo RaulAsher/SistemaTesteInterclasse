@@ -1,13 +1,13 @@
 from .criarConexao import criarConexao, database
 from ..Buscar.buscarEstatisticasPorModalidade import buscarEstatisticasPorModalidade
 
-def criarPartidas(esporte, descricao, turma_casa, turma_visitante, dia):
+def criarPartidas(esporte, genero, turma_casa, turma_visitante, dia):
     conexao = criarConexao()
     cursor = conexao.cursor()
     cursor.execute(f"""
-        INSERT INTO {database}.partidas (fk_esporte, fk_descricao, fk_turma_casa, pontos_turma_casa, fk_turma_visitante, pontos_turma_visitante)
+        INSERT INTO {database}.partidas (fk_esporte, fk_genero, fk_turma_casa, pontos_turma_casa, fk_turma_visitante, pontos_turma_visitante)
         VALUES (%s, %s, %s, %s, %s, %s)
-    """, (esporte, descricao, turma_casa, 0, turma_visitante, 0))
+    """, (esporte, genero, turma_casa, 0, turma_visitante, 0))
 
     idNovaPartida = cursor.lastrowid
 
