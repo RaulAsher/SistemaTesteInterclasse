@@ -170,7 +170,7 @@
             <select id="classificacao" name="classificacao" required>
                 <option value="">Selecione a Classificação</option>
                 {% for classificacao in classificacoes %}
-                <option value="{{ classificacao.pk_descricao }}">{{ classificacao.pk_descricao }}</option>
+                <option value="{{ classificacao.pk_genero }}">{{ classificacao.pk_genero }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -199,7 +199,7 @@
         <select id="filtro-classificacao" name="filtro-classificacao">
             <option value="">-- Todas as Classificações --</option>
             {% for classificacao in classificacoes %}
-            <option value="{{ classificacao.pk_descricao }}">{{ classificacao.pk_descricao }}</option>
+            <option value="{{ classificacao.pk_genero }}">{{ classificacao.pk_genero }}</option>
             {% endfor %}
         </select>
     </div>

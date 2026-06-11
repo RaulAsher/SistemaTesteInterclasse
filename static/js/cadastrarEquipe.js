@@ -19,11 +19,11 @@ const modalEdicao = document.getElementById("modalEdicao");
 const closeEditBtn = document.getElementById("closeEditBtn");
 const formEdicao = document.getElementById("formEdicao");
 
-function abrirModalEdicao(id, esporte, turma, descricao) {
+function abrirModalEdicao(id, esporte, turma, genero) {
     document.getElementById("editId").value = id;
     document.getElementById("editEsporte").value = esporte;
     document.getElementById("editTurma").value = turma;
-    document.getElementById("editDescricao").value = descricao;
+    document.getElementById("editgenero").value = genero;
 
     formEdicao.action = "/editarEquipe/" + id;
 
@@ -76,9 +76,9 @@ searchInput.addEventListener('keyup', function () {
     rows.forEach(row => {
         const esporte = row.cells[0].textContent.toLowerCase();
         const turma = row.cells[1].textContent.toLowerCase();
-        const descricao = row.cells[2].textContent.toLowerCase();
+        const genero = row.cells[2].textContent.toLowerCase();
         const nome_equipe = row.cells[3].textContent.toLowerCase();
-        row.style.display = (esporte.includes(filter) || turma.includes(filter) || descricao.includes(filter) || nome_equipe.includes(filter)) ? '' : 'none';
+        row.style.display = (esporte.includes(filter) || turma.includes(filter) || genero.includes(filter) || nome_equipe.includes(filter)) ? '' : 'none';
     });
 });
 
@@ -110,7 +110,7 @@ function aplicarLimite(containerId) {
 // ----- carregar alunos no cadastro -----
 function carregarAlunosTurma() {
     const turma = document.getElementById("turma").value;
-    const classificacao = document.getElementById("descricao").value;
+    const classificacao = document.getElementById("genero").value;
 
     if (!turma || !classificacao) {
         document.getElementById("alunosTurmaContainer").innerHTML =
@@ -139,7 +139,7 @@ function carregarAlunosTurma() {
         .catch(error => console.error("Erro ao carregar alunos:", error));
 }
 document.getElementById("turma").addEventListener("change", carregarAlunosTurma);
-document.getElementById("descricao").addEventListener("change", carregarAlunosTurma);
+document.getElementById("genero").addEventListener("change", carregarAlunosTurma);
 
 // ----- carregar alunos no modal edição -----
 function carregarAlunosEdicao(turma, idEquipe) {

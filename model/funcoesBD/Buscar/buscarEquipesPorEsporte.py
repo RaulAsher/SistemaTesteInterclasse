@@ -5,7 +5,7 @@ def buscarEquipesPorEsporte(pk_esporte):
     cursor = conn.cursor()
 
     query = """
-        SELECT pk_equipe, e.nome, fk_nome_turma AS turma, c.descricao
+        SELECT pk_equipe, e.nome, fk_nome_turma AS turma, c.genero
         FROM equipe e
         INNER JOIN turma t ON e.fk_turma = t.pk_turma
         LEFT JOIN classificacao c ON e.fk_classificacao = c.pk_classificacao
