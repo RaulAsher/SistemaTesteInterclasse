@@ -14,7 +14,7 @@ def buscarPartidasParaGestao(esporte, classificacao):
         with conexao.cursor(dictionary=True) as cursor: 
             query = """
             SELECT 
-                p.pk_partida, p.fk_esporte, p.fk_descricao, p.etapa, 
+                p.pk_partida, p.fk_esporte, p.fk_genero, p.etapa, 
                 p.fk_equipe_casa, p.fk_equipe_visitante, p.pk_equipe_vencedora,
                 ec.nome_equipe AS nome_equipe_casa,
                 ev.nome_equipe AS nome_equipe_visitante

@@ -98,11 +98,11 @@
             </div>
 
             <div class="form-group">
-                <label for="descricao">gênero:</label>
-                <select name="descricao" id="descricao" required>
+                <label for="genero">gênero:</label>
+                <select name="genero" id="genero" required>
                     <option value="">Selecione</option>
                     {% for c in classificacoes %}
-                    <option value="{{ c['pk_descricao'] }}">{{ c['pk_descricao'] }}</option>
+                    <option value="{{ c['pk_genero'] }}">{{ c['pk_genero'] }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -155,9 +155,9 @@
 
             <div class="form-group">
                 <label>gênero:</label>
-                <select name="descricao" id="editDescricao" required>
+                <select name="genero" id="editgenero" required>
                     {% for c in classificacoes %}
-                    <option value="{{ c['pk_descricao'] }}">{{ c['pk_descricao'] }}</option>
+                    <option value="{{ c['pk_genero'] }}">{{ c['pk_genero'] }}</option>
                     {% endfor %}
                 </select>
             </div>
