@@ -29,11 +29,13 @@ closeEditBtn.onclick = () => modalEdicao.style.display = "none";
 // MODAL CONFIRMAÇÃO
 const modalConfirmacao = document.getElementById("modalConfirmacao");
 const textoConfirmacao = document.getElementById("textoConfirmacao");
+const descricaoConfirmacao = document.getElementById("descricaoConfirmacao");
 const btnCancelar = document.getElementById("btnCancelar");
 const btnConfirmar = document.getElementById("btnConfirmar");
 
 function confirmarDelecao(turma) {
     textoConfirmacao.textContent = `Deseja realmente deletar a turma ${turma}?`;
+    descricaoConfirmacao.textContent = `Todos os alunos da turma ${turma} serão removidos. \nEsta ação não pode ser desfeita.`;
     btnConfirmar.href = "/deletarTurma/" + turma;
     modalConfirmacao.style.display = "block";
     console.log(typeof(turma))

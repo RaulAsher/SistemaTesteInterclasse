@@ -229,3 +229,7 @@ nav {
   background: var(--cor-borda);
   color: #fff;
 }
+
+#descricaoConfirmacao {
+  white-space: pre-line; /* mantém quebras de linha */
+}
