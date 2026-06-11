@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
+from datetime import timedelta
 from model import *
 
 # Assumindo que seu gestao_chaveamento.py está em model/funcoesBD/Chaveamento
@@ -24,6 +25,7 @@ def verificaSessao(f):
 
 app = Flask(__name__)
 app.secret_key = '29bfd352-ed9e-4818-b05b-498b8f77e4e3'
+app.permanent_session_lifetime = timedelta.days(30)
 
 @app.route("/")
 def home():
@@ -64,6 +66,12 @@ def verificarLogin():
     # Login bem-sucedido
     session['nome'] = usuario
     session['nivel'] = usuario_encontrado['nivel']
+
+    # Verificação do lembrar_me
+    if request.form.get("lembrar_me"):
+        session.permanent = True
+    else:
+        session.permanent = False
 
     # Verificação do Aluno Monitor
     if usuario_encontrado['nivel'] == 'AlunoMonitor':
