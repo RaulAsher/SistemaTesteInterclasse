@@ -25,7 +25,7 @@ def verificaSessao(f):
 
 app = Flask(__name__)
 app.secret_key = '29bfd352-ed9e-4818-b05b-498b8f77e4e3'
-app.permanent_session_lifetime = timedelta.days(30)
+app.permanent_session_lifetime = timedelta(days=30)
 
 @app.route("/")
 def home():
