@@ -300,7 +300,7 @@ def rotaDeletarUsuario(pk_usuario):
 
 ## ----------------CHAVEAMENTO------------------ ##
 
-@app.route("/chaveamento", methods=["GET"])
+@app.route("/chaveamentoExcluir", methods=["GET"])
 def paginaGerarChaveamento():
     # Buscar esportes e classificações para preencher os <select> no HTML
     esportes = buscarEsportes()
@@ -376,7 +376,7 @@ def rotaBuscarPartidas():
             partidas_json.append({
                 "pk_partida": p['pk_partida'],
                 "esporte": p['fk_esporte'],
-                "classificacao": p['fk_descricao'],
+                "classificacao": p['fk_genero'],
                 "etapa": p['etapa'],
                 "fk_equipe_casa": p['fk_equipe_casa'],
                 "equipe_casa_nome": p['nome_equipe_casa'],
@@ -392,69 +392,47 @@ def rotaBuscarPartidas():
         return jsonify({"status": "erro", "mensagem": "Falha ao carregar partidas do banco de dados."}), 500
 
 
+@app.route("/chaveamento", methods=['GET'])
+@verificaSessao
+def chaveamentoTeste():
+    esportes = buscarEsportes()
+    generos = buscarClassificacoes()
+
+    return render_template("chaveamento.html", esportes=esportes, generos=generos)
+
+@app.route("/chaveamento", methods=['POST'])
+@verificaSessao
+def chaveamentoTesteCarregar():
+    esporte = request.form['esporte']
+    genero = request.form['genero']
+
+    tabela = buscarPartidasParaGestao(esporte, genero)
+    print(tabela)
+    esportes = buscarEsportes()
+    generos = buscarClassificacoes()
+    return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)
+
+
 @app.route("/chaveamento/vencedor", methods=["POST"])
 @verificaSessao
 def rotaRegistrarVencedor():
     """
     Registra o vencedor e verifica se é hora de gerar a próxima etapa.
     """
-    # Recebe o ID da partida e o ID do vencedor do JavaScript (via JSON)
-    dados = request.get_json()
-    partida_id = dados.get('partida_id')
-    vencedor_id = dados.get('vencedor_id')
-
-    if not partida_id or not vencedor_id:
-        return jsonify({"status": "erro", "mensagem": "Dados da partida ou vencedor ausentes."}), 400
-
-    # 1. Tenta salvar o vencedor (UPDATE no BD)
-    if not salvarVencedorPartida(partida_id, vencedor_id):
-        return jsonify({"status": "erro", "mensagem": "Falha ao salvar vencedor no banco de dados."}), 500
-
-    # 2. LÓGICA DE AVANÇO (Esta parte é a mais delicada e depende de funções auxiliares)
-    try:
-        # Busca informações da partida recém-resolvida (você precisará desta função no BD)
-        # Por exemplo: buscarInfoPartida(partida_id) -> {'esporte': 'Futsal', 'classificacao': 'Masculino', 'etapa': 1}
-        # Para fins de demonstração, simularemos as infos, mas você deve buscá-las!
-        
-        # O ideal é buscar estas 3 colunas (esporte, classificacao, etapa) pelo partida_id.
-        # Exemplo Simulado (substitua pela busca real):
-        chave_info = {"esporte": "Futsal", "classificacao": "Masculino", "etapa": 1} # DEVE SER BUSCADO DO BD
-
-        esporte = chave_info['esporte']
-        classificacao = chave_info['classificacao']
-        etapa_atual = chave_info['etapa']
-        proxima_etapa = etapa_atual + 1
-        
-        # Verifica se todas as partidas desta etapa (para a chave específica) foram resolvidas
-        if verificarEtapaCompleta(esporte, classificacao, etapa_atual):
-            
-            # Se sim, gera e salva as partidas da próxima rodada
-            partidas_geradas = gerarProximaRodada(esporte, classificacao, etapa_atual)
-            
-            if partidas_geradas > 0:
-                return jsonify({
-                    "status": "sucesso", 
-                    "mensagem": f"Vencedor salvo! {partidas_geradas} partidas da Etapa {proxima_etapa} geradas.",
-                    "proxima_etapa": proxima_etapa
-                })
-            else:
-                return jsonify({
-                    "status": "sucesso", 
-                    "mensagem": "Vencedor salvo. Fim do chaveamento (campeão definido).",
-                    "proxima_etapa": etapa_atual 
-                })
-        
-        # Se a etapa ainda não estiver completa
-        return jsonify({
-            "status": "sucesso", 
-            "mensagem": "Vencedor salvo.",
-            "proxima_etapa": etapa_atual
-        })
-
-    except Exception as e:
-        print(f"Erro na lógica de avanço da chave: {e}")
-        # Retorna sucesso no salvamento, mas avisa sobre a falha no avanço
-        return jsonify({
-            "status": "sucesso", 
-            "mensagem": "Vencedor salvo, mas falha ao avançar chaveamento. Verifique o console do servidor."
-        })
+    partida_id = request.form['partida_id']
+    cod_partida_mae = request.form['cod_partida_mae']
+    cod_equipe_casa = request.form['cod_equipe_casa']
+    cod_equipe_visitante = request.form['cod_equipe_visitante']
+    pontos_equipe_casa = request.form['pontos_equipe_casa']
+    pontos_equipe_visitante = request.form['pontos_equipe_visitante']
+    print(pontos_equipe_casa)
+    print(pontos_equipe_visitante)
+    genero = request.form['genero']
+    esporte = request.form['esporte']
+    vencedor_id = cod_equipe_casa if pontos_equipe_casa > pontos_equipe_visitante else cod_equipe_visitante
+    salvarVencedorPartida(partida_id, vencedor_id,pontos_equipe_casa,pontos_equipe_visitante,cod_partida_mae)
+    
+    tabela = buscarPartidasParaGestao(esporte, genero)
+    esportes = buscarEsportes()
+    generos = buscarClassificacoes()
+    return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)
