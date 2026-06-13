@@ -6,5 +6,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Ignora o .venv
 .venv/
+*.cpython-312.pyc
