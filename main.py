@@ -169,7 +169,6 @@ def rotaEditarTurma(turma):
 # Deletar
 @app.route("/deletarTurma/<string:turma>")
 def rotaDeletarTurma(turma):
-    deletarAlunos = request.form.get()
     deletarTurma(turma)
     turmas = buscarTurmas()
     return render_template("turma.html", turmas=turmas)
