@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
+{% include 'head.html' %}
 <head>
     <meta charset="UTF-8">
     <title>Chaveamento</title>
@@ -30,10 +30,12 @@
             font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: var(--text);
+            display: flex;
+            flex-direction: row;
         }
 
         .container {
-            max-width: 1200px;
+            width: 60%;
             margin: auto;
             padding: 20px;
         }
@@ -184,6 +186,10 @@
 </head>
 
 <body>
+    <div>
+
+    </div>
+
     <div class="container">
         <h2>🏆 Tabela de Partidas</h2>
 
@@ -350,6 +356,7 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/gerenciarPartidas.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 
 
