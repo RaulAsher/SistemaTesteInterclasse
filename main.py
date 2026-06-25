@@ -299,14 +299,14 @@ def rotaDeletarUsuario(pk_usuario):
 
 ## ----------------CHAVEAMENTO------------------ ##
 
-@app.route("/chaveamentoExcluir", methods=["GET"])
+@app.route("/gerarChaveamento", methods=["GET"])
 def paginaGerarChaveamento():
     # Buscar esportes e classificações para preencher os <select> no HTML
     esportes = buscarEsportes()
     classificacoes = buscarClassificacoes()
     
     return render_template(
-        "chaveamento.html", 
+        "gerarChaveamento.html", 
         esportes=esportes, 
         classificacoes=classificacoes
     )
