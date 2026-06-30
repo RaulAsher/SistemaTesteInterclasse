@@ -419,19 +419,30 @@ def rotaRegistrarVencedor():
     Registra o vencedor e verifica se é hora de gerar a próxima etapa.
     """
     partida_id = request.form['partida_id']
-    cod_partida_mae = request.form['cod_partida_mae']
+    cod_partida_mae = request.form.get('cod_partida_mae')
+
     cod_equipe_casa = request.form['cod_equipe_casa']
     cod_equipe_visitante = request.form['cod_equipe_visitante']
-    pontos_equipe_casa = request.form['pontos_equipe_casa']
-    pontos_equipe_visitante = request.form['pontos_equipe_visitante']
-    print(pontos_equipe_casa)
-    print(pontos_equipe_visitante)
+
+    # Conversão correta para inteiro
+    pontos_equipe_casa = int(request.form['pontos_equipe_casa'])
+    pontos_equipe_visitante = int(request.form['pontos_equipe_visitante'])
+
     genero = request.form['genero']
     esporte = request.form['esporte']
-    vencedor_id = cod_equipe_casa if pontos_equipe_casa > pontos_equipe_visitante else cod_equipe_visitante
-    salvarVencedorPartida(partida_id, vencedor_id,pontos_equipe_casa,pontos_equipe_visitante,cod_partida_mae)
-    
-    tabela = buscarPartidasParaGestao(esporte, genero)
-    esportes = buscarEsportes()
-    generos = buscarClassificacoes()
+
+    vencedor_id = (
+        cod_equipe_casa
+        if pontos_equipe_casa > pontos_equipe_visitante
+        else cod_equipe_visitante
+    )
+
+    salvarVencedorPartida(
+        partida_id,
+        vencedor_id,
+        pontos_equipe_casa,
+        pontos_equipe_visitante,
+        cod_partida_mae
+)
+
     return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)

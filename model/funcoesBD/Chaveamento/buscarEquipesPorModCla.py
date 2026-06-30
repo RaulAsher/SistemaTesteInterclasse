@@ -10,15 +10,15 @@ def buscarEquipesPorModCla(esporte, classificacao):
                     e.pk_equipe,
                     s.pk_esporte AS esporte,
                     t.pk_nome_turma AS turma,
-                    c.pk_descricao AS classificacao,
+                    c.pk_genero AS classificacao,
                     e.nome_equipe,
                     s.grupo,          -- NOVO: Adicionamos o campo 'grupo'
                     s.qtd_jogadores   -- NOVO: Adicionamos a quantidade de jogadores
                 FROM equipes e
                 JOIN esportes s ON e.fk_esporte = s.pk_esporte
                 JOIN turmas t ON e.fk_nome_turma = t.pk_nome_turma
-                JOIN classificacao c ON e.fk_descricao = c.pk_descricao
-                WHERE s.pk_esporte = %s AND c.pk_descricao = %s
+                JOIN classificacao c ON e.fk_genero = c.pk_genero
+                WHERE s.pk_esporte = %s AND c.pk_genero = %s
             """
             # Certifique-se de passar os parâmetros corretos para o cursor
             cursor.execute(query, (esporte, classificacao)) 
