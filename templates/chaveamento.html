@@ -331,12 +331,37 @@
                 {% endfor %}
 
                 <div class="round">
-                    <h3 style="text-align: center;">🏆 Campeão</h3>
-                    <div class="match champion">
-                        <div class="team winner" style="text-align: center;">Campeão</div>
-                    </div>
-                </div>
-            </div>
+
+    <h3 style="text-align: center;">🏆 Campeão</h3>
+
+    {% set final = tabela.roundes[-1].partidas[-1] %}
+
+    <div class="match champion">
+        <div class="team winner" style="text-align: center;">
+            {% if final.vencedora is none %}
+                Campeão ainda não definido
+
+            {% elif final.vencedora == final.cod_equipe_casa %}
+
+                {% if tabela.tipoModalidade == 'Individual' %}
+                    {{ final.nome_equipe_casa }} - {{ final.NomeIndividualCasa }}
+                {% else %}
+                    {{ final.nome_equipe_casa }}
+                {% endif %}
+
+            {% elif final.vencedora == final.cod_equipe_visitante %}
+
+                {% if tabela.tipoModalidade == 'Individual' %}
+                    {{ final.nome_equipe_visitante }} - {{ final.NomeIndividualVisitante }}
+                {% else %}
+                    {{ final.nome_equipe_visitante }}
+                {% endif %}
+
+            {% endif %}
+
+        </div>
+    </div>
+</div>
 
             {% endif %}
         {% endif %}

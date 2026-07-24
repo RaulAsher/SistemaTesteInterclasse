@@ -5,6 +5,18 @@
 </head><main class="card-container">
 
 
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        <div class="toast-container">
+            {% for categoria, mensagem in mensagens %}
+                <div class="toast {{ categoria }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <!-- LISTA DE EQUIPES -->
     <section class="table-section">
         <div class="header-actions">

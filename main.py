@@ -217,12 +217,19 @@ def rotaCadastrarEquipe():
 
 @app.route("/editarEquipe/<int:pk_equipe>", methods=["POST"])
 def rotaEditarEquipe(pk_equipe):
+
+    if not edicaoEquipesPermitida():
+        flash("O prazo para editar equipes foi encerrado.", "error")
+        return redirect("/cadastrarEquipe")
+
     esporte = request.form.get("esporte")
     turma = request.form.get("turma")
     genero = request.form.get("genero")
     alunos = request.form.getlist("alunos")
 
     editarEquipe(pk_equipe, esporte, turma, genero, alunos)
+
+    flash("Equipe atualizada com sucesso.", "success")
     return redirect("/cadastrarEquipe")
 
 #Deletar equipe
@@ -415,16 +422,12 @@ def chaveamentoTesteCarregar():
 @app.route("/chaveamento/vencedor", methods=["POST"])
 @verificaSessao
 def rotaRegistrarVencedor():
-    """
-    Registra o vencedor e verifica se é hora de gerar a próxima etapa.
-    """
     partida_id = request.form['partida_id']
     cod_partida_mae = request.form.get('cod_partida_mae')
 
     cod_equipe_casa = request.form['cod_equipe_casa']
     cod_equipe_visitante = request.form['cod_equipe_visitante']
 
-    # Conversão correta para inteiro
     pontos_equipe_casa = int(request.form['pontos_equipe_casa'])
     pontos_equipe_visitante = int(request.form['pontos_equipe_visitante'])
 
@@ -443,6 +446,15 @@ def rotaRegistrarVencedor():
         pontos_equipe_casa,
         pontos_equipe_visitante,
         cod_partida_mae
-)
+    )
 
-    return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)
+    tabela = buscarPartidasParaGestao(esporte, genero)
+    esportes = buscarEsportes()
+    generos = buscarClassificacoes()
+
+    return render_template(
+        "chaveamento.html",
+        esportes=esportes,
+        generos=generos,
+        tabela=tabela
+    )

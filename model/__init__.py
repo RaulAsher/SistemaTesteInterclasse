@@ -41,6 +41,7 @@ from .funcoesBD import (
     deletarUsuario,
     editarAluno,
     editarEquipe,
+    edicaoEquipesPermitida,
     editarTurma,
     editarUsuario,
     removerEstatisticas,

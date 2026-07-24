@@ -39,7 +39,7 @@ from .Deletar.deletarEquipe import deletarEquipe
 from .Deletar.deletarTurma import deletarTurma
 from .Deletar.deletarUsuario import deletarUsuario
 from .Editar.editarAluno import editarAluno
-from .Editar.editarEquipe import editarEquipe
+from .Editar.editarEquipe import editarEquipe, edicaoEquipesPermitida
 from .Editar.editarTurma import editarTurma
 from .Editar.editarUsuario import editarUsuario
 from .Deletar.removerEstatisticas import removerEstatisticas
