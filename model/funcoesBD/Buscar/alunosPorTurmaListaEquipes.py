@@ -16,10 +16,10 @@ def alunosPorTurmaListaEquipes(nome_turma, classificacao):
             else:
                 query = """
                     SELECT pk_matricula AS matricula,
-                           nome_aluno AS nome
+                    nome_aluno AS nome
                     FROM alunos
                     WHERE fk_nome_turma = %s
-                      AND fk_classificacao = %s
+                    AND fk_classificacao = %s
                 """
                 cursor.execute(query, (nome_turma, classificacao))
 

@@ -79,6 +79,11 @@
             </a>
             {%endif%}
             {%if session['nivel'] == 'Administrador'%}
+
+            <a  class="nav-link {% if request.path == '/gerarChaveamento' %}active{% endif %}" href="/gerarChaveamento">
+              Gerar Chaveamento
+            </a>
+
             <a class="nav-link {% if request.path == '/gerenciarModalidades/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="/gerenciarModalidades/{{ano}}/{{mes}}/{{dia}}">
               Modalidades
             </a>
@@ -98,7 +103,8 @@
           {%if session['nivel'] != 'Administrador' and session['nivel'] != 'AlunoMonitor'%}
           <a class="nav-link {% if request.path == '/turma' %}active{% endif %}" href="/turma">
             <span class="nav-icon" aria-hidden="true"></span>
-            Turmas
+            Turmas 
+          </a>
           <a class="nav-link {% if request.path == '/cadastrarEquipe' %}active{% endif %}" href="/cadastrarEquipe">
             <span class="nav-icon" aria-hidden="true"></span>
             Equipes

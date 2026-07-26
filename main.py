@@ -345,7 +345,7 @@ def rotaDeletarUsuario(pk_usuario):
 @app.route("/gerenciarModalidades/")
 def gerenciarModalidades():
     ano, mes, dia = datetime.now().strftime("%Y"), datetime.now().strftime("%m"), datetime.now().strftime("%d")
-    return redirect(f"/gerenciarModalidades/{ano}/{mes}/{dia}")
+    return render_template("gerenciarModalidades.html", ano=ano, mes=mes, dia=dia)
 
 @app.route("/gerenciarEstatisticas/")
 def gerenciarEstatisticas():
