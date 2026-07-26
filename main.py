@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
-from datetime import timedelta
+from datetime import timedelta, datetime
 from model import *
+from calendar import *
 
 # Assumindo que seu gestao_chaveamento.py está em model/funcoesBD/Chaveamento
 # E que o Flask pode importá-lo a partir da raiz 'model'
@@ -15,13 +16,34 @@ except ImportError as e:
         return None
 
 
-def verificaSessao(f):
+#Decorator para verificar se o usuario é Administrador
+def requerAdmin(f):
     @wraps(f)
-    def verificando(*args, **kwargs):
-        if 'nome' not in session:
-            return redirect('/login')
+    def requerindoAdmin(*args, **kwargs):
+
+        if session['nivel'] != "Administrador":
+            return redirect('/')
+
+        if session['nivel'] != "Administrador":
+            flash("Faça login como Administrador para ativar esta função.", "error")
+            return redirect('/')
+        
         return f(*args, **kwargs)
-    return verificando
+    return requerindoAdmin
+
+#Decorator para verificar se o usuario é Administrador ou AlunoMonitor
+def requerAdminOuMonitor(f):
+    @wraps(f)
+    def requerindo(*args, **kwargs):
+        
+        if session['nivel'] not in ["Administrador", "AlunoMonitor"]:
+
+            flash("Faça login para ativar esta função.", "warning")
+            return redirect('/')
+        
+        return f(*args, **kwargs)
+    return requerindo
+
 
 app = Flask(__name__)
 app.secret_key = '29bfd352-ed9e-4818-b05b-498b8f77e4e3'
@@ -30,7 +52,7 @@ app.permanent_session_lifetime = timedelta(days=30)
 @app.route("/")
 def home():
     nome_usuario = session.get('nome')
-    return redirect('/cadastrarEquipe')
+    return redirect('/home')
 
 
 @app.context_processor
@@ -40,9 +62,18 @@ def inject_user():
 
 ## ---------------LOGIN---------------- ##
 
+# O usuário é considerado visitante se não estiver logado. Criamos uma sessão para ele:
+
+@app.before_request
+def criarSessaoVisitante():
+    if 'nome' not in session:
+        session['nome'] = 'Visitante'
+        session['nivel'] = 'Visitante'
+        session['turma'] = None
+
 @app.route('/login')
 def login():
-    if 'nome' in session:
+    if session['nivel'] != 'Visitante':
         return redirect('/')
     else:
         return render_template('login.html')
@@ -79,12 +110,16 @@ def verificarLogin():
     else:
         session['turma'] = None
 
-    return redirect('/cadastrarEquipe')
+    return redirect('/')
 
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/cadastrarEquipe")
+    return redirect("/")
+
+@app.route("/home")
+def homeRedirect():
+    return render_template("home.html", nome_usuario=session['nome'], nivel=session['nivel'])
 
 ## ----------------LISTAGENS----------------- ##
 
@@ -99,10 +134,6 @@ def alunosPorTurma(turma):
     alunos = buscarAlunosPorTurma(turma)
     # função do model que retorna lista de alunos da turma
     return jsonify({"alunos": [{"matricula": a[0], "nome": a[1]} for a in alunos]})
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
 
 ## ----------------CADASTRAR ALUNOS---------------##
 
@@ -150,6 +181,7 @@ def rotaDeletarAluno(matricula):
 
 # Cadastrar
 @app.route("/cadastrarTurma", methods=["POST"])
+@requerAdminOuMonitor
 def rotaCadastrarTurma():
     pk_nome_turma = request.form.get("pk_nome_turma")
     icone_url = request.form.get("icone_url") 
@@ -159,6 +191,7 @@ def rotaCadastrarTurma():
 
 # Editar
 @app.route("/editarTurma/<string:turma>", methods=["POST"])
+@requerAdminOuMonitor
 def rotaEditarTurma(turma):
     novo_nome = request.form.get("pk_nome_turma")
     icone_url = request.form.get("icone_url") 
@@ -168,6 +201,7 @@ def rotaEditarTurma(turma):
 
 # Deletar
 @app.route("/deletarTurma/<string:turma>")
+@requerAdminOuMonitor
 def rotaDeletarTurma(turma):
     deletarTurma(turma)
     turmas = buscarTurmas()
@@ -216,6 +250,7 @@ def rotaCadastrarEquipe():
     return redirect("/cadastrarEquipe")
 
 @app.route("/editarEquipe/<int:pk_equipe>", methods=["POST"])
+@requerAdminOuMonitor
 def rotaEditarEquipe(pk_equipe):
 
     if not edicaoEquipesPermitida():
@@ -234,6 +269,7 @@ def rotaEditarEquipe(pk_equipe):
 
 #Deletar equipe
 @app.route("/deletarEquipe/<int:pk_equipe>")
+@requerAdminOuMonitor
 def rotaDeletarEquipe(pk_equipe):
     resultado = deletarEquipe(pk_equipe)
     return resultado  # retorna texto direto pro fetch()
@@ -304,6 +340,18 @@ def rotaDeletarUsuario(pk_usuario):
     return render_template("cadastrarUsuario.html", usuarios=usuarios, turmas=turmas)
 
 
+## ----------------GERENCIAR MODALIDADES/ESTATÍSTICAS------------------ ##
+
+@app.route("/gerenciarModalidades/")
+def gerenciarModalidades():
+    ano, mes, dia = datetime.now().strftime("%Y"), datetime.now().strftime("%m"), datetime.now().strftime("%d")
+    return redirect(f"/gerenciarModalidades/{ano}/{mes}/{dia}")
+
+@app.route("/gerenciarEstatisticas/")
+def gerenciarEstatisticas():
+    ano, mes, dia = datetime.now().strftime("%Y"), datetime.now().strftime("%m"), datetime.now().strftime("%d")
+    return redirect(f"/gerenciarEstatisticas/{ano}/{mes}/{dia}")
+
 ## ----------------CHAVEAMENTO------------------ ##
 
 @app.route("/gerarChaveamento", methods=["GET"])
@@ -320,7 +368,7 @@ def paginaGerarChaveamento():
 
 
 @app.route("/chaveamento/gerar", methods=["POST"])
-@verificaSessao # Proteja a rota de geração
+@requerAdmin # Proteja a rota de geração
 def rotaGerarChaveamento():
     # Recebe os dados JSON enviados pelo JavaScript
     dados = request.get_json()
@@ -358,7 +406,6 @@ def rotaGerarChaveamento():
         }), 500
     
 @app.route("/chaveamento/partidas", methods=["GET"])
-@verificaSessao
 def rotaBuscarPartidas():
     """
     Busca as partidas de uma chave (filtrada por GET) para listagem no painel.
@@ -399,7 +446,6 @@ def rotaBuscarPartidas():
 
 
 @app.route("/chaveamento", methods=['GET'])
-@verificaSessao
 def chaveamentoTeste():
     esportes = buscarEsportes()
     generos = buscarClassificacoes()
@@ -407,7 +453,6 @@ def chaveamentoTeste():
     return render_template("chaveamento.html", esportes=esportes, generos=generos)
 
 @app.route("/chaveamento", methods=['POST'])
-@verificaSessao
 def chaveamentoTesteCarregar():
     esporte = request.form['esporte']
     genero = request.form['genero']
@@ -420,7 +465,7 @@ def chaveamentoTesteCarregar():
 
 
 @app.route("/chaveamento/vencedor", methods=["POST"])
-@verificaSessao
+@requerAdmin
 def rotaRegistrarVencedor():
     partida_id = request.form['partida_id']
     cod_partida_mae = request.form.get('cod_partida_mae')

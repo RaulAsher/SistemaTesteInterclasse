@@ -36,7 +36,7 @@
                 <tr>
                     <th>Turma</th>
                     <th>Esporte</th>
-                    <th>gênero</th>
+                    <th>Gênero</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -110,7 +110,7 @@
             </div>
 
             <div class="form-group">
-                <label for="genero">gênero:</label>
+                <label for="genero">Gênero:</label>
                 <select name="genero" id="genero" required>
                     <option value="">Selecione</option>
                     {% for c in classificacoes %}
@@ -166,7 +166,7 @@
             </div>
 
             <div class="form-group">
-                <label>gênero:</label>
+                <label>Gênero:</label>
                 <select name="genero" id="editgenero" required>
                     {% for c in classificacoes %}
                     <option value="{{ c['pk_genero'] }}">{{ c['pk_genero'] }}</option>

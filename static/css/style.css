@@ -451,3 +451,64 @@ h2 {
         transform: translateX(120%);
     }
 }
+
+/* ---------------- HOME ---------------- */
+
+.home-container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:80vh;
+    padding:2rem;
+}
+
+.hero{
+    max-width:800px;
+    width:100%;
+    text-align:center;
+}
+
+.hero h1{
+    font-size:3rem;
+    color:var(--cor-primaria);
+    margin-bottom:1rem;
+}
+
+.subtitulo{
+    font-size:1.15rem;
+    color:#555;
+    margin-bottom:2.5rem;
+}
+
+.info-box{
+
+    background:white;
+
+    border-radius:var(--radius);
+
+    box-shadow:var(--shadow);
+
+    padding:2rem;
+
+}
+
+.info-box h2{
+    margin-bottom:1rem;
+}
+
+.info-box p{
+    margin-bottom:1rem;
+    line-height:1.6;
+}
+
+.visitante{
+
+    border-left:8px solid #3498db;
+
+}
+
+.usuario{
+
+    border-left:8px solid #27ae60;
+
+}

@@ -34,14 +34,20 @@
               </svg>
             </span>
           
-            {% if 'nome' not in session%}
+            
+            {% if session['nivel'] == 'Visitante' %}
               <a href="/login" class="login-link">Login</a>
             {% else %}
             <div class="usuario-info">
               <span class="login-link">Olá, {{session['nome']}}</span>
             </div>
             {% endif %}
+            <a href="/home" class="icone-home" title="Página Inicial">
+              <span class="material-symbols-outlined">home</span>
+            </a>
           </div>
+
+          
         
         </div>
       
