@@ -1,5 +1,7 @@
 from .funcoesBD import (
     alunosPorTurmaListaEquipes,
+    alterarConfiguracao,
+    buscarConfiguracao,
     buscarAlunos,  
     buscarAlunosPorTurma,
     buscarClassificacoes,
@@ -19,6 +21,8 @@ from .funcoesBD import (
     buscarTurmas,
     buscarUsuarioPorNome,
     buscarUsuarios,
+    buscarEventosCalendario,
+    buscarEventosCalendarioFiltros,
     cadastrarAluno,
     cadastrarEquipe,
     cadastrarEsportes,
