@@ -49,6 +49,8 @@ def obterAcessoDoUsuario():
     turma = session.get("turma")
 
     if nivel == "Administrador":
+
+
         return {
             "nivel": nivel,
             "equipes": buscarEquipes(),
@@ -391,29 +393,23 @@ def rotaDeletarUsuario(pk_usuario):
     return render_template("cadastrarUsuario.html", usuarios=usuarios, turmas=turmas)
 
 
-## ----------------GERENCIAR MODALIDADES/ESTATÍSTICAS------------------ ##
-@app.route("/gerenciarEstatisticas/")
-def gerenciarEstatisticas():
-    ano, mes, dia = datetime.now().strftime("%Y"), datetime.now().strftime("%m"), datetime.now().strftime("%d")
-    return redirect(f"/gerenciarEstatisticas/{ano}/{mes}/{dia}")
+## ----------------GERENCIAR/CADASTRAR MODALIDADES------------------ ##
 
-@app.route("/gerenciarEstatisticas/<int:ano>/<int:mes>/<int:dia>")
-def gerenciarEstatisticasData(ano, mes, dia):
-    return render_template("gerenciarEstatisticas.html", ano=ano, mes=mes, dia=dia)
-
-##--##
-
-@app.route("/gerenciarModalidades/")
+@app.route("/gerenciarModalidades")
 def gerenciarModalidades():
-    ano, mes, dia = datetime.now().strftime("%Y"), datetime.now().strftime("%m"), datetime.now().strftime("%d")
-    return redirect(f"/gerenciarModalidades/{ano}/{mes}/{dia}")
-
-
-@app.route("/gerenciarModalidades/<int:ano>/<int:mes>/<int:dia>")
-def gerenciarModalidadesData(ano, mes, dia):
     esportes = buscarEsportes()
-    print(esportes)
-    return render_template("gerenciarModalidades.html", ano=ano, mes=mes, dia=dia, esportes=esportes)
+    return render_template("gerenciarModalidades.html", esportes=esportes)
+
+#Cadastra modalidade juntamente com a classificação dela (Individual, Coletivo) e Quantidade de jogadores
+@app.route('/cadastrarModalidades', methods=['POST'])
+@requerAdmin
+def processarCadastroModalidades():
+    esporte = request.form['esporte']
+    esporte = esporte.title()
+    grupo = request.form['grupo']
+    qtdJogadores = request.form['qtdJogadores']
+    cadastrarEsportes(esporte, grupo, qtdJogadores)
+    return redirect('/gerenciarModalidades')
 
 
 ## ----------------CALENDÁRIO------------------ ##

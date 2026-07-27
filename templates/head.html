@@ -79,7 +79,7 @@
             </a>
             {%endif%}
             {%if session['nivel'] == 'Administrador'%}
-            <a class="nav-link {% if request.path == '/gerenciarModalidades/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="/gerenciarModalidades/{{ano}}/{{mes}}/{{dia}}">
+            <a class="nav-link {% if request.path == '/gerenciarModalidades' %}active{% endif %}" href="/gerenciarModalidades">
               Modalidades
             </a>
             <a class="nav-link {% if request.path == '/gerenciarEstatisticas/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="/gerenciarEstatisticas/{{ano}}/{{mes}}/{{dia}}">
