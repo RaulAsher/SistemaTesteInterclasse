@@ -18,6 +18,9 @@ from .Buscar.buscarPartidas import buscarPartidas
 from .Buscar.buscarTurmas import buscarTurmas
 from .Buscar.buscarUsuarioPorNome import buscarUsuarioPorNome
 from .Buscar.buscarUsuarios import buscarUsuarios
+from .Buscar.buscarEventosCalendario import buscarEventosCalendario
+from .Buscar.buscarEventosCalendarioFiltros import buscarEventosCalendarioFiltros
+from .Buscar.configuracao import buscarConfiguracao, alterarConfiguracao
 from .Cadastrar.cadastrarAluno import cadastrarAluno
 from .Cadastrar.cadastrarEquipe import cadastrarEquipe
 from .Cadastrar.cadastrarEsportes import cadastrarEsportes

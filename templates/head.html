@@ -53,7 +53,7 @@
       
         <nav>
         
-          <a class="nav-link {% if request.path == '/calendario/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="">
+          <a class="nav-link {% if request.path.startswith('/calendario') %}active{% endif %}" href="/calendario">
             <span class="nav-icon" aria-hidden="true"></span>
             Calendário
           </a>
@@ -85,6 +85,7 @@
             </a>
 
             <a class="nav-link {% if request.path == '/gerenciarModalidades/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="/gerenciarModalidades/{{ano}}/{{mes}}/{{dia}}">
+            <a class="nav-link {% if request.path == '/gerenciarModalidades' %}active{% endif %}" href="/gerenciarModalidades">
               Modalidades
             </a>
             <a class="nav-link {% if request.path == '/gerenciarEstatisticas/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="/gerenciarEstatisticas/{{ano}}/{{mes}}/{{dia}}">

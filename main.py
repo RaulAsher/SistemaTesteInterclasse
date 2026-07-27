@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from model import *
 from calendar import *
 
@@ -44,6 +44,31 @@ def requerAdminOuMonitor(f):
         return f(*args, **kwargs)
     return requerindo
 
+def obterAcessoDoUsuario():
+    nivel = session.get("nivel", "Visitante")
+    turma = session.get("turma")
+
+    if nivel == "Administrador":
+
+
+        return {
+            "nivel": nivel,
+            "equipes": buscarEquipes(),
+            "turmas": buscarTurmas()
+        }
+
+    if nivel == "AlunoMonitor":
+        return {
+            "nivel": nivel,
+            "equipes": buscarEquipesPorTurma(turma),
+            "turmas": [{"pk_nome_turma": turma}]
+        }
+
+    return {
+        "nivel": "Visitante",
+        "equipes": buscarEquipes(),
+        "turmas": []
+    }
 
 app = Flask(__name__)
 app.secret_key = '29bfd352-ed9e-4818-b05b-498b8f77e4e3'
@@ -138,39 +163,60 @@ def alunosPorTurma(turma):
 ## ----------------CADASTRAR ALUNOS---------------##
 
 @app.route("/cadastrarAluno", methods=["GET"])
+@requerAdminOuMonitor
 def paginacadastrarAluno():
-    if session['nivel'] == 'AlunoMonitor':
-        alunos = buscarAlunosPorTurma(session['turma'])  # apenas a turma do monitor
-        turmas = [ {"pk_nome_turma": session['turma']} ] # só a turma dele
-    else:  # Administrador
-        alunos = buscarAlunos()
-        turmas = buscarTurmas()
-    
-    return render_template("cadastrarAluno.html", alunos=alunos, turmas=turmas)
+
+    acesso = obterAcessoDoUsuario()
+
+    return render_template(
+        "cadastrarAluno.html",
+        alunos=buscarAlunos(),
+        turmas=buscarTurmas(),
+        nivel=acesso["nivel"]
+        )
 
 @app.route("/cadastrarAluno", methods=["POST"])
+@requerAdminOuMonitor
 def rotaCadastrarAluno():
+
     nome = request.form.get("nome")
     matricula = request.form.get("matricula")
-    turma = request.form.get("turma")
     genero = request.form.get("genero")
 
+    if session['nivel'] == 'Administrador':
+        turma = request.form.get("turma")
+    else:
+        turma = session["turma"]
+
     cadastrarAluno(matricula, nome, turma, genero)
+
     return redirect(url_for("paginacadastrarAluno"))
 
 @app.route("/editarAluno/<antiga_matricula>", methods=["POST"])
+@requerAdminOuMonitor
 def rotaEditarAluno(antiga_matricula):
-    nome = request.form.get("nome")
-    turma = request.form.get("turma")
-    genero = request.form.get("genero")
-    antiga_matricula = request.form.get("antiga_matricula")
-    nova_matricula = request.form.get("nova_matricula")
 
-    editarAluno(nova_matricula, nome, turma, genero, antiga_matricula)
-    
+    nome = request.form["nome"]
+    genero = request.form["genero"]
+    nova_matricula = request.form["nova_matricula"]
+
+    if session["nivel"] == "Administrador":
+        turma = request.form["turma"]
+    else:
+        turma = session["turma"]
+
+    editarAluno(
+        nova_matricula,
+        nome,
+        turma,
+        genero,
+        antiga_matricula
+    )
+
     return redirect(url_for("paginacadastrarAluno"))
 
 @app.route("/deletarAluno/<matricula>")
+@requerAdminOuMonitor
 def rotaDeletarAluno(matricula):
     deletarAluno(matricula)
     
@@ -211,35 +257,24 @@ def rotaDeletarTurma(turma):
 ## ---------------------CADASTRAR EQUIPE---------------------- ##
 
 @app.route("/cadastrarEquipe", methods=["GET"])
+@requerAdminOuMonitor
 def paginaCadastrarEquipe():
-    esportes = buscarEsportes()
-    classificacoes = buscarClassificacoes()
 
-    # Visitante (sem login) → session.get('nivel') será None
-    nivel = session.get("nivel")
-    turma = session.get("turma")
-
-    if nivel == "AlunoMonitor":
-        equipes = buscarEquipesPorTurma(turma) if turma else []
-        turmas = [{"pk_nome_turma": turma}] if turma else []
-    elif nivel == "Administrador":
-        equipes = buscarEquipes()
-        turmas = buscarTurmas()
-    else:  # visitante
-        equipes = buscarEquipes()
-        turmas = []  # visitante não precisa cadastrar, só visualizar
+    acesso = obterAcessoDoUsuario()
 
     return render_template(
         "cadastrarEquipe.html",
-        equipes=equipes,
-        esportes=esportes,
-        turmas=turmas,
-        classificacoes=classificacoes,
-        nivel=nivel
+        equipes=acesso["equipes"],
+        turmas=acesso["turmas"],
+        esportes = buscarEsportes(),
+        classificacoes = buscarClassificacoes(),
+        nivel=acesso["nivel"],
+        prazo_edicao=buscarConfiguracao("prazo_edicao_equipes")
     )
 
 
 @app.route("/cadastrarEquipe", methods=["POST"])
+@requerAdminOuMonitor
 def rotaCadastrarEquipe():
     esporte = request.form.get("esporte")
     turma = request.form.get("turma")
@@ -247,6 +282,8 @@ def rotaCadastrarEquipe():
     alunos = request.form.getlist("alunos")
 
     cadastrarEquipe(esporte, turma, genero, alunos)
+    flash("Equipe cadastrada com sucesso.", "success")
+
     return redirect("/cadastrarEquipe")
 
 @app.route("/editarEquipe/<int:pk_equipe>", methods=["POST"])
@@ -264,14 +301,30 @@ def rotaEditarEquipe(pk_equipe):
 
     editarEquipe(pk_equipe, esporte, turma, genero, alunos)
 
-    flash("Equipe atualizada com sucesso.", "success")
+    flash("Equipe editada com sucesso.", "success")
     return redirect("/cadastrarEquipe")
+
+@app.route("/alterarPrazoEdicao", methods=["POST"])
+@requerAdmin
+def alterarPrazo():
+
+    prazo = request.form.get("prazo")
+
+    alterarConfiguracao(
+        "prazo_edicao_equipes",
+        prazo
+    )
+
+    flash("Prazo atualizado com sucesso!", "success")
+
+    return redirect(url_for("paginaCadastrarEquipe"))
 
 #Deletar equipe
 @app.route("/deletarEquipe/<int:pk_equipe>")
 @requerAdminOuMonitor
 def rotaDeletarEquipe(pk_equipe):
     resultado = deletarEquipe(pk_equipe)
+    flash("Equipe deletada com sucesso.", "success")
     return resultado  # retorna texto direto pro fetch()
 
 
@@ -340,17 +393,162 @@ def rotaDeletarUsuario(pk_usuario):
     return render_template("cadastrarUsuario.html", usuarios=usuarios, turmas=turmas)
 
 
-## ----------------GERENCIAR MODALIDADES/ESTATÍSTICAS------------------ ##
+## ----------------GERENCIAR/CADASTRAR MODALIDADES------------------ ##
 
-@app.route("/gerenciarModalidades/")
+@app.route("/gerenciarModalidades")
 def gerenciarModalidades():
-    ano, mes, dia = datetime.now().strftime("%Y"), datetime.now().strftime("%m"), datetime.now().strftime("%d")
-    return render_template("gerenciarModalidades.html", ano=ano, mes=mes, dia=dia)
+    esportes = buscarEsportes()
+    return render_template("gerenciarModalidades.html", esportes=esportes)
 
-@app.route("/gerenciarEstatisticas/")
-def gerenciarEstatisticas():
-    ano, mes, dia = datetime.now().strftime("%Y"), datetime.now().strftime("%m"), datetime.now().strftime("%d")
-    return redirect(f"/gerenciarEstatisticas/{ano}/{mes}/{dia}")
+#Cadastra modalidade juntamente com a classificação dela (Individual, Coletivo) e Quantidade de jogadores
+@app.route('/cadastrarModalidades', methods=['POST'])
+@requerAdmin
+def processarCadastroModalidades():
+    esporte = request.form['esporte']
+    esporte = esporte.title()
+    grupo = request.form['grupo']
+    qtdJogadores = request.form['qtdJogadores']
+    cadastrarEsportes(esporte, grupo, qtdJogadores)
+    return redirect('/gerenciarModalidades')
+
+
+## ----------------CALENDÁRIO------------------ ##
+
+@app.route('/calendario')
+@app.route('/calendario/<int:ano>/<int:mes>')
+@app.route('/calendario/<int:ano>/<int:mes>/<int:dia>')
+def calendario(ano = None, mes = None, dia = None):
+    # Lógica para obter o ano, mês e dia atuais caso não sejam fornecidos na URL
+    #Parâmetros:
+    #- ano (int): O ano para exibição do calendário. Se não fornecido, é o ano atual.
+    #- mes (int): O mês para exibição do calendário. Se não fornecido, é o mês atual.
+    #- dia (int): O dia selecionado. Se não fornecido, é o dia atual.
+    if ano is None or mes is None:
+        hoje = datetime.today()
+        ano = hoje.year
+        mes = hoje.month
+    
+    if dia is None:
+        dia_selecionado = datetime.today().day
+    else:
+        dia_selecionado = dia
+    
+    # Ajuste de mês e ano caso o usuário navegue para meses anteriores ou seguintes:
+    #Se o mes for igual a 0, significa que o usuario foi para o ano anterior, ou seja, mês se torna igual a 12 e ano = ano atual - 1
+    #Se o mes for igual a 13, significa que o usuario foi para o ano posterior, ou seja, mês se torna igual a 1 e ano = ano atual + 1
+    if mes == 0:
+        mes = 12
+        ano -=1
+    elif mes == 13:
+        mes = 1
+        ano += 1
+
+    turmas = buscarTurmas()
+
+    #Busca eventos no calendario do mês de determinado ano    
+    eventos = buscarEventosCalendario(ano, mes)
+    eventosDoDia = set() #Evita que tenha duplicatas, pois apenas registra em quais dias tem partidas
+    for evento in eventos:
+        eventosDoDia.add(evento['dia_evento'].day)
+
+    #Procura as partidas do dia que o usuário escolheu no calendário
+    partidas_dia_selecionado = []
+    for partida in eventos:
+        if partida['dia_evento'].day == dia_selecionado:
+            partidas_dia_selecionado.append(partida)
+
+    #Define domingo como o primeiro dia da semana
+    calendario_mes = Calendar(firstweekday=6)
+    #Busca as semanas do mês de determinado ano
+    semanas = calendario_mes.monthdatescalendar(ano, mes) 
+    
+    #Armazena os nomes dos meses para ser exibido no calendario
+    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    #nomeMes recebe meses[mes(numero do mês) - 1], pois em listas o primeiro indíce de uma lista é 0
+    nomeMes = meses[mes - 1]
+
+    #Funções necessárias para exibição do usuário
+    membrosEquipes = buscarMembrosEquipe()
+    esportes = buscarEsportes()
+    estatisticasPrincipal = buscarEstatisticasPrincipal()
+
+    return render_template('calendario.html', 
+        ptr = partidas_dia_selecionado,  
+        turmas = turmas,
+        hoje = date.today(),
+        ano = ano,
+        semanas = semanas,
+        mes = mes,
+        eventosDoDia = eventosDoDia,
+        nomeMes = nomeMes,
+        membrosEquipes = membrosEquipes,
+        esportes = esportes,
+        dia_selecionado = dia_selecionado,
+        estatisticasPrincipal = estatisticasPrincipal)
+
+#Rota necessária para a função de filtrar informações no calendário
+@app.route('/calendarioFiltrado/<int:ano>/<int:mes>/<int:dia>', methods=['POST'])
+def calendarioFiltrado(ano = None, mes = None, dia = None):
+    esporte = request.form['esporte']
+    genero = request.form['genero']
+    turma = request.form['turma']
+
+    if ano is None or mes is None:
+        hoje = datetime.today()
+        ano = hoje.year
+        mes = hoje.month
+    
+    if dia is None:
+        dia_selecionado = datetime.today().day
+    else:
+        dia_selecionado = dia
+    
+    if mes == 0:
+        mes = 12
+        ano -=1
+    elif mes == 13:
+        mes = 1
+        ano += 1
+
+    turmas = buscarTurmas()
+    
+    #Busca eventos de maneira especifica, conforme esporte e/ou turma e/ou genero -- OBS: Genero = Masculino ou Feminino
+    eventos = buscarEventosCalendarioFiltros(ano, mes, esporte, turma, genero)
+    eventosDoDia = set()
+    for evento in eventos:
+        eventosDoDia.add(evento['dia_evento'].day)
+
+    partidas_dia_selecionado = []
+    for partida in eventos:
+        if partida['dia_evento'].day == dia_selecionado:
+            partidas_dia_selecionado.append(partida)
+    
+    calendario_mes = Calendar(firstweekday=6)
+    semanas = calendario_mes.monthdatescalendar(ano, mes) 
+    
+    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    nomeMes = meses[mes - 1]
+
+    membrosEquipes = buscarMembrosEquipe()
+    esportes = buscarEsportes()
+    estatisticasPrincipal = buscarEstatisticasPrincipal()
+
+    return render_template('calendario.html', 
+        ptr = partidas_dia_selecionado,  
+        turmas = turmas,
+        hoje = date.today(),
+        ano = ano,
+        semanas = semanas,
+        mes = mes,
+        eventosDoDia = eventosDoDia,
+        nomeMes = nomeMes,
+        membrosEquipes = membrosEquipes,
+        esportes = esportes,
+        dia_selecionado = dia_selecionado,
+        filtroEsporte = esporte,
+        filtroGenero= genero,
+        filtroTurmas = turma,
+        estatisticasPrincipal = estatisticasPrincipal)
 
 ## ----------------CHAVEAMENTO------------------ ##
 
