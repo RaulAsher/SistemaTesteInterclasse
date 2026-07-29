@@ -22,13 +22,18 @@ TABELAS = {
 
 }
 
-def criarLOGInfo(query, usuario_logado, usuario_cadastrado=None):
-    logging.basicConfig(
+logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     filename="logs/Sistema.log",
     encoding="utf-8"
     )
+
+logging.getLogger("werkzeug").disabled = True
+
+def criarLOGInfo(query, cursor, params, usuario_logado, entidade):
+    # ENTIDADES = aluno, turma, esporte e etc
+    cursor.execute(query, params)
 
     operacao = query.split()[0].upper()
 
@@ -44,12 +49,10 @@ def criarLOGInfo(query, usuario_logado, usuario_cadastrado=None):
         logger.info("%s %s os %s", usuario_logado, acao, nome_tabela)
     elif acao == "Cadastrou":
         if tabela == "alunos":
-            logger.info("%s %s um(a) %s", usuario_logado, acao, nome_tabela)
-        elif tabela == "equipes" or tabela == "turmas" or tabela == "estatisticas_esporte":
-            logger.info("%s %s uma %s", usuario_logado,acao,nome_tabela)
+            logger.info("%s %s o(a) %s %s", usuario_logado, acao, nome_tabela)
+        elif tabela == "equipes":
+            logger.info("%s %s a equipe do %s na modalidade %s no genero %s", usuario_logado,acao, entidade[1], entidade[0], entidade[2])
         elif tabela == "esportes":
             logger.info("%s %s um %s", usuario_logado, acao, nome_tabela)
         elif tabela == "login":
-            logger.info("%s %s o usuário %s", usuario_logado, acao, usuario_cadastrado)
-
-criarLOGInfo("Select * from alunos", "adm")
+            logger.info("%s %s o usuário %s", usuario_logado, acao, entidade)

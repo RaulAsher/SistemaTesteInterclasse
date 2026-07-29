@@ -8,7 +8,10 @@ def cadastrarAluno(matricula, nome, turma, genero):
                 INSERT INTO alunos (pk_matricula, nome_aluno, fk_nome_turma, fk_classificacao)
                 VALUES (%s, %s, %s, %s)
             """
-            cursor.execute(query, (matricula, nome, turma, genero))
+            params = (matricula, nome, turma, genero)
+
+
+            cursor.execute(query, params)
         conexao.commit()
     finally:
         conexao.close()

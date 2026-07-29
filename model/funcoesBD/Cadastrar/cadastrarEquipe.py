@@ -1,6 +1,7 @@
-from .criarConexao import criarConexao, database
+from .criarConexao import criarConexao
+from ...funcoesLOG.LOG import criarLOGInfo
 
-def cadastrarEquipe(esporte, turma, genero, alunos):
+def cadastrarEquipe(esporte, turma, genero, alunos, usuario_logado):
     conexao = criarConexao()
     try:
         with conexao.cursor() as cursor:
@@ -11,10 +12,12 @@ def cadastrarEquipe(esporte, turma, genero, alunos):
             if len(alunos) > limite:
                 raise ValueError(f"O esporte só permite até {limite} jogadores.")
 
-            cursor.execute("""
+            query = """
                 INSERT INTO equipes (fk_esporte, fk_nome_turma, fk_genero)
                 VALUES (%s, %s, %s)
-            """, (esporte, turma, genero))
+            """
+            params = (esporte, turma, genero)
+            criarLOGInfo(query, cursor, params, usuario_logado, params)
             id_equipe = cursor.lastrowid
 
             for matricula in alunos:

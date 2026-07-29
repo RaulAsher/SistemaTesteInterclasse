@@ -280,8 +280,9 @@ def rotaCadastrarEquipe():
     turma = request.form.get("turma")
     genero = request.form.get("genero")
     alunos = request.form.getlist("alunos")
+    usuario_logado = session["nome"]
 
-    cadastrarEquipe(esporte, turma, genero, alunos)
+    cadastrarEquipe(esporte, turma, genero, alunos, usuario_logado)
     flash("Equipe cadastrada com sucesso.", "success")
 
     return redirect("/cadastrarEquipe")
