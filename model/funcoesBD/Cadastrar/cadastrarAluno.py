@@ -1,6 +1,7 @@
 from .criarConexao import criarConexao, database
+from ...funcoesLOG.LOG import criarLOGInfo
 
-def cadastrarAluno(matricula, nome, turma, genero):
+def cadastrarAluno(matricula, nome, turma, genero, usuario_logado):
     conexao = criarConexao()
     try:
         with conexao.cursor() as cursor:
@@ -11,7 +12,7 @@ def cadastrarAluno(matricula, nome, turma, genero):
             params = (matricula, nome, turma, genero)
 
 
-            cursor.execute(query, params)
+            criarLOGInfo(query, cursor, params, usuario_logado)
         conexao.commit()
     finally:
         conexao.close()

@@ -17,7 +17,7 @@ def cadastrarEquipe(esporte, turma, genero, alunos, usuario_logado):
                 VALUES (%s, %s, %s)
             """
             params = (esporte, turma, genero)
-            criarLOGInfo(query, cursor, params, usuario_logado, params)
+            criarLOGInfo(query, cursor, params, usuario_logado)
             id_equipe = cursor.lastrowid
 
             for matricula in alunos:

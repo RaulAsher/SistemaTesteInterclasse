@@ -188,7 +188,9 @@ def rotaCadastrarAluno():
     else:
         turma = session["turma"]
 
-    cadastrarAluno(matricula, nome, turma, genero)
+    usuario_logado = session["nome"]
+
+    cadastrarAluno(matricula, nome, turma, genero, usuario_logado)
 
     return redirect(url_for("paginacadastrarAluno"))
 
@@ -231,7 +233,7 @@ def rotaDeletarAluno(matricula):
 def rotaCadastrarTurma():
     pk_nome_turma = request.form.get("pk_nome_turma")
     icone_url = request.form.get("icone_url") 
-    cadastrarTurma(pk_nome_turma, icone_url)
+    cadastrarTurma(pk_nome_turma, icone_url, session["nome"])
     turmas = buscarTurmas()
     return render_template("turma.html", turmas=turmas)
 
@@ -358,13 +360,14 @@ def rotaCadastrarUsuario():
     senha = request.form.get("senha")
     nivel = request.form.get("nivel")
     fk_nome_turma = request.form.get("fk_nome_turma") if nivel == "AlunoMonitor" else None
+    usuario_logado = session["nome"]
 
     #--Validação: aluno monitor precisa de turma
     if nivel == "AlunoMonitor" and (not fk_nome_turma or fk_nome_turma.strip() == ""):
         flash("Erro: Aluno Monitor precisa estar vinculado a uma turma.", "error")
         return redirect(url_for("paginaCadastrarUsuario"))
 
-    cadastrarUsuario(pk_usuario, senha, nivel, fk_nome_turma)
+    cadastrarUsuario(pk_usuario, senha, nivel, usuario_logado, fk_nome_turma)
     flash("Usuário cadastrado com sucesso!", "success")
     return redirect(url_for("paginaCadastrarUsuario"))
 

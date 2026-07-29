@@ -1,4 +1,4 @@
-from ..Cadastrar.criarConexao import criarConexao, database
+from ..Cadastrar.criarConexao import criarConexao
 
 # Buscar alunos de uma turma
 def alunosPorTurmaListaEquipes(nome_turma, classificacao):
