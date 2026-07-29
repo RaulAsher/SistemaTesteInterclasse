@@ -411,6 +411,13 @@ def processarCadastroModalidades():
     cadastrarEsportes(esporte, grupo, qtdJogadores)
     return redirect('/gerenciarModalidades')
 
+@app.route('/removerModalidades', methods=['POST'])
+@requerAdmin
+def apagarModalidade():
+    esporte = request.form['esporte'].title()
+    removerModalidade(esporte)
+    return redirect('/gerenciarModalidades')
+
 
 ## ----------------CALENDÁRIO------------------ ##
 

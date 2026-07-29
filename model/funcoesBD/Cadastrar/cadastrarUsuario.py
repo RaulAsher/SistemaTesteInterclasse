@@ -11,6 +11,7 @@ def cadastrarUsuario(pk_usuario, senha, nivel, fk_nome_turma=None):
             """
 
             cursor.execute(query, (pk_usuario, senha, nivel, fk_nome_turma))
+            usuario_cadastrado = cursor.lastrowid()[0]
         conexao.commit()
     finally:
         conexao.close()
