@@ -257,7 +257,6 @@ def rotaDeletarTurma(turma):
 ## ---------------------CADASTRAR EQUIPE---------------------- ##
 
 @app.route("/cadastrarEquipe", methods=["GET"])
-@requerAdminOuMonitor
 def paginaCadastrarEquipe():
 
     acesso = obterAcessoDoUsuario()
