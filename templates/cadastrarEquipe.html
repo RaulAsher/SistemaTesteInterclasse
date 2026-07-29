@@ -27,25 +27,6 @@
         </div>
         <br>
 
-                {% if session['nivel'] == 'Administrador' %}
-
-                <p>
-                    Prazo atual para edição das equipes:
-                    <strong style="color: #007bff;">{{ prazo_edicao }} dias</strong>
-                </p>
-
-                <button id="openPrazoBtn" class="btn btn-primary">Alterar Prazo</button>
-
-                {% elif session['nivel'] == 'AlunoMonitor' %}
-
-                <p>
-                    Prazo atual para edição das equipes:
-                    <strong style="color: #007bff;">{{ prazo_edicao }} dias</strong>
-                </p>
-
-        
-
-                {% endif %}
 
         <!-- BARRA DE BUSCA -->
         <div class="search-bar">
@@ -248,11 +229,10 @@
 
 <div id="modalPrazo">
     <div class="modal-content">
-        <span id="closePrazoBtn" class="close">&times;</span>
         <h3>⚙ Configuração Geral</h3>
             <p>
                 Prazo atual para edição das equipes:
-                <strong style="color: #007bff;">{{ prazo_edicao }} dias</strong>
+                <strong style="color: #007bff;">{{ prazo_edicao }} dias.</strong>
             </p>
 
                 <form action="/alterarPrazoEdicao" method="POST">
