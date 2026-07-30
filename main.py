@@ -111,14 +111,10 @@ def verificarLogin():
     # Busca apenas pelo nome do usuário
     usuario_encontrado = buscarUsuarioPorNome(usuario)
 
-    if not usuario_encontrado:
-        flash('Usuário não encontrado.', 'error')
+    if not usuario_encontrado or senha != usuario_encontrado["senha"]:
+        flash('Usuário ou senha estão incorretos.', 'error')
         return redirect(url_for('login'))
-
-    if senha != usuario_encontrado['senha']:
-        flash('Senha incorreta.', 'error')
-        return redirect(url_for('login'))
-
+    
     # Login bem-sucedido
     session['nome'] = usuario
     session['nivel'] = usuario_encontrado['nivel']

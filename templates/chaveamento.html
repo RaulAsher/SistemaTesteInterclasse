@@ -192,6 +192,9 @@
     <div class="container">
         <h2>🏆 Tabela de Partidas</h2>
 
+        
+
+
         <form action="/chaveamento" method="post">
             <label>Esporte:
                 <select name="esporte">
@@ -320,7 +323,7 @@
                             <h4>ID: {{partida.id_Partida_mae}}</h4>
                         </div>
 
-                        {% if partida.definida == 'nao' %}
+                        {% if partida.definida == 'nao' and session["nivel] == admin"]%}
                         <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
                             <button>Salvar</button>
                         </div>
