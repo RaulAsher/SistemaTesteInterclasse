@@ -357,13 +357,20 @@ def rotaCadastrarUsuario():
     nivel = request.form.get("nivel")
     fk_nome_turma = request.form.get("fk_nome_turma") if nivel == "AlunoMonitor" else None
 
-    #--Validação: aluno monitor precisa de turma
+        #--Validação: aluno monitor precisa de turma
     if nivel == "AlunoMonitor" and (not fk_nome_turma or fk_nome_turma.strip() == ""):
         flash("Erro: Aluno Monitor precisa estar vinculado a uma turma.", "error")
         return redirect(url_for("paginaCadastrarUsuario"))
 
-    cadastrarUsuario(pk_usuario, senha, nivel, fk_nome_turma)
-    flash("Usuário cadastrado com sucesso!", "success")
+
+    try:
+
+        cadastrarUsuario(pk_usuario, senha, nivel, fk_nome_turma)
+        flash("Usuário cadastrado com sucesso!", "success")
+
+    except Exception as e:
+        flash("O nome de usuário que você tentou cadastrar já existe.\n" "Por favor, tente outro.", "error")
+
     return redirect(url_for("paginaCadastrarUsuario"))
 
 # Edição
