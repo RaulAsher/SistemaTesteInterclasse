@@ -566,6 +566,15 @@ def paginaGerarChaveamento():
         classificacoes=classificacoes
     )
 
+@app.route("/chaveamentoAtletismo", methods=["POST"])
+def chaveamentoAtletismo():
+
+    return render_template("atletismo.html",
+        esportes=buscarEsportes(),
+        classificacoes=buscarClassificacoes()
+    )
+
+
 
 @app.route("/chaveamento/gerar", methods=["POST"])
 @requerAdmin # Proteja a rota de geração
@@ -577,6 +586,9 @@ def rotaGerarChaveamento():
 
     if not esporte or not classificacao:
         return jsonify({"status": "erro", "mensagem": "Esporte e Classificação são obrigatórios."}), 400
+
+    if esporte == "Atletismo":
+        return redirect("/chaveamentoAtletismo")
 
     try:
         # CHAMA SUA LÓGICA PYTHON
