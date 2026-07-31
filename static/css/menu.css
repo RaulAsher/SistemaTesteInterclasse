@@ -233,3 +233,32 @@ nav {
 #descricaoConfirmacao {
   white-space: pre-line; /* mantém quebras de linha */
 }
+
+/* home */
+
+.usuario-acoes,
+.usuario-info{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.icone-home{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    color:white;
+    text-decoration:none;
+    transition:.25s;
+}
+
+.icone-home:hover{
+    background:rgba(255,255,255,.15);
+}
+
+.icone-home .material-symbols-outlined{
+    font-size:24px;
+}

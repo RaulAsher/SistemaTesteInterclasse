@@ -1,6 +1,7 @@
+from datetime import datetime
 from ..Cadastrar.criarConexao import criarConexao, database
 
-def editarEquipe(pk_equipe, esporte, turma, descricao, alunos):
+def editarEquipe(pk_equipe, esporte, turma, genero, alunos):
     conexao = criarConexao()
     try:
         with conexao.cursor() as cursor:
@@ -14,9 +15,9 @@ def editarEquipe(pk_equipe, esporte, turma, descricao, alunos):
             # Atualizar dados principais
             cursor.execute("""
                 UPDATE equipes
-                SET fk_esporte=%s, fk_nome_turma=%s, fk_descricao=%s
+                SET fk_esporte=%s, fk_nome_turma=%s, fk_genero=%s
                 WHERE pk_equipe=%s
-            """, (esporte, turma, descricao, pk_equipe))
+            """, (esporte, turma, genero, pk_equipe))
 
             # Apagar jogadores antigos
             cursor.execute("DELETE FROM membros_equipe WHERE fk_equipe=%s", (pk_equipe,))
@@ -32,3 +33,32 @@ def editarEquipe(pk_equipe, esporte, turma, descricao, alunos):
     finally:
         conexao.close()
 
+def edicaoEquipesPermitida():
+    conexao = criarConexao()
+
+    if not conexao:
+        return False
+
+    try:
+        with conexao.cursor() as cursor:
+
+            cursor.execute("""
+                SELECT valor
+                FROM configuracoes
+                WHERE chave = 'prazo_edicao_equipes'
+            """)
+
+            resultado = cursor.fetchone()
+
+            if resultado is None:
+                return False
+
+            prazo = resultado[0]
+            prazo = datetime.strptime(prazo, "%Y-%m-%d %H:%M:%S")
+            
+            print(prazo)
+            print(type(prazo))
+            return datetime.now() <= prazo
+
+    finally:
+        conexao.close()
