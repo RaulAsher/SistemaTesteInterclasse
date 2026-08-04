@@ -23,6 +23,7 @@ from .funcoesBD import (
     buscarUsuarios,
     buscarEventosCalendario,
     buscarEventosCalendarioFiltros,
+    buscarModalidadesAtletismo,
     cadastrarAluno,
     cadastrarEquipe,
     cadastrarEsportes,

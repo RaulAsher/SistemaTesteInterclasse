@@ -1,0 +1,516 @@
+/* =========================================================
+   TELA - TABELA DO ATLETISMO
+   ========================================================= */
+
+.atletismo-page {
+    margin-left: 234px;
+    min-height: 100vh;
+
+    padding: 45px 80px 45px 0;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   TÍTULO
+   ========================================================= */
+
+.atletismo-header {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 0 45px 35px;
+}
+
+.atletismo-header h1 {
+    margin: 0;
+
+    color: #000000 !important;
+
+    font-size: 36px !important;
+    font-weight: 700 !important;
+
+    text-align: left;
+}
+
+/* =========================================================
+   ÁREA DOS CARDS
+   ========================================================= */
+
+.atletismo-cards {
+    width: 100%;
+    max-width: 810px;
+
+    margin: 0 0 0 35px;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 35px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.atletismo-card {
+    height: 220px;
+
+    box-sizing: border-box;
+
+    background: #ffffff !important;
+
+    border: 6px solid #cbd3da;
+
+    border-radius: 30px;
+
+    padding: 20px 12px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    text-decoration: none !important;
+
+    color: #000000 !important;
+
+    box-shadow: none;
+
+    transition: 0.2s ease;
+}
+
+
+/* =========================================================
+   TÍTULO DOS CARDS
+   ========================================================= */
+
+.atletismo-card h2 {
+    margin: 0 0 10px 0;
+
+    color: #000000 !important;
+
+    font-size: 28px !important;
+
+    font-weight: 700 !important;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   DESCRIÇÃO
+   ========================================================= */
+
+.atletismo-card p {
+    margin: 0;
+
+    color: #111111 !important;
+
+    font-size: 20px !important;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.atletismo-card:hover {
+    transform: translateY(-4px);
+
+    border-color: #aeb8c1;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .atletismo-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    .atletismo-page {
+        margin-left: 0;
+
+        padding: 30px 20px;
+    }
+
+    .atletismo-header {
+        margin-bottom: 35px;
+    }
+
+    .atletismo-header h1 {
+        font-size: 30px !important;
+
+        text-align: center;
+    }
+
+    .atletismo-cards {
+        grid-template-columns: 1fr;
+
+        max-width: 420px;
+
+        gap: 25px;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .atletismo-page {
+        padding: 25px 15px;
+    }
+
+    .atletismo-header h1 {
+        font-size: 26px !important;
+    }
+
+    .atletismo-card {
+        height: 200px;
+
+        border-width: 5px;
+
+        border-radius: 26px;
+    }
+
+    .atletismo-card h2 {
+        font-size: 24px !important;
+    }
+
+    .atletismo-card p {
+        font-size: 18px !important;
+    }
+
+}
+
+/* =========================================================
+   MODALIDADES DO ATLETISMO
+   ========================================================= */
+
+.modalidades-atletismo-page {
+    margin-left: 234px;
+
+    min-height: 100vh;
+
+    padding: 45px 40px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.modalidades-atletismo-header {
+    width: 100%;
+    max-width: 950px;
+
+    margin: 0 auto 40px auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+
+.modalidades-atletismo-header h1 {
+    margin: 0 0 8px 0;
+
+    color: #000000;
+
+    font-size: 36px;
+
+    font-weight: 700;
+}
+
+
+.modalidades-atletismo-header p {
+    margin: 0;
+
+    color: #555555;
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   ÁREA PRINCIPAL
+   ========================================================= */
+
+.modalidades-atletismo-section {
+    width: 100%;
+
+    max-width: 950px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.modalidades-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 25px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.modalidade-atletismo-card {
+    background: #ffffff;
+
+    border: 2px solid #d8dee4;
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    min-height: 170px;
+
+    box-sizing: border-box;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    transition: 0.2s ease;
+}
+
+
+.modalidade-atletismo-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.10);
+}
+
+
+/* =========================================================
+   INFORMAÇÕES
+   ========================================================= */
+
+.modalidade-atletismo-info h2 {
+    margin: 0 0 8px 0;
+
+    color: var(--cor-primaria);
+
+    font-size: 24px;
+}
+
+
+.modalidade-atletismo-info p {
+    margin: 0;
+
+    color: #555555;
+
+    font-size: 15px;
+
+    line-height: 1.5;
+}
+
+
+.modalidade-atletismo-info .sem-descricao {
+    color: #888888;
+
+    font-style: italic;
+}
+
+
+/* =========================================================
+   RODAPÉ DO CARD
+   ========================================================= */
+
+.modalidade-atletismo-footer {
+    margin-top: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-modalidade {
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.status-modalidade.ativo {
+    background: #d1fae5;
+
+    color: #047857;
+}
+
+
+.status-modalidade.inativo {
+    background: #fee2e2;
+
+    color: #b91c1c;
+}
+
+
+/* =========================================================
+   AÇÕES
+   ========================================================= */
+
+.modalidade-atletismo-acoes {
+    display: flex;
+
+    gap: 8px;
+}
+
+
+.modalidade-atletismo-acoes .btn {
+    padding: 7px 12px;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   NENHUMA MODALIDADE
+   ========================================================= */
+
+.modalidades-vazio {
+    padding: 50px 30px;
+
+    text-align: center;
+
+    border: 2px dashed #d0d7de;
+
+    border-radius: 18px;
+
+    background: #fafbfc;
+}
+
+
+.modalidades-vazio h2 {
+    margin: 0 0 10px 0;
+
+    color: var(--cor-primaria);
+}
+
+
+.modalidades-vazio p {
+    margin: 0;
+
+    color: #666666;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .modalidades-atletismo-page {
+        margin-left: 0;
+
+        padding: 30px 20px;
+    }
+
+
+    .modalidades-atletismo-header {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        text-align: center;
+    }
+
+
+    .modalidades-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .modalidades-atletismo-page {
+        padding: 25px 15px;
+    }
+
+
+    .modalidades-atletismo-header h1 {
+        font-size: 28px;
+    }
+
+
+    .modalidade-atletismo-card {
+        padding: 18px;
+    }
+
+
+    .modalidade-atletismo-footer {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .modalidade-atletismo-acoes {
+        width: 100%;
+    }
+
+
+    .modalidade-atletismo-acoes .btn {
+        flex: 1;
+    }
+
+}

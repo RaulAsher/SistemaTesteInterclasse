@@ -226,38 +226,39 @@
 </div>
 
 <!-- MODAL DE ALTERAR PRAZO -->
+{% if session['nivel'] == 'Administrador' %}
+    <div id="modalPrazo">
+        <div class="modal-content" style="border: 2px solid lightgray;">
+            <h3>⚙ Configuração Geral</h3>
+                <p>
+                    Prazo atual para edição das equipes:
+                    <strong style="color: #007bff;">{{ prazo_edicao }} dias.</strong>
+                </p>
 
-<div id="modalPrazo">
-    <div class="modal-content" style="border: 2px solid lightgray;">
-        <h3>⚙ Configuração Geral</h3>
-            <p>
-                Prazo atual para edição das equipes:
-                <strong style="color: #007bff;">{{ prazo_edicao }} dias.</strong>
-            </p>
+                    <form action="/alterarPrazoEdicao" method="POST">
 
-                <form action="/alterarPrazoEdicao" method="POST">
+                        <div class="form-group">
 
-                    <div class="form-group">
+                            <label>Novo prazo (dias)</label>
 
-                        <label>Novo prazo (dias)</label>
+                            <input
+                                type="number"
+                                name="prazo"
+                                min="1"
+                                value="{{ prazo_edicao }}"
+                                required>
 
-                        <input
-                            type="number"
-                            name="prazo"
-                            min="1"
-                            value="{{ prazo_edicao }}"
-                            required>
+                        </div>
 
-                    </div>
+                        <button class="btn btn-primary">
+                            Atualizar Prazo
+                        </button>
 
-                    <button class="btn btn-primary">
-                        Atualizar Prazo
-                    </button>
-
-                </form>
-    
-            </div>
-</div>
+                    </form>
+        
+                </div>
+    </div>
+{% endif %}
 
 <script src="{{ url_for('static', filename='js/cadastrarEquipe.js') }}"></script>
 

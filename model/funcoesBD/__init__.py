@@ -12,7 +12,7 @@ from .Buscar.buscarEstatisticasDeModalidade import buscarEstatisticasDeModalidad
 from .Buscar.buscarEstatisticasPorModalidade import buscarEstatisticasPorModalidade
 from .Buscar.buscarEsportes import buscarEsportes
 from .Buscar.buscarJogadoresPorEquipe import buscarJogadoresPorEquipe
-from .Buscar.buscarModalidades import buscarModalidades
+from .Buscar.buscarModalidades import buscarModalidades, buscarModalidadesAtletismo
 from .Buscar.buscarPartidaPorId import buscarPartidaPorId
 from .Buscar.buscarPartidas import buscarPartidas
 from .Buscar.buscarTurmas import buscarTurmas

@@ -1,3 +1,5 @@
+import re
+
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
 from datetime import timedelta, datetime, date
@@ -552,6 +554,51 @@ def calendarioFiltrado(ano = None, mes = None, dia = None):
         filtroTurmas = turma,
         estatisticasPrincipal = estatisticasPrincipal)
 
+## ----------------TABELA ATLETISMO------------------ ##
+
+@app.route("/tabelaAtletismo", methods=["GET"])
+def tabelaAtletismo():
+    return render_template(
+        "tabelaAtletismo.html",
+        esportes=buscarEsportes(),
+        classificacoes=buscarClassificacoes()
+    )
+
+# =========================================================
+# TABELA DO ATLETISMO - MODALIDADES
+# =========================================================
+
+@app.route("/tabelaAtletismo/Modalidades", methods=["GET"])
+def tabelaAtletismoModalidade():
+    return render_template(
+        "tabelaAtletismoModalidade.html",
+        modalidades=buscarModalidadesAtletismo()
+    )
+
+
+# =========================================================
+# TABELA DO ATLETISMO - RECORDES
+# =========================================================
+
+@app.route("/tabelaAtletismo/Recordes", methods=["GET"])
+def tabelaAtletismoRecordes():
+    return render_template(
+        "tabelaAtletismoRecordes.html"
+    )
+
+# =========================================================
+# TABELA DO ATLETISMO - PROVAS
+# =========================================================
+
+@app.route("/tabelaAtletismo/Provas", methods=["GET"])
+def tabelaAtletismoProvas():
+
+    return render_template(
+
+        "tabelaAtletismoProvas.html",
+
+    )
+
 ## ----------------CHAVEAMENTO------------------ ##
 
 @app.route("/gerarChaveamento", methods=["GET"])
@@ -566,43 +613,28 @@ def paginaGerarChaveamento():
         classificacoes=classificacoes
     )
 
-@app.route("/chaveamentoAtletismo", methods=["POST"])
-def chaveamentoAtletismo():
-
-    return render_template("atletismo.html",
-        esportes=buscarEsportes(),
-        classificacoes=buscarClassificacoes()
-    )
-
-
 
 @app.route("/chaveamento/gerar", methods=["POST"])
-@requerAdmin # Proteja a rota de geração
+@requerAdmin
 def rotaGerarChaveamento():
-    # Recebe os dados JSON enviados pelo JavaScript
-    dados = request.get_json()
+    dados = request.get_json() or {}
     esporte = dados.get('esporte')
     classificacao = dados.get('classificacao')
 
     if not esporte or not classificacao:
         return jsonify({"status": "erro", "mensagem": "Esporte e Classificação são obrigatórios."}), 400
 
+    # Redirecionamento dinâmico enviado para o Fetch/AJAX do Javascript
     if esporte == "Atletismo":
-        return redirect("/chaveamentoAtletismo")
+        return jsonify({
+            "status": "redirecionar",
+            "url": url_for("tabelaAtletismo")
+        })
 
     try:
-        # CHAMA SUA LÓGICA PYTHON
         chaveamento = gerarChaveamento(esporte, classificacao) 
-        
-        # Sua função gera o chaveamento e JÁ SALVA as partidas no BD.
-        # Agora precisamos apenas retornar o status para o frontend.
-        
-        # O resultado impresso no terminal será o log do 'gerarChaveamento'.
-        
-        # Como sua função retorna o chaveamento completo, podemos retornar o número de partidas da 1ª rodada
         total_partidas_1a_rodada = len(chaveamento[0]) if chaveamento and chaveamento[0] else 0
 
-        # Retorna o JSON de sucesso para o JavaScript
         return jsonify({
             "status": "sucesso",
             "mensagem": f"Chaveamento de {esporte} ({classificacao}) gerado e salvo.",
@@ -611,7 +643,6 @@ def rotaGerarChaveamento():
 
     except Exception as e:
         print(f"Erro Crítico ao Gerar Chaveamento: {e}")
-        # Retorna o JSON de erro
         return jsonify({
             "status": "erro", 
             "mensagem": f"Erro interno ao gerar chaveamento: {str(e)}"
@@ -657,24 +688,26 @@ def rotaBuscarPartidas():
         return jsonify({"status": "erro", "mensagem": "Falha ao carregar partidas do banco de dados."}), 500
 
 
-@app.route("/chaveamento", methods=['GET'])
+@app.route("/chaveamento", methods=['GET', 'POST'])
 def chaveamentoTeste():
     esportes = buscarEsportes()
     generos = buscarClassificacoes()
 
-    return render_template("chaveamento.html", esportes=esportes, generos=generos)
+    tabela = None  # Inicializa a tabela como None
+    esporte = None
+    genero = None
 
-@app.route("/chaveamento", methods=['POST'])
-def chaveamentoTesteCarregar():
-    esporte = request.form['esporte']
-    genero = request.form['genero']
+    if request.method == 'POST':
+        esporte = request.form['esporte']
+        genero = request.form['genero']
 
-    tabela = buscarPartidasParaGestao(esporte, genero)
-    print(tabela)
-    esportes = buscarEsportes()
-    generos = buscarClassificacoes()
+        if esporte == "Atletismo":
+            return redirect(url_for("tabelaAtletismo"))
+
+        if esporte and genero:
+            tabela = buscarPartidasParaGestao(esporte, genero)
+
     return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)
-
 
 @app.route("/chaveamento/vencedor", methods=["POST"])
 @requerAdmin
