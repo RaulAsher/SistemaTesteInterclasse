@@ -1,0 +1,116 @@
+{% include 'head.html' %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/atletismo.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+
+<main class="modalidades-atletismo-page">
+
+    <div class="modalidades-atletismo-header">
+
+        <div>
+            <h1>Modalidades do Atletismo</h1>
+
+            <p>
+                Gerencie as modalidades disponíveis no atletismo.
+            </p>
+        </div>
+
+        <a href="#" class="btn btn-primary">
+            + Nova modalidade
+        </a>
+
+    </div>
+
+
+    <section class="modalidades-atletismo-section">
+
+        {% if modalidades %}
+
+            <div class="modalidades-grid">
+
+                {% for modalidade in modalidades %}
+
+                    <article class="modalidade-atletismo-card">
+
+                        <div class="modalidade-atletismo-info">
+
+                            <h2>
+                                {{ modalidade[1] }}
+                            </h2>
+
+                            {% if modalidade[2] %}
+                                <p>
+                                    {{ modalidade[2] }}
+                                </p>
+                            {% else %}
+                                <p class="sem-descricao">
+                                    Sem descrição.
+                                </p>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="modalidade-atletismo-footer">
+
+                            {% if modalidade[3] %}
+
+                                <span class="status-modalidade ativo">
+                                    Ativa
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-modalidade inativo">
+                                    Inativa
+                                </span>
+
+                            {% endif %}
+
+
+                            <div class="modalidade-atletismo-acoes">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-edit"
+                                >
+                                    Editar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-delete"
+                                >
+                                    Excluir
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="modalidades-vazio">
+
+                <h2>Nenhuma modalidade cadastrada</h2>
+
+                <p>
+                    Ainda não existem modalidades de atletismo cadastradas.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+{% include 'footer.html' %}

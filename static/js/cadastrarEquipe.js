@@ -10,9 +10,24 @@ if (closeBtn) {
     closeBtn.onclick = () => modalCadastro.style.display = "none";
 }
 
-window.onclick = (event) => {
-    if (event.target == modalCadastro) modalCadastro.style.display = "none";
-};
+window.addEventListener("click", (event) => {
+
+    if (event.target === modalCadastro)
+        modalCadastro.style.display = "none";
+
+    if (event.target === modalEdicao)
+        modalEdicao.style.display = "none";
+
+    if (event.target === modalConfirmacao)
+        modalConfirmacao.style.display = "none";
+
+    if (event.target === modalJogadores)
+        modalJogadores.style.display = "none";
+
+    if (event.target === modalPrazo)
+        modalPrazo.style.display = "none";
+
+});
 
 // MODAL EDIÇÃO
 const modalEdicao = document.getElementById("modalEdicao");
@@ -85,7 +100,7 @@ searchInput.addEventListener('keyup', function () {
 let limiteJogadores = null;
 
 // Setar limite de jogadores ao selecionar esporte
-function setLimiteJogadores(select) {
+function setLimiteJogadores(select) {   
     const option = select.options[select.selectedIndex];
     limiteJogadores = parseInt(option.getAttribute("data-limite"));
 }
@@ -212,4 +227,21 @@ function abrirModalJogadores(idEquipe, esporte, grupo, nomeEquipe) {
             if(subTituloEquipe) subTituloEquipe.innerText = nomeEquipe ? nomeEquipe : '';
             modalJogadores.style.display = "block";
         });
+}
+
+// MODAL PRAZO
+const modalPrazo = document.getElementById("modalPrazo");
+const openPrazoBtn = document.getElementById("openPrazoBtn");
+const closePrazoBtn = document.getElementById("closePrazoBtn");
+
+if (openPrazoBtn) {
+    openPrazoBtn.onclick = () => {
+        modalPrazo.style.display = "block";
+    };
+}
+
+if (closePrazoBtn) {
+    closePrazoBtn.onclick = () => {
+        modalPrazo.style.display = "none";
+    };
 }

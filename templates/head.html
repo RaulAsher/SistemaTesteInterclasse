@@ -34,20 +34,26 @@
               </svg>
             </span>
           
-            {% if 'nome' not in session%}
+            
+            {% if session['nivel'] == 'Visitante' %}
               <a href="/login" class="login-link">Login</a>
             {% else %}
             <div class="usuario-info">
               <span class="login-link">Olá, {{session['nome']}}</span>
             </div>
             {% endif %}
+            <a href="/home" class="icone-home" title="Página Inicial">
+              <span class="material-symbols-outlined">home</span>
+            </a>
           </div>
+
+          
         
         </div>
       
         <nav>
         
-          <a class="nav-link {% if request.path == '/calendario/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="">
+          <a class="nav-link {% if request.path.startswith('/calendario') %}active{% endif %}" href="/calendario">
             <span class="nav-icon" aria-hidden="true"></span>
             Calendário
           </a>
@@ -73,7 +79,7 @@
             </a>
             {%endif%}
             {%if session['nivel'] == 'Administrador'%}
-            <a class="nav-link {% if request.path == '/gerenciarModalidades/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="/gerenciarModalidades/{{ano}}/{{mes}}/{{dia}}">
+            <a class="nav-link {% if request.path == '/gerenciarModalidades' %}active{% endif %}" href="/gerenciarModalidades">
               Modalidades
             </a>
             <a class="nav-link {% if request.path == '/gerenciarEstatisticas/{{ano}}/{{mes}}/{{dia}}' %}active{% endif %}" href="/gerenciarEstatisticas/{{ano}}/{{mes}}/{{dia}}">
@@ -82,6 +88,7 @@
             <a class="nav-link {% if request.path == '/cadastrarUsuario' %}active{% endif %}" href="/cadastrarUsuario">
               Usuarios
             </a>
+            
             {%endif%}
           </div>
           <a class="nav-link {% if request.path == '/chaveamento' %}active{% endif %}" href="/chaveamento">
@@ -92,6 +99,7 @@
           <a class="nav-link {% if request.path == '/turma' %}active{% endif %}" href="/turma">
             <span class="nav-icon" aria-hidden="true"></span>
             Turmas
+          </a>
           <a class="nav-link {% if request.path == '/cadastrarEquipe' %}active{% endif %}" href="/cadastrarEquipe">
             <span class="nav-icon" aria-hidden="true"></span>
             Equipes

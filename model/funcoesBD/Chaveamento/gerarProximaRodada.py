@@ -40,7 +40,7 @@ def gerarProximaRodada(esporte, classificacao, etapa_atual):
             # 3. Inserir as novas partidas no BD
             query = """
                 INSERT INTO partidas 
-                    (fk_esporte, fk_descricao, fk_equipe_casa, fk_equipe_visitante, etapa)
+                    (fk_esporte, fk_genero, fk_equipe_casa, fk_equipe_visitante, etapa)
                 VALUES 
                     (%s, %s, %s, %s, %s)
                 """

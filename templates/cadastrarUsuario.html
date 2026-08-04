@@ -4,6 +4,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        <div class="toast-container">
+            {% for categoria, mensagem in mensagens %}
+                <div class="toast {{ categoria }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <main class="card-container">
     <!-- LISTA DE USUÁRIOS -->
     <section class="table-section">

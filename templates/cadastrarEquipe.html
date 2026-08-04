@@ -5,6 +5,18 @@
 </head><main class="card-container">
 
 
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        <div class="toast-container">
+            {% for categoria, mensagem in mensagens %}
+                <div class="toast {{ categoria }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <!-- LISTA DE EQUIPES -->
     <section class="table-section">
         <div class="header-actions">
@@ -14,17 +26,20 @@
             {%endif%}
         </div>
         <br>
+
+
         <!-- BARRA DE BUSCA -->
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Buscar equipe...">
         </div>
 
+        
         <table class="styled-table">
             <thead>
                 <tr>
                     <th>Turma</th>
                     <th>Esporte</th>
-                    <th>gênero</th>
+                    <th>Gênero</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -71,7 +86,11 @@
 <div id="modalCadastro" class="modal">
     <div class="modal-content">
         <span id="closeModalBtn" class="close">&times;</span>
-        <h2>Cadastrar Equipe</h2>
+        <h2>Cadastrar Equipe</h2> 
+
+
+        <hr style="visibility: hidden">
+        
         <form method="post" action="/cadastrarEquipe" class="form-grid">
 
 
@@ -89,16 +108,25 @@
 
             <div class="form-group">
                 <label for="turma">Turma:</label>
+                {% if session['nivel'] == 'AlunoMonitor' %}
+                    <input type="text" value="{{ session['turma'] }}" disabled>
+                    <input type="hidden" name="turma" value="{{ session['turma'] }}">
+                {% else %}
+                
                 <select name="turma" id="turma" required onchange="carregarAlunosTurma(this.value)">
+
                     <option value="">Selecione</option>
-                    {% for turma in turmas %}
-                    <option value="{{ turma['pk_nome_turma'] }}">{{ turma['pk_nome_turma'] }}</option>
-                    {% endfor %}
+
+                        {% for turma in turmas %}
+                        <option value="{{ turma['pk_nome_turma'] }}">{{ turma['pk_nome_turma'] }}</option>
+                        {% endfor %}
+
+                    {% endif %}
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="genero">gênero:</label>
+                <label for="genero">Gênero:</label>
                 <select name="genero" id="genero" required>
                     <option value="">Selecione</option>
                     {% for c in classificacoes %}
@@ -154,7 +182,7 @@
             </div>
 
             <div class="form-group">
-                <label>gênero:</label>
+                <label>Gênero:</label>
                 <select name="genero" id="editgenero" required>
                     {% for c in classificacoes %}
                     <option value="{{ c['pk_genero'] }}">{{ c['pk_genero'] }}</option>
@@ -196,6 +224,41 @@
         <ul id="listaJogadores"></ul>
     </div>
 </div>
+
+<!-- MODAL DE ALTERAR PRAZO -->
+{% if session['nivel'] == 'Administrador' %}
+    <div id="modalPrazo">
+        <div class="modal-content" style="border: 2px solid lightgray;">
+            <h3>⚙ Configuração Geral</h3>
+                <p>
+                    Prazo atual para edição das equipes:
+                    <strong style="color: #007bff;">{{ prazo_edicao }} dias.</strong>
+                </p>
+
+                    <form action="/alterarPrazoEdicao" method="POST">
+
+                        <div class="form-group">
+
+                            <label>Novo prazo (dias)</label>
+
+                            <input
+                                type="number"
+                                name="prazo"
+                                min="1"
+                                value="{{ prazo_edicao }}"
+                                required>
+
+                        </div>
+
+                        <button class="btn btn-primary">
+                            Atualizar Prazo
+                        </button>
+
+                    </form>
+        
+                </div>
+    </div>
+{% endif %}
 
 <script src="{{ url_for('static', filename='js/cadastrarEquipe.js') }}"></script>
 
