@@ -1,7 +1,7 @@
 /* static/css/calendario.css */
 
 /* --- Configurações Gerais e Variáveis de Cor --- */
-:root {
+/* :root {
     --cor-fundo: #f4f5f7;
     --cor-container: #ffffff;
     --cor-primaria: #2196f3;
@@ -9,8 +9,8 @@
     --cor-texto-secundario: #6c757d;
     --cor-dia-outro-mes: #ff0000;
     --cor-hoje: #e9ecef;
-}
-
+} */
+/* 
 .calendario-wrapper {
     background-color: var(--cor-container);
     padding: 15px;
@@ -135,9 +135,10 @@
 }
 
 .nav-btn:hover {
-    color: #1a71c4; /* Tom mais escuro */
-}
+    color: #1a71c4;}  */
+    /* Tom mais escuro */
 
+/* 
 .Filtros {
     background-color: #ebf0f7;
     display: flex;
@@ -189,6 +190,7 @@
 }
 
 /* Esconde o texto interno */
+/* 
 #mesPicker::-webkit-datetime-edit {
   display: none;
 }
@@ -229,5 +231,4 @@
         display: none;
     }
 
-}
-
+} */
