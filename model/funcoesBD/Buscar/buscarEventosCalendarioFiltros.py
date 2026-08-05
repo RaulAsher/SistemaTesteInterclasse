@@ -1,7 +1,7 @@
 from ..Cadastrar.criarConexao import criarConexao, database
 from datetime import datetime
 
-def buscarEventosCalendarioFiltros(ano, mes, modalidade=None,turma=None,descricao=None):
+def buscarEventosCalendarioFiltros(ano, mes, modalidade=None,turma=None,genero=None):
     conexao = criarConexao()
     cursor = conexao.cursor(dictionary=True)
 
@@ -18,7 +18,7 @@ def buscarEventosCalendarioFiltros(ano, mes, modalidade=None,turma=None,descrica
         c.dia_evento,
         e.pk_esporte AS fk_esporte,
         e.grupo,
-        p.fk_descricao AS fk_descricao,
+        p.fk_genero AS fk_genero,
         p.fk_equipe_casa,
         p.fk_equipe_visitante,
         p.pk_partida,
@@ -45,9 +45,9 @@ def buscarEventosCalendarioFiltros(ano, mes, modalidade=None,turma=None,descrica
         query += " AND (ec.fk_nome_turma = %s OR ev.fk_nome_turma = %s)"
         params.extend([turma, turma])
 
-    if descricao:
-        query += " AND p.fk_descricao = %s"
-        params.append(descricao)
+    if genero:
+        query += " AND p.fk_genero = %s"
+        params.append(genero)
 
     cursor.execute(query, params)
 

@@ -748,8 +748,48 @@ def rotaRegistrarVencedor():
 
 @app.route('/gerenciarEstatisticas')
 @requerAdmin
-def exibirGerenciarEstatisticas(ano=None, mes=None, dia_selecionado=None):
+def exibirGerenciarEstatisticas():
     esportes = buscarModalidades()
     estatisticas = buscarEstatisticasRegistradas()
     esportesComEst = buscarEstatisticasDeModalidade()
-    return render_template('gerenciarEstatisticas.html', esportes=esportes,estatisticas=estatisticas, esportesComEst=esportesComEst, ano = ano, mes = mes, dia = dia_selecionado)
+    return render_template('gerenciarEstatisticas.html', esportes=esportes, estatisticas=estatisticas, esportesComEst=esportesComEst)
+
+@app.route('/criarEstatistica', methods=['POST'])
+@requerAdmin
+def processarCriarEstatistica():
+    estatistica = request.form['estatistica']
+    estatistica = estatistica.title()
+    criarEstatisticas(estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+@app.route('/removerEstatistica', methods=['POST'])
+@requerAdmin
+def processarRemoverEstatistica():
+    estatistica = request.form['estatistica']
+    removerEstatisticas(estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+@app.route("/cadastrarEstatisticasParaModalidade", methods=['POST'])
+def processarCadastrarEstatisticaModalidade():
+    esporte = request.form['esporte']
+    estatistica = request.form['estatistica']
+    cadastrarEstatisticasParaModalidade(esporte, estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+#Remove estatistica de determinada modalidade
+@app.route("/removerEstatisticasParaModalidade", methods=["POST"])
+@requerAdmin
+def processarRemoverEstatisticaModalidade():
+    esporte = request.form['esporte']
+    estatistica = request.form['estatistica']
+    if esporte == '':
+        flash('Selecione um esporte valido!', 'erro')
+    else:
+        removerEstatisticasDaModalidade(esporte,estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+#API relacionada a tela de gerenciar estatisticas na função remover estatisticas para modalidade
+@app.route('/api/estatisticasPorModalidade/<string:esporte>')
+def processarEstatisticasPorModalidade(esporte):
+    estatisticasFiltras = buscarEstatisticasPorModalidade(esporte)
+    return jsonify(estatisticasFiltras)
