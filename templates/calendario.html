@@ -1,4 +1,4 @@
-<!-- {% include 'head.html' %}
+{% include 'head.html' %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -219,24 +219,4 @@ document.getElementById("mesPicker").addEventListener("change", function() {
 {% extends 'baseflash.html' %}
 </html>
 
-{% include 'footer.html' %} -->
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=>, initial-scale=1.0">
-  <title>Document</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css" rel="stylesheet">
-</head>
-<body>
-  <div> calendario </div>
-
-
-
-
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
-  <script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
-</body>
-</html>
+{% include 'footer.html' %}

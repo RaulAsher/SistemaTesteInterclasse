@@ -552,6 +552,10 @@ def calendarioFiltrado(ano = None, mes = None, dia = None):
         filtroTurmas = turma,
         estatisticasPrincipal = estatisticasPrincipal)
 
+@app.route('/calendarioteste')
+def calendarioteste():
+    return render_template('calendario2.html')
+
 ## ----------------CHAVEAMENTO------------------ ##
 
 @app.route("/gerarChaveamento", methods=["GET"])
