@@ -200,10 +200,11 @@
 {%endif%}
 
 <script>
-    // --- LÓGICA DE GERAÇÃO (EXISTENTE) ---
+    // --- LÓGICA DE GERAÇÃO ---
+
     document.getElementById('chaveamento-form').addEventListener('submit', function(event) {
-        // ... (seu código de geração existente aqui) ...
-        event.preventDefault(); 
+
+        event.preventDefault();
 
         const esporte = document.getElementById('esporte').value;
         const classificacao = document.getElementById('classificacao').value;
@@ -213,43 +214,85 @@
         statusDiv.className = '';
         statusDiv.textContent = 'Gerando chaveamento...';
 
-        const endpoint = '/chaveamento/gerar'; 
+        const endpoint = '/chaveamento/gerar';
 
         fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 esporte: esporte,
                 classificacao: classificacao
             })
         })
+
         .then(response => {
+
             if (!response.ok) {
+
                 return response.json().then(errorData => {
-                    throw new Error(errorData.mensagem || `Erro do servidor: Status ${response.status}`);
+
+                    throw new Error(
+                        errorData.mensagem ||
+                        `Erro do servidor: Status ${response.status}`
+                    );
+
                 });
             }
-            return response.json(); 
+
+            return response.json();
         })
+
         .then(data => {
+
+            // ==========================================
+            // ATLETISMO
+            // ==========================================
+
+            if (data.status === 'redirecionar') {
+
+                window.location.href = data.url;
+
+                return;
+            }
+
+
+            // ==========================================
+            // OUTROS ESPORTES
+            // ==========================================
+
             if (data.status === 'sucesso') {
+
                 statusDiv.className = 'success';
-                statusDiv.textContent = `${data.mensagem} | Total de partidas da 1ª rodada salvas: ${data.total_partidas}`;
-                // Após gerar, recarrega a lista de partidas (se os filtros estiverem corretos)
+
+                statusDiv.textContent =
+                    `${data.mensagem} | Total de partidas da 1ª rodada salvas: ${data.total_partidas}`;
+
                 carregarPartidas();
+
             } else {
+
                 statusDiv.className = 'error';
-                statusDiv.textContent = data.mensagem || 'Falha ao gerar o chaveamento.';
+
+                statusDiv.textContent =
+                    data.mensagem ||
+                    'Falha ao gerar o chaveamento.';
             }
         })
+
         .catch(error => {
+
             console.error('Erro na requisição:', error);
+
             statusDiv.className = 'error';
-            statusDiv.textContent = `Falha Crítica: ${error.message}`;
+
+            statusDiv.textContent =
+                `Falha Crítica: ${error.message}`;
         });
+
     });
+
 
 
     // --- NOVA LÓGICA DE GESTÃO DE PARTIDAS ---
@@ -367,6 +410,12 @@
         })
         .then(response => response.json())
         .then(data => {
+            
+            if (data.status === 'redirecionar') {
+                window.location.href = data.url;
+                return;
+            }
+            
             if (data.status === 'sucesso') {
                 alert(`Vencedor registrado! Próxima partida será gerada na Etapa ${data.proxima_etapa}.`);
                 // Recarrega as partidas para atualizar o estado

@@ -23,6 +23,7 @@ from .funcoesBD import (
     buscarUsuarios,
     buscarEventosCalendario,
     buscarEventosCalendarioFiltros,
+    buscarModalidadesAtletismo,
     cadastrarAluno,
     cadastrarEquipe,
     cadastrarEsportes,
@@ -55,4 +56,5 @@ from .funcoesBD import (
     trocarSenha,
     buscarMembrosEquipe,
     buscarEstatisticasPrincipal,
+    buscarEstatisticasRegistradas,
 )

@@ -26,13 +26,13 @@
     <div class="caixa">
     <div class="divisao">
         <h3>Criar Estatistica</h3>
-        <form action="/criarEstatistica/{{ano}}/{{mes}}/{{dia}}" method="POST">
+        <form action="/criarEstatistica" method="POST">
             <label>Nome da Estatistica: </label>
             <input name="estatistica" required/>
             <button type="submit">Criar Estatistica</button>
         </form>
         <h3>Remover Estatistica</h3>
-        <form action="/removerEstatistica/{{ano}}/{{mes}}/{{dia}}" method="POST">
+        <form action="/removerEstatistica" method="POST">
             <select name="estatistica" id="estatistica-Select">
                 {%for estatistica in estatisticas%}
                 <option value="{{estatistica['pk_nome_estatistica']}}">{{estatistica['pk_nome_estatistica']}}</option>
@@ -43,7 +43,7 @@
     </div>
     <div class="divisao">  
         <h3>Cadastrar Estatisticas</h3>
-        <form action="/cadastrarEstatisticasParaModalidade/{{ano}}/{{mes}}/{{dia}}" method="POST">
+        <form action="/cadastrarEstatisticasParaModalidade" method="POST">
             <label>Esporte: </label>
             <select name="esporte">
                 {%for esporte in esportes%}
@@ -59,7 +59,7 @@
             <button type="submit">Cadastrar Estatisticas</button>
         </form>
         <h3>Remover Estatisticas de uma Modalidade</h3>
-        <form action="/removerEstatisticasParaModalidade/{{ano}}/{{mes}}/{{dia}}" method="POST">
+        <form action="/removerEstatisticasParaModalidade" method="POST">
             <label>Esporte: </label>
             <select name="esporte" id="esporteRemover">
                 <option id="selecionarEsporte" value="">--Selecione um esporte</option>
@@ -78,6 +78,7 @@
             <button onclick="confirmarRemoverEstatisticaModalidade(event)" type="submit">Remover Estatística</button>
         </form>
     </div>
+    
     <script>
     document.addEventListener('DOMContentLoaded', function() {
     const esporteSelect = document.getElementById('esporteRemover');

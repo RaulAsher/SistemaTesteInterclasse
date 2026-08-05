@@ -14,8 +14,7 @@ except ImportError as e:
     def gerarChaveamento(esporte, classificacao):
         print("!!! FUNÇÃO DE CHAVEAMENTO NÃO CARREGADA !!!")
         return None
-
-
+ 
 #Decorator para verificar se o usuario é Administrador
 def requerAdmin(f):
     @wraps(f)
@@ -111,14 +110,10 @@ def verificarLogin():
     # Busca apenas pelo nome do usuário
     usuario_encontrado = buscarUsuarioPorNome(usuario)
 
-    if not usuario_encontrado:
-        flash('Usuário não encontrado.', 'error')
+    if not usuario_encontrado or senha != usuario_encontrado["senha"]:
+        flash('Usuário ou senha estão incorretos.', 'error')
         return redirect(url_for('login'))
-
-    if senha != usuario_encontrado['senha']:
-        flash('Senha incorreta.', 'error')
-        return redirect(url_for('login'))
-
+    
     # Login bem-sucedido
     session['nome'] = usuario
     session['nivel'] = usuario_encontrado['nivel']
@@ -259,7 +254,6 @@ def rotaDeletarTurma(turma):
 ## ---------------------CADASTRAR EQUIPE---------------------- ##
 
 @app.route("/cadastrarEquipe", methods=["GET"])
-@requerAdminOuMonitor
 def paginaCadastrarEquipe():
 
     acesso = obterAcessoDoUsuario()
@@ -362,13 +356,20 @@ def rotaCadastrarUsuario():
     fk_nome_turma = request.form.get("fk_nome_turma") if nivel == "AlunoMonitor" else None
     usuario_logado = session["nome"]
 
-    #--Validação: aluno monitor precisa de turma
+        #--Validação: aluno monitor precisa de turma
     if nivel == "AlunoMonitor" and (not fk_nome_turma or fk_nome_turma.strip() == ""):
         flash("Erro: Aluno Monitor precisa estar vinculado a uma turma.", "error")
         return redirect(url_for("paginaCadastrarUsuario"))
 
-    cadastrarUsuario(pk_usuario, senha, nivel, usuario_logado, fk_nome_turma)
-    flash("Usuário cadastrado com sucesso!", "success")
+
+    try:
+
+        cadastrarUsuario(pk_usuario, senha, nivel, usuario_logado, fk_nome_turma)
+        flash("Usuário cadastrado com sucesso!", "success")
+
+    except Exception as e:
+        flash("O nome de usuário que você tentou cadastrar já existe.\n" "Por favor, tente outro.", "error")
+
     return redirect(url_for("paginaCadastrarUsuario"))
 
 # Edição
@@ -561,6 +562,51 @@ def calendarioFiltrado(ano = None, mes = None, dia = None):
         filtroTurmas = turma,
         estatisticasPrincipal = estatisticasPrincipal)
 
+## ----------------TABELA ATLETISMO------------------ ##
+
+@app.route("/tabelaAtletismo", methods=["GET"])
+def tabelaAtletismo():
+    return render_template(
+        "tabelaAtletismo.html",
+        esportes=buscarEsportes(),
+        classificacoes=buscarClassificacoes()
+    )
+
+# =========================================================
+# TABELA DO ATLETISMO - MODALIDADES
+# =========================================================
+
+@app.route("/tabelaAtletismo/Modalidades", methods=["GET"])
+def tabelaAtletismoModalidade():
+    return render_template(
+        "tabelaAtletismoModalidade.html",
+        modalidades=buscarModalidadesAtletismo()
+    )
+
+
+# =========================================================
+# TABELA DO ATLETISMO - RECORDES
+# =========================================================
+
+@app.route("/tabelaAtletismo/Recordes", methods=["GET"])
+def tabelaAtletismoRecordes():
+    return render_template(
+        "tabelaAtletismoRecordes.html"
+    )
+
+# =========================================================
+# TABELA DO ATLETISMO - PROVAS
+# =========================================================
+
+@app.route("/tabelaAtletismo/Provas", methods=["GET"])
+def tabelaAtletismoProvas():
+
+    return render_template(
+
+        "tabelaAtletismoProvas.html",
+
+    )
+
 ## ----------------CHAVEAMENTO------------------ ##
 
 @app.route("/gerarChaveamento", methods=["GET"])
@@ -577,29 +623,26 @@ def paginaGerarChaveamento():
 
 
 @app.route("/chaveamento/gerar", methods=["POST"])
-@requerAdmin # Proteja a rota de geração
+@requerAdmin
 def rotaGerarChaveamento():
-    # Recebe os dados JSON enviados pelo JavaScript
-    dados = request.get_json()
+    dados = request.get_json() or {}
     esporte = dados.get('esporte')
     classificacao = dados.get('classificacao')
 
     if not esporte or not classificacao:
         return jsonify({"status": "erro", "mensagem": "Esporte e Classificação são obrigatórios."}), 400
 
+    # Redirecionamento dinâmico enviado para o Fetch/AJAX do Javascript
+    if esporte == "Atletismo":
+        return jsonify({
+            "status": "redirecionar",
+            "url": url_for("tabelaAtletismo")
+        })
+
     try:
-        # CHAMA SUA LÓGICA PYTHON
         chaveamento = gerarChaveamento(esporte, classificacao) 
-        
-        # Sua função gera o chaveamento e JÁ SALVA as partidas no BD.
-        # Agora precisamos apenas retornar o status para o frontend.
-        
-        # O resultado impresso no terminal será o log do 'gerarChaveamento'.
-        
-        # Como sua função retorna o chaveamento completo, podemos retornar o número de partidas da 1ª rodada
         total_partidas_1a_rodada = len(chaveamento[0]) if chaveamento and chaveamento[0] else 0
 
-        # Retorna o JSON de sucesso para o JavaScript
         return jsonify({
             "status": "sucesso",
             "mensagem": f"Chaveamento de {esporte} ({classificacao}) gerado e salvo.",
@@ -608,7 +651,6 @@ def rotaGerarChaveamento():
 
     except Exception as e:
         print(f"Erro Crítico ao Gerar Chaveamento: {e}")
-        # Retorna o JSON de erro
         return jsonify({
             "status": "erro", 
             "mensagem": f"Erro interno ao gerar chaveamento: {str(e)}"
@@ -654,24 +696,26 @@ def rotaBuscarPartidas():
         return jsonify({"status": "erro", "mensagem": "Falha ao carregar partidas do banco de dados."}), 500
 
 
-@app.route("/chaveamento", methods=['GET'])
+@app.route("/chaveamento", methods=['GET', 'POST'])
 def chaveamentoTeste():
     esportes = buscarEsportes()
     generos = buscarClassificacoes()
 
-    return render_template("chaveamento.html", esportes=esportes, generos=generos)
+    tabela = None  # Inicializa a tabela como None
+    esporte = None
+    genero = None
 
-@app.route("/chaveamento", methods=['POST'])
-def chaveamentoTesteCarregar():
-    esporte = request.form['esporte']
-    genero = request.form['genero']
+    if request.method == 'POST':
+        esporte = request.form['esporte']
+        genero = request.form['genero']
 
-    tabela = buscarPartidasParaGestao(esporte, genero)
-    print(tabela)
-    esportes = buscarEsportes()
-    generos = buscarClassificacoes()
+        if esporte == "Atletismo":
+            return redirect(url_for("tabelaAtletismo"))
+
+        if esporte and genero:
+            tabela = buscarPartidasParaGestao(esporte, genero)
+
     return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)
-
 
 @app.route("/chaveamento/vencedor", methods=["POST"])
 @requerAdmin
@@ -712,3 +756,51 @@ def rotaRegistrarVencedor():
         generos=generos,
         tabela=tabela
     )
+
+@app.route('/gerenciarEstatisticas')
+@requerAdmin
+def exibirGerenciarEstatisticas():
+    esportes = buscarModalidades()
+    estatisticas = buscarEstatisticasRegistradas()
+    esportesComEst = buscarEstatisticasDeModalidade()
+    return render_template('gerenciarEstatisticas.html', esportes=esportes, estatisticas=estatisticas, esportesComEst=esportesComEst)
+
+@app.route('/criarEstatistica', methods=['POST'])
+@requerAdmin
+def processarCriarEstatistica():
+    estatistica = request.form['estatistica']
+    estatistica = estatistica.title()
+    criarEstatisticas(estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+@app.route('/removerEstatistica', methods=['POST'])
+@requerAdmin
+def processarRemoverEstatistica():
+    estatistica = request.form['estatistica']
+    removerEstatisticas(estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+@app.route("/cadastrarEstatisticasParaModalidade", methods=['POST'])
+def processarCadastrarEstatisticaModalidade():
+    esporte = request.form['esporte']
+    estatistica = request.form['estatistica']
+    cadastrarEstatisticasParaModalidade(esporte, estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+#Remove estatistica de determinada modalidade
+@app.route("/removerEstatisticasParaModalidade", methods=["POST"])
+@requerAdmin
+def processarRemoverEstatisticaModalidade():
+    esporte = request.form['esporte']
+    estatistica = request.form['estatistica']
+    if esporte == '':
+        flash('Selecione um esporte valido!', 'erro')
+    else:
+        removerEstatisticasDaModalidade(esporte,estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+#API relacionada a tela de gerenciar estatisticas na função remover estatisticas para modalidade
+@app.route('/api/estatisticasPorModalidade/<string:esporte>')
+def processarEstatisticasPorModalidade(esporte):
+    estatisticasFiltras = buscarEstatisticasPorModalidade(esporte)
+    return jsonify(estatisticasFiltras)

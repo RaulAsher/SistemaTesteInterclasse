@@ -12,7 +12,7 @@ from .Buscar.buscarEstatisticasDeModalidade import buscarEstatisticasDeModalidad
 from .Buscar.buscarEstatisticasPorModalidade import buscarEstatisticasPorModalidade
 from .Buscar.buscarEsportes import buscarEsportes
 from .Buscar.buscarJogadoresPorEquipe import buscarJogadoresPorEquipe
-from .Buscar.buscarModalidades import buscarModalidades
+from .Buscar.buscarModalidades import buscarModalidades, buscarModalidadesAtletismo
 from .Buscar.buscarPartidaPorId import buscarPartidaPorId
 from .Buscar.buscarPartidas import buscarPartidas
 from .Buscar.buscarTurmas import buscarTurmas
@@ -21,6 +21,10 @@ from .Buscar.buscarUsuarios import buscarUsuarios
 from .Buscar.buscarEventosCalendario import buscarEventosCalendario
 from .Buscar.buscarEventosCalendarioFiltros import buscarEventosCalendarioFiltros
 from .Buscar.configuracao import buscarConfiguracao, alterarConfiguracao
+from .Buscar.buscarMembrosEquipe import buscarMembrosEquipe
+from .Buscar.buscarEstatisticasPrincipal import buscarEstatisticasPrincipal
+from .Buscar.buscarEstatisticasRegistradas import buscarEstatisticasRegistradas
+from .Buscar.telaUsuarios import telaUsuarios
 from .Cadastrar.cadastrarAluno import cadastrarAluno
 from .Cadastrar.cadastrarEquipe import cadastrarEquipe
 from .Cadastrar.cadastrarEsportes import cadastrarEsportes
@@ -41,14 +45,11 @@ from .Deletar.deletarAluno import deletarAluno
 from .Deletar.deletarEquipe import deletarEquipe
 from .Deletar.deletarTurma import deletarTurma
 from .Deletar.deletarUsuario import deletarUsuario
+from .Deletar.removerEstatisticas import removerEstatisticas
+from .Deletar.removerEstatisticasDaModalidade import removerEstatisticasDaModalidade
+from .Deletar.removerModalidade import removerModalidade
 from .Editar.editarAluno import editarAluno
 from .Editar.editarEquipe import editarEquipe, edicaoEquipesPermitida
 from .Editar.editarTurma import editarTurma
 from .Editar.editarUsuario import editarUsuario
-from .Deletar.removerEstatisticas import removerEstatisticas
-from .Deletar.removerEstatisticasDaModalidade import removerEstatisticasDaModalidade
-from .Deletar.removerModalidade import removerModalidade
-from .Buscar.telaUsuarios import telaUsuarios
 from .Editar.trocarSenha import trocarSenha
-from .Buscar.buscarMembrosEquipe import buscarMembrosEquipe
-from .Buscar.buscarEstatisticasPrincipal import buscarEstatisticasPrincipal

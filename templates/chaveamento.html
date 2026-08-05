@@ -192,6 +192,9 @@
     <div class="container">
         <h2>🏆 Tabela de Partidas</h2>
 
+        
+
+
         <form action="/chaveamento" method="post">
             <label>Esporte:
                 <select name="esporte">
@@ -199,6 +202,7 @@
                     {% for esporte in esportes %}
                     <option value="{{esporte.pk_esporte}}">{{esporte.pk_esporte}}</option>
                     {% endfor %}
+                    <option value="Atletismo">Atletismo</option>
                 </select>
             </label>
 
@@ -320,7 +324,7 @@
                             <h4>ID: {{partida.id_Partida_mae}}</h4>
                         </div>
 
-                        {% if partida.definida == 'nao' %}
+                        {% if partida.definida == 'nao' and session["nivel"] == "Administrador"%}
                         <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
                             <button>Salvar</button>
                         </div>
@@ -385,6 +389,19 @@
 
     <script src="{{ url_for('static', filename='js/gerenciarPartidas.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+  document.addEventListener('DOMContentLoaded', () => {
+        const selectEsporte = document.getElementById('esporte'); // certifique-se de que o <select> tem id="esporte"
+
+        if (selectEsporte) {
+        selectEsporte.addEventListener('change', (e) => {
+            if (e.target.value === 'Atletismo') {
+            window.location.href = "{{ url_for('tabelaAtletismo') }}";
+            }
+        });
+        }
+    });
+    </script>
 
 
 

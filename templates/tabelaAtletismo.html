@@ -1,0 +1,44 @@
+{% include 'head.html' %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/atletismo.css') }}">
+
+<div class="atletismo-page">
+
+    <div class="atletismo-header">
+        <h1>Tabela do Atletismo</h1>
+    </div>
+
+    <div class="atletismo-cards">
+
+        <a href="{{ url_for('tabelaAtletismoModalidade') }}" class="atletismo-card">
+            <h2>Modalidades</h2>
+            {% if session['nivel'] == 'Administrador' %}
+                <p>Gerencie as modalidades de atletismo</p>
+            {% else %}
+                <p>Visualize as modalidades de atletismo</p>
+            {% endif %}
+        </a>
+
+        <a href="{{ url_for('tabelaAtletismoRecordes') }}" class="atletismo-card">
+            <h2>Recordes</h2>
+            {% if session['nivel'] == 'Administrador' %}
+                <p>Gerencie os recordes de atletismo</p>
+            {% else %}
+                <p>Visualize os recordes de atletismo</p>
+            {% endif %}
+        </a>
+
+        <a href="{{ url_for('tabelaAtletismoProvas') }}" class="atletismo-card">
+            <h2>Provas</h2>
+            {% if session['nivel'] == 'Administrador' %}
+                <p>Gerencie as provas de atletismo</p>
+            {% else %}
+                <p>Visualize as provas de atletismo</p>
+            {% endif %}
+        </a>
+
+    </div>
+
+</div>
+
+{% include 'footer.html' %}

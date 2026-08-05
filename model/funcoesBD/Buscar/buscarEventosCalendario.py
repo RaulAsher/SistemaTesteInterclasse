@@ -18,7 +18,7 @@ def buscarEventosCalendario(ano, mes):
             c.dia_evento, 
             e.pk_esporte AS fk_esporte,        -- já é o nome do esporte
             e.grupo,                           -- novo atributo
-            p.fk_genero AS fk_genero,          -- uma vez só
+            p.fk_genero AS fk_genero,   -- uma vez só
             p.fk_equipe_casa,
             p.fk_equipe_visitante,
             p.pk_partida,

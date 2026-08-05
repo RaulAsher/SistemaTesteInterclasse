@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from ..Cadastrar.criarConexao import criarConexao, database
 
 def editarEquipe(pk_equipe, esporte, turma, genero, alunos):
@@ -33,6 +33,7 @@ def editarEquipe(pk_equipe, esporte, turma, genero, alunos):
     finally:
         conexao.close()
 
+
 def edicaoEquipesPermitida():
     conexao = criarConexao()
 
@@ -42,23 +43,46 @@ def edicaoEquipesPermitida():
     try:
         with conexao.cursor() as cursor:
 
+            # Busca a quantidade de dias permitida
             cursor.execute("""
                 SELECT valor
                 FROM configuracoes
                 WHERE chave = 'prazo_edicao_equipes'
             """)
 
-            resultado = cursor.fetchone()
+            resultado_prazo = cursor.fetchone()
 
-            if resultado is None:
+            if resultado_prazo is None:
                 return False
 
-            prazo = resultado[0]
-            prazo = datetime.strptime(prazo, "%Y-%m-%d %H:%M:%S")
-            
-            print(prazo)
-            print(type(prazo))
-            return datetime.now() <= prazo
+            prazo_dias = int(resultado_prazo[0])
+
+            # Busca a data em que o prazo começou
+            cursor.execute("""
+                SELECT valor
+                FROM configuracoes
+                WHERE chave = 'inicio_prazo_edicao_equipes'
+            """)
+
+            resultado_inicio = cursor.fetchone()
+
+            if resultado_inicio is None:
+                return False
+
+            inicio = resultado_inicio[0]
+
+            # Caso o banco retorne string
+            if isinstance(inicio, str):
+                inicio = datetime.strptime(
+                    inicio,
+                    "%Y-%m-%d %H:%M:%S"
+                )
+
+            # Calcula o fim do prazo
+            fim_prazo = inicio + timedelta(days=prazo_dias)
+
+            # Verifica se ainda está dentro do período
+            return datetime.now() <= fim_prazo
 
     finally:
         conexao.close()
