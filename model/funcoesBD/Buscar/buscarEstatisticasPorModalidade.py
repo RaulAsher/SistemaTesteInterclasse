@@ -1,11 +1,11 @@
-from ..Cadastrar.criarConexao import criarConexao, database
+from ..Cadastrar.criarConexao import criarConexao
 from flask import flash
 
 def buscarEstatisticasPorModalidade(modalidade):
     conexao = criarConexao()
     cursor = conexao.cursor(dictionary=True)
     try:
-        cursor.execute(f'SELECT * FROM {database}.estatisticas_esporte WHERE fk_esporte = %s', (modalidade,))
+        cursor.execute(f'SELECT * FROM estatisticas_esporte WHERE fk_esporte = %s', (modalidade,))
         estatisticasBuscadas = cursor.fetchall()
         return estatisticasBuscadas
     except:
