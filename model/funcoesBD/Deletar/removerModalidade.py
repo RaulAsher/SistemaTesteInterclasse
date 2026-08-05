@@ -4,7 +4,7 @@ def removerModalidade(esporte):
     conexao = criarConexao()
     cursor = conexao.cursor()
 
-    cursor.execute(f'DELETE FROM {database}.esportes WHERE pk_esporte = %s', (esporte,))
+    cursor.execute(f'DELETE FROM esportes WHERE pk_esporte = %s', (esporte,))
     conexao.commit()
 
     cursor.close()
