@@ -1,5 +1,3 @@
-import re
-
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
 from datetime import timedelta, datetime, date
@@ -756,3 +754,12 @@ def rotaRegistrarVencedor():
         generos=generos,
         tabela=tabela
     )
+
+@app.route('/gerenciarEstatisticas')
+@app.route('/gerenciarEstatisticas/<int:ano>/<int:mes>/<int:dia_selecionado>')
+@requerAdmin
+def exibirGerenciarEstatisticas(ano=None, mes=None, dia_selecionado=None):
+    esportes = buscarModalidades()
+    estatisticas = 
+    esportesComEst = buscarEstatisticasDeModalidade()
+    return render_template('gerenciarEstatisticas.html', esportes=esportes,estatisticas=estatisticas, esportesComEst=esportesComEst, ano = ano, mes = mes, dia = dia_selecionado)
