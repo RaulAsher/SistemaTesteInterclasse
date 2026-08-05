@@ -17,6 +17,14 @@ except ImportError as e:
         print("!!! FUNÇÃO DE CHAVEAMENTO NÃO CARREGADA !!!")
         return None
 
+#Decorator para verificar se existe sessão
+def requerSessao(f):
+    @wraps(f)
+    def verificandoSessao(*args, **kwargs):
+        if 'nome' not in session:
+            return redirect('/')
+        return f(*args, **kwargs)
+    return verificandoSessao
 
 #Decorator para verificar se o usuario é Administrador
 def requerAdmin(f):
