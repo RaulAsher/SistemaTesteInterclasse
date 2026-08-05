@@ -56,4 +56,5 @@ from .funcoesBD import (
     trocarSenha,
     buscarMembrosEquipe,
     buscarEstatisticasPrincipal,
+    buscarEstatisticasRegistradas,
 )

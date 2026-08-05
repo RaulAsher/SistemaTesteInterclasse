@@ -14,16 +14,7 @@ except ImportError as e:
     def gerarChaveamento(esporte, classificacao):
         print("!!! FUNÇÃO DE CHAVEAMENTO NÃO CARREGADA !!!")
         return None
-
-#Decorator para verificar se existe sessão
-def requerSessao(f):
-    @wraps(f)
-    def verificandoSessao(*args, **kwargs):
-        if 'nome' not in session:
-            return redirect('/')
-        return f(*args, **kwargs)
-    return verificandoSessao
-
+ 
 #Decorator para verificar se o usuario é Administrador
 def requerAdmin(f):
     @wraps(f)
@@ -756,10 +747,9 @@ def rotaRegistrarVencedor():
     )
 
 @app.route('/gerenciarEstatisticas')
-@app.route('/gerenciarEstatisticas/<int:ano>/<int:mes>/<int:dia_selecionado>')
 @requerAdmin
 def exibirGerenciarEstatisticas(ano=None, mes=None, dia_selecionado=None):
     esportes = buscarModalidades()
-    estatisticas = 
+    estatisticas = buscarEstatisticasRegistradas()
     esportesComEst = buscarEstatisticasDeModalidade()
     return render_template('gerenciarEstatisticas.html', esportes=esportes,estatisticas=estatisticas, esportesComEst=esportesComEst, ano = ano, mes = mes, dia = dia_selecionado)
