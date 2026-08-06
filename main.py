@@ -4,6 +4,7 @@ from datetime import timedelta, datetime, date
 from model import *
 from calendar import *
 
+print("Main iniciado")
 # Assumindo que seu gestao_chaveamento.py está em model/funcoesBD/Chaveamento
 # E que o Flask pode importá-lo a partir da raiz 'model'
 try:
@@ -707,3 +708,7 @@ def rotaRegistrarVencedor():
         generos=generos,
         tabela=tabela
     )
+
+
+if __name__ == "__main__":
+      app.run(debug=True)
