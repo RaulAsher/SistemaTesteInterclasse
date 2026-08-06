@@ -417,142 +417,6 @@ def processarCadastroModalidades():
 
 ## ----------------CALENDÁRIO------------------ ##
 
-@app.route('/calendario')
-@app.route('/calendario/<int:ano>/<int:mes>')
-@app.route('/calendario/<int:ano>/<int:mes>/<int:dia>')
-def calendario(ano = None, mes = None, dia = None):
-    # Lógica para obter o ano, mês e dia atuais caso não sejam fornecidos na URL
-    #Parâmetros:
-    #- ano (int): O ano para exibição do calendário. Se não fornecido, é o ano atual.
-    #- mes (int): O mês para exibição do calendário. Se não fornecido, é o mês atual.
-    #- dia (int): O dia selecionado. Se não fornecido, é o dia atual.
-    if ano is None or mes is None:
-        hoje = datetime.today()
-        ano = hoje.year
-        mes = hoje.month
-    
-    if dia is None:
-        dia_selecionado = datetime.today().day
-    else:
-        dia_selecionado = dia
-    
-    # Ajuste de mês e ano caso o usuário navegue para meses anteriores ou seguintes:
-    #Se o mes for igual a 0, significa que o usuario foi para o ano anterior, ou seja, mês se torna igual a 12 e ano = ano atual - 1
-    #Se o mes for igual a 13, significa que o usuario foi para o ano posterior, ou seja, mês se torna igual a 1 e ano = ano atual + 1
-    if mes == 0:
-        mes = 12
-        ano -=1
-    elif mes == 13:
-        mes = 1
-        ano += 1
-
-    turmas = buscarTurmas()
-
-    #Busca eventos no calendario do mês de determinado ano    
-    eventos = buscarEventosCalendario(ano, mes)
-    eventosDoDia = set() #Evita que tenha duplicatas, pois apenas registra em quais dias tem partidas
-    for evento in eventos:
-        eventosDoDia.add(evento['dia_evento'].day)
-
-    #Procura as partidas do dia que o usuário escolheu no calendário
-    partidas_dia_selecionado = []
-    for partida in eventos:
-        if partida['dia_evento'].day == dia_selecionado:
-            partidas_dia_selecionado.append(partida)
-
-    #Define domingo como o primeiro dia da semana
-    calendario_mes = Calendar(firstweekday=6)
-    #Busca as semanas do mês de determinado ano
-    semanas = calendario_mes.monthdatescalendar(ano, mes) 
-    
-    #Armazena os nomes dos meses para ser exibido no calendario
-    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-    #nomeMes recebe meses[mes(numero do mês) - 1], pois em listas o primeiro indíce de uma lista é 0
-    nomeMes = meses[mes - 1]
-
-    #Funções necessárias para exibição do usuário
-    membrosEquipes = buscarMembrosEquipe()
-    esportes = buscarEsportes()
-    estatisticasPrincipal = buscarEstatisticasPrincipal()
-
-    return render_template('calendario.html', 
-        ptr = partidas_dia_selecionado,  
-        turmas = turmas,
-        hoje = date.today(),
-        ano = ano,
-        semanas = semanas,
-        mes = mes,
-        eventosDoDia = eventosDoDia,
-        nomeMes = nomeMes,
-        membrosEquipes = membrosEquipes,
-        esportes = esportes,
-        dia_selecionado = dia_selecionado,
-        estatisticasPrincipal = estatisticasPrincipal)
-
-#Rota necessária para a função de filtrar informações no calendário
-@app.route('/calendarioFiltrado/<int:ano>/<int:mes>/<int:dia>', methods=['POST'])
-def calendarioFiltrado(ano = None, mes = None, dia = None):
-    esporte = request.form['esporte']
-    genero = request.form['genero']
-    turma = request.form['turma']
-
-    if ano is None or mes is None:
-        hoje = datetime.today()
-        ano = hoje.year
-        mes = hoje.month
-    
-    if dia is None:
-        dia_selecionado = datetime.today().day
-    else:
-        dia_selecionado = dia
-    
-    if mes == 0:
-        mes = 12
-        ano -=1
-    elif mes == 13:
-        mes = 1
-        ano += 1
-
-    turmas = buscarTurmas()
-    
-    #Busca eventos de maneira especifica, conforme esporte e/ou turma e/ou genero -- OBS: Genero = Masculino ou Feminino
-    eventos = buscarEventosCalendarioFiltros(ano, mes, esporte, turma, genero)
-    eventosDoDia = set()
-    for evento in eventos:
-        eventosDoDia.add(evento['dia_evento'].day)
-
-    partidas_dia_selecionado = []
-    for partida in eventos:
-        if partida['dia_evento'].day == dia_selecionado:
-            partidas_dia_selecionado.append(partida)
-    
-    calendario_mes = Calendar(firstweekday=6)
-    semanas = calendario_mes.monthdatescalendar(ano, mes) 
-    
-    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-    nomeMes = meses[mes - 1]
-
-    membrosEquipes = buscarMembrosEquipe()
-    esportes = buscarEsportes()
-    estatisticasPrincipal = buscarEstatisticasPrincipal()
-
-    return render_template('calendario.html', 
-        ptr = partidas_dia_selecionado,  
-        turmas = turmas,
-        hoje = date.today(),
-        ano = ano,
-        semanas = semanas,
-        mes = mes,
-        eventosDoDia = eventosDoDia,
-        nomeMes = nomeMes,
-        membrosEquipes = membrosEquipes,
-        esportes = esportes,
-        dia_selecionado = dia_selecionado,
-        filtroEsporte = esporte,
-        filtroGenero= genero,
-        filtroTurmas = turma,
-        estatisticasPrincipal = estatisticasPrincipal)
-
 @app.route('/calendarioteste')
 def calendarioteste():
     return render_template('calendario2.html')
@@ -708,6 +572,55 @@ def rotaRegistrarVencedor():
         generos=generos,
         tabela=tabela
     )
+
+
+@app.route('/calendarioteste')
+def calendarioteste():
+
+    podeEditar = session['nivel'] in ["Administrador", "AlunoMonitor"]
+
+    return render_template(
+        'calendario2.html',
+        podeEditar=podeEditar
+    )
+
+
+from model.funcoesBD.buscar.buscarCalendario import buscarEventosCalendario
+
+@app.route("/calendario/eventos")
+def eventosCalendario():
+
+    eventos = buscarEventosCalendario()
+
+    lista = []
+
+    for evento in eventos:
+
+        lista.append({
+
+            "title": (
+                evento["equipe_casa"]
+                + " x "
+                + evento["equipe_visitante"]
+            ),
+
+            "start": (
+                str(evento["dia_evento"])
+                + "T"
+                + str(evento["hora_inicio"])
+            ),
+
+            "end": (
+                str(evento["dia_evento"])
+                + "T"
+                + str(evento["hora_fim"])
+            )
+
+        })
+
+
+    return jsonify(lista)
+
 
 
 if __name__ == "__main__":

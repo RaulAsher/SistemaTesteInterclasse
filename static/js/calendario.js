@@ -26,8 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
             month: 'Mês',
             week: 'Semana',
             day: 'Dia'
-        }
+        },
 
+        // EVENTOS DO CALENDÁRIO
+        events: "/calendario/eventos"
     });
 
     calendar.render();

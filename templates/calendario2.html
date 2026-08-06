@@ -28,6 +28,11 @@
     <!-- Seu JS -->
     <script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
 
+{% if podeEditar %}
+<button id="novoEvento">
+    Novo evento
+</button>
+{% endif %}
     {% include "footer.html" %}
 
 </body>
