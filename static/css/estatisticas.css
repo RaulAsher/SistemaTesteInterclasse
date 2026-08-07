@@ -4,8 +4,7 @@
 }
 
 .placar-header{
-
-    width:500px;
+    width:min(500px, 95%);
     margin:30px auto;
 
     display:flex;
@@ -13,10 +12,8 @@
     align-items:center;
 
     background:#f5f5f5;
-
     border-radius:12px;
-
-    padding:15px 30px;
+    padding:15px clamp(15px, 4vw, 30px);
 
     box-shadow:0 8px 18px rgba(0,0,0,.25);
 }
@@ -30,6 +27,7 @@
 .equipe-header h2{
     margin:0;
     color:#28496b;
+    font-size:clamp(16px, 3vw, 24px);
 }
 
 .equipe-header small{
@@ -37,8 +35,18 @@
 }
 
 .versus{
-    font-size:22px;
+    font-size:clamp(16px, 2.5vw, 22px);
     color:#444;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+}
+
+.versus small{
+    font-size:13px;
+    color:#666;
+    font-weight:normal;
 }
 
 .titulo-partida{
@@ -52,128 +60,150 @@
 }
 
 .card-partida{
-
-    width:720px;
-
+    width:min(700px, 95%);
     margin:auto;
 
     background:#ececec;
-
     border-radius:15px;
-
-    padding:40px;
+    padding:clamp(20px, 5vw, 40px);
 
     box-shadow:0 10px 20px rgba(0,0,0,.25);
+}
 
+
+.times-header{
+    display:grid;
+    grid-template-columns:1fr minmax(100px, 180px) 1fr;
+    gap:clamp(10px, 3vw, 30px);
+    margin-bottom:20px;
+}
+
+.times-header .time-nome{
+    color:#2d4d72;
+    text-align:center;
+    margin:0;
+    font-size:clamp(16px, 3vw, 22px);
+}
+
+.times-header .time-nome:last-child{
+    grid-column:3;
 }
 
 .estatisticas-grid{
-
-    display:grid;
-
-    grid-template-columns:1fr 180px 1fr;
-
-    align-items:start;
-
-    gap:30px;
-
+    display:flex;
+    flex-direction:column;
+    gap:clamp(15px, 4vw, 25px);
 }
 
-.time{
-    text-align:center;
+.linha-completa{
+    display:grid;
+    grid-template-columns:1fr minmax(100px, 180px) 1fr;
+    align-items:center;
+    gap:clamp(10px, 3vw, 30px);
 }
 
 .contador{
-    display: flex;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(6px, 1.5vw, 10px);
+    width:100%;
 }
 
 .btn-contador{
-    height: 3vh;
-    width: 3vw;
-    color: white;
+    height:clamp(35px, 6vw, 45px);
+    width:clamp(35px, 6vw, 45px);
+    flex-shrink:0;
+    color:white;
+
+    margin:0;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:clamp(14px, 2vw, 18px);
 }
 
 .negativo{
-    background-color: red;
+    background-color:red;
 }
 
 .positivo{
-    background-color: green;
-}
-
-.time h3{
-    color:#2d4d72;
-    margin-bottom:15px;
+    background-color:green;
 }
 
 .score-input{
+    flex:1;
+    min-width:0;
+    max-width:150px;
+    height:clamp(45px, 8vw, 55px);
 
-    width:110px;
-
-    display:block;
-
-    margin:20px auto;
-
-    padding:12px;
-
-    border:none;
-
+    margin:0;
     border-radius:12px;
-
     background:#183754;
-
     color:white;
 
-    text-align:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    font-size:22px;
-
+    font-size:clamp(16px, 3vw, 22px);
     font-weight:bold;
 
     box-shadow:0 5px 12px rgba(0,0,0,.25);
-
 }
 
 .labels{
-
     display:flex;
-
     flex-direction:column;
-
-    gap:45px;
-
+    align-items:center;
     justify-content:center;
-
     text-align:center;
-
-    margin-top:45px;
-
 }
 
-.linha-estatistica .titulo{
-
-    display:block;
-
-    font-size:28px;
-
+.labels .titulo{
+    font-size:clamp(15px, 3vw, 22px);
     color:#36516f;
-
-}
-
-.linha-estatistica small{
-
-    color:#666;
-
+    font-weight:600;
 }
 
 .form-actions{
-
-    margin-top:70px;
-
+    margin-top:50px;
     display:flex;
-
     justify-content:center;
-
     gap:20px;
+}
+/* Some por padrão — só aparece no mobile */
+.time-mobile{
+    display:none;
+}
 
+.bloco-contador{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+}
+
+
+
+@media (max-width: 576px){
+
+    .times-header{
+        display:none;
+    }
+
+    .time-mobile{
+        display:block;
+        margin-top:8px;
+        font-weight:bold;
+        font-size:14px;
+        color:#2d4d72;
+    }
+
+    .linha-completa{
+        grid-template-columns:1fr;
+        gap:16px;
+        padding-bottom:15px;
+        border-bottom:1px solid #d5d5d5;
+    }
 }
