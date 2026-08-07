@@ -717,6 +717,27 @@ def chaveamentoTeste():
 
     return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)
 
+@app.route("/verEstatisticas/<int:partida_id>", methods=["GET"])
+def verEstatisticas(partida_id):
+    partida = buscarPartidaPorId(partida_id)
+
+    esporte = partida["fk_esporte"]
+    fk_equipe_casa = partida["fk_equipe_casa"]
+    fk_equipe_visitante = partida["fk_equipe_visitante"]
+    equipes = buscarEquipesPorID(fk_equipe_casa, fk_equipe_visitante)
+    equipe_casa = equipes[0]
+    equipe_visitante = equipes[1]
+    
+
+
+    return render_template("verEstatisticas.html", 
+    esporte=esporte, 
+    equipe_casa=equipe_casa, 
+    equipe_visitante=equipe_visitante,
+    fk_equipe_casa=fk_equipe_casa,
+    fk_equipe_visitante=fk_equipe_visitante
+    )
+
 @app.route("/chaveamento/vencedor", methods=["POST"])
 @requerAdmin
 def rotaRegistrarVencedor():

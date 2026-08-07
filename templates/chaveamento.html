@@ -328,6 +328,13 @@
                         <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
                             <button>Salvar</button>
                         </div>
+                        {% elif session ["nivel"] == "Visitante" %}
+                            {% if partida.definida == 'nao' %}
+                            <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
+                                <a href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Ver Estatísticas</a>   
+                            </div>
+                            {% endif %}
+
                         {% else %}
                         <div class="status" style="grid-column: span 3;">Encerrada</div>
                         {% endif %}

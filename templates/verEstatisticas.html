@@ -1,0 +1,118 @@
+{% include 'head.html' %}
+
+<link rel="stylesheet" href=" {{ url_for('static', filename='css/estatisticas.css') }} ">
+
+<div class="container">
+
+    <!-- Cabeçalho da partida -->
+    <div class="placar-header">
+
+        <div class="equipe-header">
+            <h2>{{ equipe_casa }}</h2>
+            <small>{{ fk_equipe_casa }} </small>
+        </div>
+
+        <div class="versus">
+            VS
+        </div>
+
+        <div class="equipe-header">
+            <h2>{{ equipe_visitante }}</h2>
+            <small>{{fk_equipe_visitante}}</small>
+        </div>
+
+    </div>
+
+    <div class="titulo-partida">
+        <h3></h3>
+    </div>
+
+    <!-- Card Principal -->
+    <div class="card-partida">
+
+        <form action="/salvarEstatisticas" method="POST">
+
+            <input type="hidden" name="id_partida" value="{{ partida }}">
+
+            <div class="estatisticas-grid">
+
+                <!-- Equipe Esquerda -->
+                <div class="time">
+
+                    <h3>{{ equipe_casa }}</h3>
+
+                    <input
+                        type="number"
+                        class="score-input"
+                        name="pontos_equipe_casa"
+                        value="{{ pontos_equipe_casa }}"
+                        min="0">
+
+
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="labels">
+
+                    <div class="linha-estatistica">
+                        <span class="titulo">Pontos</span>
+                        <small>17</small>
+                    </div>
+
+                    <div class="linha-estatistica">
+                        <span class="titulo">Arremessos de 3</span>
+                        <small>9</small>
+                    </div>
+
+                </div>
+
+                <!-- Equipe Direita -->
+                <div class="time">
+
+                    <h3>{{ equipe_visitante }}</h3>
+
+                    
+                    <div class="contador">
+                        <button class="btn-contador negativo">
+                            -
+                        </button>
+                        <div class="score-input">
+                        </div>
+                        <button class="btn-contador positivo">
+                            +
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button class="btn btn-primary" type="submit">
+                    Salvar
+                </button>
+
+                {% if session['nivel'] == 'Administrador'
+                   or session['nivel'] == 'AlunoMonitor' %}
+
+                <button
+                    type="button"
+                    class="btn btn-edit"
+                    onclick="habilitarEdicao()">
+
+                    Editar
+
+                </button>
+
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% include 'footer.html' %}
