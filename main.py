@@ -415,12 +415,6 @@ def processarCadastroModalidades():
     return redirect('/gerenciarModalidades')
 
 
-## ----------------CALENDÁRIO------------------ ##
-
-@app.route('/calendarioteste')
-def calendarioteste():
-    return render_template('calendario2.html')
-
 ## ----------------CHAVEAMENTO------------------ ##
 
 @app.route("/gerarChaveamento", methods=["GET"])
@@ -574,6 +568,8 @@ def rotaRegistrarVencedor():
     )
 
 
+#---------------- CALENDÁRIO ------------------#
+
 @app.route('/calendarioteste')
 def calendarioteste():
 
@@ -585,43 +581,77 @@ def calendarioteste():
     )
 
 
-from model.funcoesBD.buscar.buscarCalendario import buscarEventosCalendario
-
 @app.route("/calendario/eventos")
 def eventosCalendario():
 
-    eventos = buscarEventosCalendario()
+    from model.funcoesBD.Cadastrar.criarConexao import criarConexao
 
-    lista = []
+    conexao = criarConexao()
 
-    for evento in eventos:
+    try:
+        cursor = conexao.cursor(dictionary=True)
 
-        lista.append({
+        cursor.execute("""
+            SELECT
+                c.pk_evento,
+                c.dia_evento,
+                c.hora_inicio,
+                c.hora_fim,
+                tc.pk_nome_turma AS equipe_casa,
+                tv.pk_nome_turma AS equipe_visitante
 
-            "title": (
-                evento["equipe_casa"]
-                + " x "
-                + evento["equipe_visitante"]
-            ),
+            FROM calendario c
 
-            "start": (
-                str(evento["dia_evento"])
-                + "T"
-                + str(evento["hora_inicio"])
-            ),
+            INNER JOIN partidas p
+                ON c.fk_partida = p.pk_partida
 
-            "end": (
-                str(evento["dia_evento"])
-                + "T"
-                + str(evento["hora_fim"])
-            )
+            INNER JOIN equipes ec
+                ON p.fk_equipe_casa = ec.pk_equipe
 
-        })
+            INNER JOIN equipes ev
+                ON p.fk_equipe_visitante = ev.pk_equipe
 
+            INNER JOIN turmas tc
+                ON ec.fk_nome_turma = tc.pk_nome_turma
 
-    return jsonify(lista)
+            INNER JOIN turmas tv
+                ON ev.fk_nome_turma = tv.pk_nome_turma
+        """)
 
+        eventos = cursor.fetchall()
 
+        lista = []
+
+        for evento in eventos:
+
+            lista.append({
+                "id": str(evento["pk_evento"]),
+
+                "title": (
+                    evento["equipe_casa"]
+                    + " x "
+                    + evento["equipe_visitante"]
+                ),
+
+                "start": (
+                    str(evento["dia_evento"])
+                    + "T"
+                    + str(evento["hora_inicio"])
+                ),
+
+                "end": (
+                    str(evento["dia_evento"])
+                    + "T"
+                    + str(evento["hora_fim"])
+                )
+            })
+
+        return jsonify(lista)
+
+    finally:
+
+        cursor.close()
+        conexao.close()
 
 if __name__ == "__main__":
       app.run(debug=True)

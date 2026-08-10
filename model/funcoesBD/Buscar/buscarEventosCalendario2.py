@@ -1,9 +1,8 @@
-from model.conexao import conectarBanco
+from ..Cadastrar.criarConexao import criarConexao
 
 
 def buscarEventosCalendario():
-
-    banco = conectarBanco()
+    banco = criarConexao()
     cursor = banco.cursor(dictionary=True)
 
     sql = """
@@ -14,9 +13,10 @@ def buscarEventosCalendario():
             c.hora_fim,
 
             p.fk_esporte,
+            p.fk_genero,
 
-            ec.nome_equipe AS equipe_casa,
-            ev.nome_equipe AS equipe_visitante
+            tc.pk_nome_turma AS equipe_casa,
+            tv.pk_nome_turma AS equipe_visitante
 
         FROM calendario c
 
@@ -28,6 +28,12 @@ def buscarEventosCalendario():
 
         INNER JOIN equipes ev
             ON p.fk_equipe_visitante = ev.pk_equipe
+
+        INNER JOIN turmas tc
+            ON ec.fk_nome_turma = tc.pk_nome_turma
+
+        INNER JOIN turmas tv
+            ON ev.fk_nome_turma = tv.pk_nome_turma
     """
 
     cursor.execute(sql)
