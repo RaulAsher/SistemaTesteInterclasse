@@ -141,7 +141,7 @@ def logout():
 
 @app.route("/home")
 def homeRedirect():
-    return render_template("home.html", nome_usuario=session['nome'], nivel=session['nivel'])
+    return render_template("home.html", nome_usuario=session.get("nome", "Visitante"), nivel=session.get("nivel", "Visitante"))
 
 ## ----------------LISTAGENS----------------- ##
 
@@ -567,91 +567,338 @@ def rotaRegistrarVencedor():
         tabela=tabela
     )
 
-
 #---------------- CALENDÁRIO ------------------#
 
 @app.route('/calendarioteste')
 def calendarioteste():
-
-    podeEditar = session['nivel'] in ["Administrador", "AlunoMonitor"]
-
-    return render_template(
-        'calendario2.html',
-        podeEditar=podeEditar
-    )
+    # Somente Administrador pode alterar o calendário.
+    podeEditar = session.get('nivel') == 'Administrador'
+    return render_template('calendario2.html', podeEditar=podeEditar)
 
 
-@app.route("/calendario/eventos")
+@app.route('/calendario/eventos')
 def eventosCalendario():
-
-    from model.funcoesBD.Cadastrar.criarConexao import criarConexao
-
     conexao = criarConexao()
+    cursor = conexao.cursor(dictionary=True)
 
     try:
-        cursor = conexao.cursor(dictionary=True)
-
         cursor.execute("""
             SELECT
                 c.pk_evento,
                 c.dia_evento,
                 c.hora_inicio,
                 c.hora_fim,
-                tc.pk_nome_turma AS equipe_casa,
-                tv.pk_nome_turma AS equipe_visitante
-
+                p.fk_esporte,
+                p.fk_genero,
+                p.etapa,
+                ec.nome_equipe AS equipe_casa,
+                ev.nome_equipe AS equipe_visitante
             FROM calendario c
-
             INNER JOIN partidas p
                 ON c.fk_partida = p.pk_partida
-
             INNER JOIN equipes ec
                 ON p.fk_equipe_casa = ec.pk_equipe
-
             INNER JOIN equipes ev
                 ON p.fk_equipe_visitante = ev.pk_equipe
-
-            INNER JOIN turmas tc
-                ON ec.fk_nome_turma = tc.pk_nome_turma
-
-            INNER JOIN turmas tv
-                ON ev.fk_nome_turma = tv.pk_nome_turma
+            ORDER BY c.dia_evento, c.hora_inicio
         """)
 
-        eventos = cursor.fetchall()
+        cores = {
+            'Vôlei': '#1976d2',
+            'Futsal': '#111111',
+            'Basquete': '#f57c00',
+            'Handebol': '#d32f2f',
+            'Queimada': '#2e7d32',
+            'Xadrez': '#6a1b9a',
+            'Tênis de Mesa': '#c9a227'
+        }
 
-        lista = []
+        etapas = {
+            1: 'Rodada 1',
+            2: 'Rodada 2',
+            3: 'Rodada 3',
+            4: 'Rodada 4'
+        }
 
-        for evento in eventos:
+        eventos = []
 
-            lista.append({
-                "id": str(evento["pk_evento"]),
+        for e in cursor.fetchall():
+            etapa = e['etapa']
 
-                "title": (
-                    evento["equipe_casa"]
-                    + " x "
-                    + evento["equipe_visitante"]
-                ),
-
-                "start": (
-                    str(evento["dia_evento"])
-                    + "T"
-                    + str(evento["hora_inicio"])
-                ),
-
-                "end": (
-                    str(evento["dia_evento"])
-                    + "T"
-                    + str(evento["hora_fim"])
-                )
+            eventos.append({
+                'id': str(e['pk_evento']),
+                'title': f"{e['equipe_casa']} × {e['equipe_visitante']}",
+                'start': f"{e['dia_evento']}T{e['hora_inicio']}",
+                'end': f"{e['dia_evento']}T{e['hora_fim']}",
+                'backgroundColor': cores.get(e['fk_esporte'], '#3788d8'),
+                'extendedProps': {
+                    'esporte': e['fk_esporte'],
+                    'genero': e['fk_genero'],
+                    'etapa': etapas.get(etapa, f'Rodada {etapa}')
+                }
             })
 
-        return jsonify(lista)
+        return jsonify(eventos)
+
+    except Exception as erro:
+        print("Erro ao carregar calendário:", erro)
+        return jsonify({'erro': 'Não foi possível carregar o calendário.'}), 500
 
     finally:
-
         cursor.close()
         conexao.close()
 
+
+@app.route('/calendario/filtros')
+def filtrosCalendario():
+    conexao = criarConexao()
+    cursor = conexao.cursor()
+
+    try:
+        # Puxa somente valores que realmente existem em partidas
+        # e que possuem as duas equipes definidas.
+        cursor.execute("""
+            SELECT DISTINCT fk_esporte
+            FROM partidas
+            WHERE fk_esporte IS NOT NULL
+              AND fk_equipe_casa IS NOT NULL
+              AND fk_equipe_visitante IS NOT NULL
+            ORDER BY fk_esporte
+        """)
+        esportes = [x[0] for x in cursor.fetchall()]
+
+        cursor.execute("""
+            SELECT DISTINCT fk_genero
+            FROM partidas
+            WHERE fk_genero IS NOT NULL
+              AND fk_equipe_casa IS NOT NULL
+              AND fk_equipe_visitante IS NOT NULL
+            ORDER BY fk_genero
+        """)
+        generos = [x[0] for x in cursor.fetchall()]
+
+        return jsonify({
+            'esportes': esportes,
+            'generos': generos
+        })
+
+    except Exception as erro:
+        print("Erro ao carregar filtros:", erro)
+        return jsonify({
+            'esportes': [],
+            'generos': []
+        }), 500
+
+    finally:
+        cursor.close()
+        conexao.close()
+
+
+@app.route('/calendario/partidas')
+def partidasCalendario():
+    esporte = request.args.get('esporte')
+    genero = request.args.get('genero')
+    etapa = request.args.get('etapa', type=int)
+
+    if not esporte or not genero or etapa is None:
+        return jsonify([])
+
+    conexao = criarConexao()
+    cursor = conexao.cursor(dictionary=True)
+
+    try:
+        cursor.execute("""
+            SELECT
+                p.pk_partida,
+                p.fk_esporte,
+                p.fk_genero,
+                p.etapa,
+                ec.nome_equipe AS equipe_casa,
+                ev.nome_equipe AS equipe_visitante
+            FROM partidas p
+            INNER JOIN equipes ec
+                ON p.fk_equipe_casa = ec.pk_equipe
+            INNER JOIN equipes ev
+                ON p.fk_equipe_visitante = ev.pk_equipe
+            LEFT JOIN calendario c
+                ON c.fk_partida = p.pk_partida
+            WHERE p.fk_esporte = %s
+              AND p.fk_genero = %s
+              AND p.etapa = %s
+              AND c.fk_partida IS NULL
+            ORDER BY p.pk_partida
+        """, (esporte, genero, etapa))
+
+        return jsonify(cursor.fetchall())
+
+    except Exception as erro:
+        print("Erro ao buscar partidas do calendário:", erro)
+        return jsonify([]), 500
+
+    finally:
+        cursor.close()
+        conexao.close()
+
+
+@app.route('/calendario/adicionar', methods=['POST'])
+def adicionarCalendario():
+    if session.get('nivel') != 'Administrador':
+        return jsonify({
+            'mensagem': 'Apenas o Administrador pode alterar o calendário.'
+        }), 403
+
+    dados = request.get_json(silent=True) or {}
+    data_evento = dados.get('data')
+    partida = dados.get('fk_partida')
+    inicio = dados.get('hora_inicio')
+    fim = dados.get('hora_fim')
+
+    if not all([data_evento, partida, inicio, fim]):
+        return jsonify({'mensagem': 'Preencha todos os campos.'}), 400
+
+    if fim <= inicio:
+        return jsonify({
+            'mensagem': 'O horário final deve ser maior que o inicial.'
+        }), 400
+
+    conexao = criarConexao()
+    cursor = conexao.cursor()
+
+    try:
+        # A partida precisa existir e ter as duas equipes.
+        cursor.execute("""
+            SELECT pk_partida
+            FROM partidas
+            WHERE pk_partida = %s
+              AND fk_equipe_casa IS NOT NULL
+              AND fk_equipe_visitante IS NOT NULL
+        """, (partida,))
+
+        if not cursor.fetchone():
+            return jsonify({'mensagem': 'Partida inválida.'}), 400
+
+        # A mesma partida só pode aparecer uma vez no calendário.
+        cursor.execute("""
+            SELECT pk_evento
+            FROM calendario
+            WHERE fk_partida = %s
+        """, (partida,))
+
+        if cursor.fetchone():
+            return jsonify({
+                'mensagem': 'Essa partida já está no calendário.'
+            }), 400
+
+        cursor.execute("""
+            INSERT INTO calendario
+                (dia_evento, fk_partida, hora_inicio, hora_fim)
+            VALUES (%s, %s, %s, %s)
+        """, (data_evento, partida, inicio, fim))
+
+        conexao.commit()
+
+        return jsonify({'mensagem': 'Partida adicionada!'})
+
+    except Exception as erro:
+        conexao.rollback()
+        print("Erro ao adicionar partida:", erro)
+        return jsonify({
+            'mensagem': 'Erro ao adicionar partida.'
+        }), 500
+
+    finally:
+        cursor.close()
+        conexao.close()
+
+
+@app.route('/calendario/editar', methods=['POST'])
+def editarCalendario():
+    if session.get('nivel') != 'Administrador':
+        return jsonify({
+            'mensagem': 'Apenas o Administrador pode editar.'
+        }), 403
+
+    dados = request.get_json(silent=True) or {}
+    evento = dados.get('id')
+    inicio = dados.get('hora_inicio')
+    fim = dados.get('hora_fim')
+
+    if not all([evento, inicio, fim]):
+        return jsonify({'mensagem': 'Dados incompletos.'}), 400
+
+    if fim <= inicio:
+        return jsonify({
+            'mensagem': 'O horário final deve ser maior que o inicial.'
+        }), 400
+
+    conexao = criarConexao()
+    cursor = conexao.cursor()
+
+    try:
+        cursor.execute("""
+            UPDATE calendario
+            SET hora_inicio = %s,
+                hora_fim = %s
+            WHERE pk_evento = %s
+        """, (inicio, fim, evento))
+
+        conexao.commit()
+
+        return jsonify({'mensagem': 'Horário atualizado!'})
+
+    except Exception as erro:
+        conexao.rollback()
+        print("Erro ao editar:", erro)
+        return jsonify({
+            'mensagem': 'Erro ao editar horário.'
+        }), 500
+
+    finally:
+        cursor.close()
+        conexao.close()
+
+
+@app.route('/calendario/remover', methods=['POST'])
+def removerCalendario():
+    if session.get('nivel') != 'Administrador':
+        return jsonify({
+            'mensagem': 'Apenas o Administrador pode remover.'
+        }), 403
+
+    dados = request.get_json(silent=True) or {}
+    evento = dados.get('id')
+
+    if not evento:
+        return jsonify({'mensagem': 'Evento inválido.'}), 400
+
+    conexao = criarConexao()
+    cursor = conexao.cursor()
+
+    try:
+        # Remove somente a programação.
+        # A partida continua existindo em "partidas".
+        cursor.execute("""
+            DELETE FROM calendario
+            WHERE pk_evento = %s
+        """, (evento,))
+
+        conexao.commit()
+
+        return jsonify({
+            'mensagem': 'Partida removida do calendário!'
+        })
+
+    except Exception as erro:
+        conexao.rollback()
+        print("Erro ao remover:", erro)
+        return jsonify({
+            'mensagem': 'Erro ao remover partida.'
+        }), 500
+
+    finally:
+        cursor.close()
+        conexao.close()
+
+
 if __name__ == "__main__":
-      app.run(debug=True)
+    app.run(debug=True)

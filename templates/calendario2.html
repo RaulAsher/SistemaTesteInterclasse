@@ -3,10 +3,16 @@
 <!-- #---------------- CALENDÁRIO ------------------# -->
 
 <!-- CSS do FullCalendar -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css" rel="stylesheet">
+<link
+    href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css"
+    rel="stylesheet"
+>
 
 <!-- Seu CSS -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/calendario.css') }}">
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/calendario.css') }}"
+>
 
 
 <div class="content">
@@ -14,6 +20,12 @@
     <div id="calendar"></div>
 
 </div>
+
+
+<!-- Permissão do usuário -->
+<script>
+    window.usuarioPodeEditar = {{ podeEditar | tojson }};
+</script>
 
 
 <!-- FullCalendar -->
@@ -27,4 +39,3 @@
 
 
 {% include "footer.html" %}
-

@@ -2,9 +2,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const calendarEl = document.getElementById('calendar');
 
-    // Controle para detectar duplo clique
-    let ultimoClique = 0;
-    let ultimoDia = null;
+
+    // =====================================================
+    // CALENDÁRIO
+    // =====================================================
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
 
@@ -33,37 +34,15 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         // Eventos
-        events: "/calendario/eventos",
+        events: '/calendario/eventos',
 
         // Clique no dia
-        dateClick: function(info) {
-
-            const agora = Date.now();
-
-            // Verifica se foi no mesmo dia e dentro de 300ms
-            if (
-                ultimoDia === info.dateStr &&
-                agora - ultimoClique < 300
-            ) {
-
-                abrirPopupDia(info.dateStr);
-
-                // Reseta o controle
-                ultimoClique = 0;
-                ultimoDia = null;
-
-                return;
-            }
-
-            // Primeiro clique
-            ultimoClique = agora;
-            ultimoDia = info.dateStr;
-
-            // Abre o popup no primeiro clique
+        dateClick: function (info) {
             abrirPopupDia(info.dateStr);
         }
 
     });
+
 
     calendar.render();
 
@@ -74,46 +53,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function abrirPopupDia(data) {
 
-        // Pega todos os eventos carregados no calendário
-        const eventos = calendar.getEvents();
-
-        // Filtra somente os eventos daquele dia
-        const eventosDoDia = eventos.filter(function(evento) {
+        const eventosDoDia = calendar.getEvents().filter(function (evento) {
 
             if (!evento.start) {
                 return false;
             }
 
-            const ano = evento.start.getFullYear();
-            const mes = String(evento.start.getMonth() + 1).padStart(2, '0');
-            const dia = String(evento.start.getDate()).padStart(2, '0');
+            return formatarData(evento.start) === data;
 
-            const dataEvento = `${ano}-${mes}-${dia}`;
-
-            console.log(
-                "Evento:",
-                evento.title,
-                "| Data:",
-                dataEvento,
-                "| Procurando:",
-                data
-            );
-
-            return dataEvento === data;
         });
 
 
-        // Formata a data para português
-        const dataFormatada = new Date(data + 'T00:00:00')
-            .toLocaleDateString('pt-BR', {
-                weekday: 'long',
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
-            });
+        const dataFormatada =
+            new Date(data + 'T00:00:00')
+                .toLocaleDateString('pt-BR', {
+                    weekday: 'long',
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                });
 
 
-        // Cria o conteúdo dos jogos
         let jogosHTML = '';
 
 
@@ -121,50 +81,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
             jogosHTML = `
                 <div class="sem-jogos">
-                    <p>Não há jogos cadastrados neste dia.</p>
+                    Não há jogos cadastrados neste dia.
                 </div>
             `;
 
         } else {
 
-            eventosDoDia.forEach(function(evento) {
+            eventosDoDia.forEach(function (evento) {
 
-                const horaInicio = evento.start
+                const inicio = evento.start
                     ? evento.start.toLocaleTimeString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit'
                     })
                     : '';
 
-                const horaFim = evento.end
+                const fim = evento.end
                     ? evento.end.toLocaleTimeString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit'
                     })
                     : '';
 
-                const cor = evento.backgroundColor || '#3788d8';
-
 
                 jogosHTML += `
-                    <div class="jogo-popup"
-                         style="border-left: 6px solid ${cor};">
+                    <div
+                        class="jogo-popup"
+                        style="border-left-color:
+                        ${evento.backgroundColor || '#3788d8'}">
 
-                        <div class="jogo-cor"
-                             style="background-color: ${cor};">
+                        <strong>
+                            ${evento.title}
+                        </strong>
+
+                        <div class="jogo-detalhes">
+                            ${evento.extendedProps.esporte}
+                            -
+                            ${evento.extendedProps.genero}
+                            -
+                            ${evento.extendedProps.etapa}
                         </div>
 
-                        <div class="jogo-info">
-
-                            <strong>
-                                ${evento.title}
-                            </strong>
-
-                            <span>
-                                ${horaInicio} - ${horaFim}
-                            </span>
-
-                        </div>
+                        <span>
+                            ${inicio} - ${fim}
+                        </span>
 
                     </div>
                 `;
@@ -172,213 +132,834 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        // Verifica se o usuário é administrador
-        const podeEditar = window.usuarioEhAdministrador === true;
-
-
-        // Botão de editar somente para ADMIN
-        let botaoEditar = '';
-
-        if (podeEditar && eventosDoDia.length > 0) {
-
-            botaoEditar = `
+        // Só ADMIN pode alterar
+        const botoes = window.usuarioPodeEditar
+            ? `
                 <button
                     type="button"
-                    class="btn-editar-dia"
-                    id="btnEditarDia">
-                    Editar
+                    class="btn-adicionar"
+                    id="btnAdicionar">
+                    + Adicionar partida
                 </button>
-            `;
+
+                ${eventosDoDia.length > 0 ? `
+                    <button
+                        type="button"
+                        class="btn-editar"
+                        id="btnEditar">
+                        Editar
+                    </button>
+                ` : ''}
+            `
+            : '';
+
+
+        const popup = criarPopup(`
+
+            <button
+                type="button"
+                class="fechar-popup"
+                id="fechar">
+                ×
+            </button>
+
+            <h2>
+                Jogos do dia
+            </h2>
+
+            <p class="data-popup">
+                ${dataFormatada}
+            </p>
+
+            <div class="lista-jogos-popup">
+                ${jogosHTML}
+            </div>
+
+            <div class="popup-botoes">
+                ${botoes}
+            </div>
+
+        `);
+
+
+        popup.querySelector('#fechar').onclick =
+            () => popup.remove();
+
+
+        if (window.usuarioPodeEditar) {
+
+            popup.querySelector('#btnAdicionar')
+                ?.addEventListener('click', function () {
+
+                    popup.remove();
+
+                    abrirAdicionar(data);
+
+                });
+
+
+            popup.querySelector('#btnEditar')
+                ?.addEventListener('click', function () {
+
+                    popup.remove();
+
+                    abrirEdicao(data, eventosDoDia);
+
+                });
+
         }
+    }
 
 
-        // Cria o popup
-        const popup = document.createElement('div');
+    // =====================================================
+    // ADICIONAR PARTIDA
+    // =====================================================
 
-        popup.className = 'popup-overlay';
+    async function abrirAdicionar(data) {
 
-        popup.innerHTML = `
-            <div class="popup-calendario">
+        const resposta =
+            await fetch('/calendario/filtros');
 
-                <button
-                    type="button"
-                    class="fechar-popup"
-                    id="fecharPopup">
-                    ×
-                </button>
+        const filtros =
+            await resposta.json();
 
-                <h2>
-                    Jogos do dia
-                </h2>
 
-                <p class="data-popup">
-                    ${dataFormatada}
-                </p>
+        const popup = criarPopup(`
 
-                <div class="lista-jogos-popup">
-                    ${jogosHTML}
-                </div>
+            <button
+                type="button"
+                class="fechar-popup"
+                id="fechar">
+                ×
+            </button>
 
-                <div class="popup-botoes">
-                    ${botaoEditar}
+            <h2>
+                Adicionar partida
+            </h2>
+
+            <p class="data-popup">
+                ${formatarDataBR(data)}
+            </p>
+
+
+            <!-- Modalidade -->
+
+            <div class="campo-formulario">
+
+                <label>
+                    Modalidade
+                </label>
+
+                <select id="esporte">
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                    ${filtros.esportes.map(function (esporte) {
+
+                        return `
+                            <option value="${esporte}">
+                                ${esporte}
+                            </option>
+                        `;
+
+                    }).join('')}
+
+                </select>
+
+            </div>
+
+
+            <!-- Gênero -->
+
+            <div class="campo-formulario">
+
+                <label>
+                    Gênero
+                </label>
+
+                <select id="genero">
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                    ${filtros.generos.map(function (genero) {
+
+                        return `
+                            <option value="${genero}">
+                                ${genero}
+                            </option>
+                        `;
+
+                    }).join('')}
+
+                </select>
+
+            </div>
+
+
+            <!-- Rodada -->
+
+            <div class="campo-formulario">
+
+                <label>
+                    Rodada
+                </label>
+
+                <select id="etapa">
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                    <option value="1">
+                        Rodada 1
+                    </option>
+
+                    <option value="2">
+                        Rodada 2
+                    </option>
+
+                    <option value="3">
+                        Rodada 3
+                    </option>
+
+                    <option value="4">
+                        Rodada 4
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Partidas -->
+
+            <div class="campo-formulario">
+
+                <label>
+                    Partida
+                </label>
+
+                <div
+                    id="partidas"
+                    class="lista-partidas">
+
+                    Selecione modalidade, gênero e rodada.
+
                 </div>
 
             </div>
-        `;
 
 
-        document.body.appendChild(popup);
+            <!-- Horários -->
+
+            <div class="linha-horarios">
+
+                <div class="campo-formulario">
+
+                    <label>
+                        Início
+                    </label>
+
+                    <input
+                        type="time"
+                        id="inicio">
+
+                </div>
 
 
-        // Fechar popup
-        document
-            .getElementById('fecharPopup')
-            .addEventListener('click', function () {
+                <div class="campo-formulario">
+
+                    <label>
+                        Fim
+                    </label>
+
+                    <input
+                        type="time"
+                        id="fim">
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="mensagem"
+                class="mensagem-formulario">
+            </div>
+
+
+            <div class="popup-botoes">
+
+                <button
+                    type="button"
+                    class="btn-cancelar"
+                    id="cancelar">
+
+                    Cancelar
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn-salvar"
+                    id="salvar">
+
+                    Adicionar
+
+                </button>
+
+            </div>
+
+        `);
+
+
+        popup.querySelector('#fechar').onclick =
+            () => popup.remove();
+
+
+        popup.querySelector('#cancelar').onclick =
+            () => {
 
                 popup.remove();
 
-            });
+                abrirPopupDia(data);
+
+            };
 
 
-        // Fechar clicando fora
-        popup.addEventListener('click', function (e) {
+        // =================================================
+        // BUSCAR PARTIDAS
+        // =================================================
 
-            if (e.target === popup) {
-                popup.remove();
+        async function buscarPartidas() {
+
+            const esporte =
+                popup.querySelector('#esporte').value;
+
+            const genero =
+                popup.querySelector('#genero').value;
+
+            const etapa =
+                popup.querySelector('#etapa').value;
+
+            const lista =
+                popup.querySelector('#partidas');
+
+
+            if (!esporte || !genero || !etapa) {
+
+                lista.innerHTML =
+                    'Selecione modalidade, gênero e rodada.';
+
+                return;
+
             }
 
-        });
+
+            lista.innerHTML =
+                'Buscando partidas...';
 
 
-        // Botão editar
-        const btnEditar = document.getElementById('btnEditarDia');
+            const url =
+                `/calendario/partidas?` +
+                `esporte=${encodeURIComponent(esporte)}` +
+                `&genero=${encodeURIComponent(genero)}` +
+                `&etapa=${etapa}`;
 
-        if (btnEditar) {
 
-            btnEditar.addEventListener('click', function () {
+            const resposta =
+                await fetch(url);
 
-                abrirEdicaoDia(data, eventosDoDia);
 
-            });
+            const partidas =
+                await resposta.json();
+
+
+            if (!partidas.length) {
+
+                lista.innerHTML =
+                    'Nenhuma partida disponível.';
+
+                return;
+
+            }
+
+
+            lista.innerHTML =
+                partidas.map(function (partida) {
+
+                    return `
+                        <label class="partida-opcao">
+
+                            <input
+                                type="radio"
+                                name="partida"
+                                value="${partida.pk_partida}">
+
+                            <span>
+                                ${partida.equipe_casa}
+                                ×
+                                ${partida.equipe_visitante}
+                            </span>
+
+                        </label>
+                    `;
+
+                }).join('');
 
         }
+
+
+        popup.querySelector('#esporte')
+            .addEventListener(
+                'change',
+                buscarPartidas
+            );
+
+
+        popup.querySelector('#genero')
+            .addEventListener(
+                'change',
+                buscarPartidas
+            );
+
+
+        popup.querySelector('#etapa')
+            .addEventListener(
+                'change',
+                buscarPartidas
+            );
+
+
+        // =================================================
+        // SALVAR
+        // =================================================
+
+        popup.querySelector('#salvar')
+            .addEventListener('click', async function () {
+
+                const partida =
+                    popup.querySelector(
+                        'input[name="partida"]:checked'
+                    );
+
+
+                const inicio =
+                    popup.querySelector('#inicio').value;
+
+                const fim =
+                    popup.querySelector('#fim').value;
+
+
+                const mensagem =
+                    popup.querySelector('#mensagem');
+
+
+                if (!partida || !inicio || !fim) {
+
+                    mensagem.textContent =
+                        'Preencha todos os campos.';
+
+                    return;
+
+                }
+
+
+                if (fim <= inicio) {
+
+                    mensagem.textContent =
+                        'O horário final deve ser maior que o inicial.';
+
+                    return;
+
+                }
+
+
+                const resposta =
+                    await fetch(
+                        '/calendario/adicionar',
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+
+                                data: data,
+
+                                fk_partida:
+                                    partida.value,
+
+                                hora_inicio:
+                                    inicio,
+
+                                hora_fim:
+                                    fim
+
+                            })
+
+                        }
+                    );
+
+
+                const resultado =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    mensagem.textContent =
+                        resultado.mensagem;
+
+                    return;
+
+                }
+
+
+                popup.remove();
+
+                calendar.refetchEvents();
+
+                setTimeout(function () {
+
+                    abrirPopupDia(data);
+
+                }, 300);
+
+            });
 
     }
 
 
     // =====================================================
-    // EDIÇÃO
+    // EDITAR
     // =====================================================
 
-    function abrirEdicaoDia(data, eventos) {
+    function abrirEdicao(data, eventos) {
 
         let jogosHTML = '';
 
 
-        eventos.forEach(function(evento, index) {
+        eventos.forEach(function (evento) {
 
-            const horaInicio = evento.start
-                ? evento.start.toLocaleTimeString('pt-BR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })
-                : '';
+            const inicio =
+                evento.start.toLocaleTimeString(
+                    'pt-BR',
+                    {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }
+                );
 
-            const horaFim = evento.end
-                ? evento.end.toLocaleTimeString('pt-BR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })
-                : '';
+
+            const fim =
+                evento.end
+                    ? evento.end.toLocaleTimeString(
+                        'pt-BR',
+                        {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }
+                    )
+                    : '';
 
 
             jogosHTML += `
-                <div class="edicao-jogo">
+
+                <div
+                    class="edicao-jogo"
+                    data-id="${evento.id}">
 
                     <h3>
                         ${evento.title}
                     </h3>
 
-                    <label>
-                        Data:
-                    </label>
 
-                    <input
-                        type="date"
-                        value="${data}"
-                        class="campo-data"
-                        data-evento="${evento.id}"
-                    >
+                    <div class="linha-horarios">
 
-                    <label>
-                        Hora de início:
-                    </label>
+                        <div class="campo-formulario">
 
-                    <input
-                        type="time"
-                        value="${horaInicio}"
-                        class="campo-inicio"
-                        data-evento="${evento.id}"
-                    >
+                            <label>
+                                Início
+                            </label>
 
-                    <label>
-                        Hora de fim:
-                    </label>
+                            <input
+                                type="time"
+                                class="campo-inicio"
+                                value="${inicio}">
 
-                    <input
-                        type="time"
-                        value="${horaFim}"
-                        class="campo-fim"
-                        data-evento="${evento.id}"
-                    >
+                        </div>
 
-                    <hr>
+
+                        <div class="campo-formulario">
+
+                            <label>
+                                Fim
+                            </label>
+
+                            <input
+                                type="time"
+                                class="campo-fim"
+                                value="${fim}">
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="btn-remover btn-remover-jogo">
+
+                        Remover do calendário
+
+                    </button>
 
                 </div>
+
             `;
+
         });
 
 
-        const popup = document.createElement('div');
+        const popup = criarPopup(`
 
-        popup.className = 'popup-overlay';
+            <button
+                type="button"
+                class="fechar-popup"
+                id="fechar">
+                ×
+            </button>
 
-        popup.innerHTML = `
-            <div class="popup-calendario popup-edicao">
+
+            <h2>
+                Editar jogos
+            </h2>
+
+
+            <p class="data-popup">
+                ${formatarDataBR(data)}
+            </p>
+
+
+            ${jogosHTML}
+
+
+            <div
+                id="mensagem"
+                class="mensagem-formulario">
+            </div>
+
+
+            <div class="popup-botoes">
 
                 <button
                     type="button"
-                    class="fechar-popup"
-                    id="fecharEdicao">
-                    ×
+                    class="btn-cancelar"
+                    id="cancelar">
+
+                    Cancelar
+
                 </button>
 
-                <h2>
-                    Editar jogos
-                </h2>
 
-                <div>
-                    ${jogosHTML}
-                </div>
+                <button
+                    type="button"
+                    class="btn-salvar"
+                    id="salvar">
 
-                <div class="popup-botoes">
+                    Salvar alterações
 
-                    <button
-                        type="button"
-                        class="btn-cancelar"
-                        id="cancelarEdicao">
-                        Cancelar
-                    </button>
+                </button>
 
-                    <button
-                        type="button"
-                        class="btn-salvar"
-                        id="salvarEdicao">
-                        Salvar alterações
-                    </button>
+            </div>
 
-                </div>
+        `);
 
+
+        popup.querySelector('#fechar').onclick =
+            () => popup.remove();
+
+
+        popup.querySelector('#cancelar').onclick =
+            () => {
+
+                popup.remove();
+
+                abrirPopupDia(data);
+
+            };
+
+
+        // =================================================
+        // REMOVER JOGO
+        // =================================================
+
+        popup.querySelectorAll('.btn-remover-jogo')
+            .forEach(function (botao) {
+
+                botao.addEventListener(
+                    'click',
+                    async function () {
+
+                        const jogo =
+                            botao.closest('.edicao-jogo');
+
+
+                        const id =
+                            jogo.dataset.id;
+
+
+                        const resposta =
+                            await fetch(
+                                '/calendario/remover',
+                                {
+                                    method: 'POST',
+
+                                    headers: {
+                                        'Content-Type':
+                                            'application/json'
+                                    },
+
+                                    body: JSON.stringify({
+                                        id: id
+                                    })
+
+                                }
+                            );
+
+
+                        const resultado =
+                            await resposta.json();
+
+
+                        if (!resposta.ok) {
+
+                            popup.querySelector(
+                                '#mensagem'
+                            ).textContent =
+                                resultado.mensagem;
+
+                            return;
+
+                        }
+
+
+                        jogo.remove();
+
+                        calendar.refetchEvents();
+
+                    }
+                );
+
+            });
+
+
+        // =================================================
+        // SALVAR HORÁRIOS
+        // =================================================
+
+        popup.querySelector('#salvar')
+            .addEventListener('click', async function () {
+
+                const jogos =
+                    popup.querySelectorAll('.edicao-jogo');
+
+
+                for (const jogo of jogos) {
+
+                    const inicio =
+                        jogo.querySelector(
+                            '.campo-inicio'
+                        ).value;
+
+
+                    const fim =
+                        jogo.querySelector(
+                            '.campo-fim'
+                        ).value;
+
+
+                    if (!inicio || !fim || fim <= inicio) {
+
+                        popup.querySelector(
+                            '#mensagem'
+                        ).textContent =
+                            'Verifique os horários.';
+
+                        return;
+
+                    }
+
+
+                    await fetch(
+                        '/calendario/editar',
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+
+                                id:
+                                    jogo.dataset.id,
+
+                                hora_inicio:
+                                    inicio,
+
+                                hora_fim:
+                                    fim
+
+                            })
+
+                        }
+                    );
+
+                }
+
+
+                popup.remove();
+
+                calendar.refetchEvents();
+
+                setTimeout(function () {
+
+                    abrirPopupDia(data);
+
+                }, 300);
+
+            });
+
+    }
+
+
+    // =====================================================
+    // FUNÇÕES AUXILIARES
+    // =====================================================
+
+    function criarPopup(conteudo) {
+
+        const popup =
+            document.createElement('div');
+
+        popup.className =
+            'popup-overlay';
+
+
+        popup.innerHTML = `
+            <div class="popup-calendario">
+                ${conteudo}
             </div>
         `;
 
@@ -386,33 +967,51 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.appendChild(popup);
 
 
-        document
-            .getElementById('fecharEdicao')
-            .addEventListener('click', function () {
+        popup.addEventListener(
+            'click',
+            function (evento) {
 
-                popup.remove();
+                if (evento.target === popup) {
+                    popup.remove();
+                }
 
-            });
-
-
-        document
-            .getElementById('cancelarEdicao')
-            .addEventListener('click', function () {
-
-                popup.remove();
-
-            });
+            }
+        );
 
 
-        document
-            .getElementById('salvarEdicao')
-            .addEventListener('click', function () {
+        return popup;
 
-                alert(
-                    'A tela de edição está pronta. Agora vamos ligar o botão ao banco de dados.'
-                );
+    }
 
-            });
+
+    function formatarData(data) {
+
+        const ano =
+            data.getFullYear();
+
+        const mes =
+            String(
+                data.getMonth() + 1
+            ).padStart(2, '0');
+
+        const dia =
+            String(
+                data.getDate()
+            ).padStart(2, '0');
+
+
+        return `${ano}-${mes}-${dia}`;
+
+    }
+
+
+    function formatarDataBR(data) {
+
+        return new Date(
+            data + 'T00:00:00'
+        ).toLocaleDateString(
+            'pt-BR'
+        );
 
     }
 

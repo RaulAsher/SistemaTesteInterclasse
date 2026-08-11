@@ -1,21 +1,21 @@
-/* ===========================
+/* =====================================================
    CALENDÁRIO
-=========================== */
+===================================================== */
 
 #calendar {
     width: 100%;
     max-width: 1100px;
     margin: 30px auto;
     padding: 15px;
-
     background: #f8fafc;
     border-radius: 15px;
     box-shadow: 0 5px 18px rgba(0, 0, 0, .15);
 }
 
-/* ===========================
-   CABEÇALHO
-=========================== */
+
+/* =====================================================
+   FULLCALENDAR
+===================================================== */
 
 .fc .fc-toolbar {
     margin-bottom: 25px;
@@ -27,14 +27,6 @@
     font-size: 30px;
     font-weight: 700;
 }
-
-.fc-header-toolbar {
-    justify-content: space-between !important;
-}
-
-/* ===========================
-   BOTÕES
-=========================== */
 
 .fc .fc-button {
     background: #122f4a !important;
@@ -49,52 +41,278 @@
     background: #2f6ea8 !important;
 }
 
-/* ===========================
-   DIAS DA SEMANA
-=========================== */
-
 .fc-col-header-cell {
     background: #e7edf5;
 }
 
-.fc-col-header-cell-cushion {
-    color: #122f4a;
-    font-weight: bold;
-    text-decoration: none !important;
-}
-
-/* ===========================
-   LINHAS DO CALENDÁRIO
-=========================== */
-
-.fc-theme-standard td,
-.fc-theme-standard th {
-    border: 1px solid #b4bec9;
-}
-
-/* ===========================
-   NÚMERO DOS DIAS
-=========================== */
-
+.fc-col-header-cell-cushion,
 .fc-daygrid-day-number {
     color: #122f4a;
     font-weight: 600;
     text-decoration: none !important;
 }
 
-/* ===========================
-   DIA ATUAL
-=========================== */
+.fc-theme-standard td,
+.fc-theme-standard th {
+    border-color: #b4bec9;
+}
 
 .fc-day-today {
     background: #d9eaff !important;
 }
 
-/* ===========================
-   HOVER
-=========================== */
-
 .fc-daygrid-day:hover {
     background: #edf5ff;
     cursor: pointer;
+}
+
+
+/* =====================================================
+   POPUP
+===================================================== */
+
+.popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.popup-calendario {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 30px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, .25);
+}
+
+.popup-calendario h2 {
+    margin: 0 40px 5px 0;
+    color: #122f4a;
+}
+
+.fechar-popup {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    border: 0;
+    background: transparent;
+    color: #122f4a;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.data-popup {
+    margin-bottom: 22px;
+    color: #667788;
+    text-transform: capitalize;
+}
+
+
+/* =====================================================
+   JOGOS
+===================================================== */
+
+.lista-jogos-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.jogo-popup {
+    padding: 13px;
+    background: #f7f9fc;
+    border-left: 5px solid #3788d8;
+    border-radius: 8px;
+}
+
+.jogo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.jogo-info strong {
+    color: #122f4a;
+}
+
+.jogo-info span {
+    color: #667788;
+    font-size: 14px;
+}
+
+.sem-jogos {
+    padding: 20px;
+    background: #f7f9fc;
+    border-radius: 8px;
+    text-align: center;
+    color: #667788;
+}
+
+
+/* =====================================================
+   FORMULÁRIO
+===================================================== */
+
+.campo-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+.campo-formulario label {
+    color: #122f4a;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.campo-formulario select,
+.campo-formulario input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #b9c3ce;
+    border-radius: 8px;
+    outline: none;
+}
+
+.campo-formulario select:focus,
+.campo-formulario input:focus {
+    border-color: #2f6ea8;
+}
+
+.linha-horarios {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+
+/* =====================================================
+   PARTIDAS DISPONÍVEIS
+===================================================== */
+
+.lista-partidas {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 230px;
+    overflow-y: auto;
+    margin-bottom: 18px;
+}
+
+.partida-opcao {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #f7f9fc;
+    border: 1px solid #d7dee6;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.partida-opcao:hover {
+    background: #edf5ff;
+}
+
+.partida-opcao input {
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   BOTÕES
+===================================================== */
+
+.popup-botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.popup-botoes button {
+    padding: 10px 17px;
+    border: 0;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-adicionar {
+    background: #1d7a46;
+    color: white;
+}
+
+.btn-editar {
+    background: #122f4a;
+    color: white;
+}
+
+.btn-salvar {
+    background: #2f6ea8;
+    color: white;
+}
+
+.btn-cancelar {
+    background: #e5e7eb;
+    color: #27313a;
+}
+
+.mensagem-formulario {
+    margin-top: 10px;
+    color: #c62828;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width: 700px) {
+
+    #calendar {
+        margin: 15px auto;
+        padding: 8px;
+    }
+
+    .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .fc .fc-toolbar-title {
+        padding: 0;
+        font-size: 23px;
+    }
+
+    .popup-calendario {
+        padding: 22px;
+    }
+
+    .linha-horarios {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .popup-botoes {
+        flex-direction: column;
+    }
+
+    .popup-botoes button {
+        width: 100%;
+    }
 }
