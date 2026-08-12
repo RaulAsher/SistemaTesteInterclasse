@@ -61,6 +61,6 @@ from .funcoesBD import (
     buscarEstatisticasDasModalidades,
     buscarEstatisticasPrincipal,
     buscarEsportePorPartida,
-    salvarDadosEstatisticos,
     buscarEstatisticasDasPartidas,
+    salvarOuAtualizarEstatistica,
 )

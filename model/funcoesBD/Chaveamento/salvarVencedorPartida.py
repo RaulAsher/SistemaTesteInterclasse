@@ -84,7 +84,8 @@ def salvarVencedorPartida(
     vencedor_id,
     pontos_equipe_casa,
     pontos_equipe_visitante,
-    cod_partida_mae
+    cod_partida_mae,
+    modo_edicao
 ):
 
     conexao = criarConexao()
@@ -94,23 +95,35 @@ def salvarVencedorPartida(
 
     try:
 
-        # Salva o resultado da partida
-
         with conexao.cursor() as cursor:
 
-            query = """
-                UPDATE partidas
+            if modo_edicao == True:
 
-                SET
-                    pk_equipe_vencedora = %s,
-                    definida = 'sim',
-                    pontos_turma_casa = %s,
-                    pontos_turma_visitante = %s
+                # EDIÇÃO: pode atualizar uma partida já definida
+                query = """
+                    UPDATE partidas
+                    SET
+                        pk_equipe_vencedora = %s,
+                        pontos_turma_casa = %s,
+                        pontos_turma_visitante = %s
+                    WHERE pk_partida = %s
+                    AND definida = 'sim'
+                """
 
-                WHERE
-                    pk_partida = %s
-                    AND definida = 'nao';
-            """
+            else:
+
+                # PRIMEIRO SALVAMENTO:
+                # só permite definir uma partida que ainda não foi definida
+                query = """
+                    UPDATE partidas
+                    SET
+                        pk_equipe_vencedora = %s,
+                        definida = 'sim',
+                        pontos_turma_casa = %s,
+                        pontos_turma_visitante = %s
+                    WHERE pk_partida = %s
+                    AND definida = 'nao'
+                """
 
             cursor.execute(
                 query,
@@ -122,19 +135,18 @@ def salvarVencedorPartida(
                 )
             )
 
+            print("Linhas atualizadas:", cursor.rowcount)
+
             conexao.commit()
 
     except mysql.connector.Error as err:
 
         print(f"Erro ao salvar vencedor: {err}")
-
+        conexao.rollback()
         return False
 
     finally:
-
         conexao.close()
-
-    # Atualiza a próxima rodada (caso exista)
 
     atualizarPartidaProximaRodada(
         cod_partida_mae,

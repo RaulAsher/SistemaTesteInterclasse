@@ -35,6 +35,7 @@
         <form action="/salvarEstatisticas" method="POST">
 
             <input type="hidden" name="id_partida" value="{{ id_partida }}">
+            <input type="hidden" name="modo_edicao" id="modo_edicao" value="false">
 
             {% if definida == "sim" %}
             <div class="times-header">
@@ -92,8 +93,9 @@
                         <div class="contador">
                             {% if (nivel == "Administrador" or nivel == "AlunoMonitor") and definida == "nao" %}
                             
+                            
                             <button type="button" class="btn-contador negativo">-</button>
-                            <div class="score-input">{{estatisticas_partida[]}}</div>
+                            <div class="score-input">0</div>
                             <button type="button" class="btn-contador positivo">+</button>
 
                             {% else %}
@@ -175,8 +177,16 @@ function coletarEstatisticas() {
         const nomeEstatistica = linha.querySelector('.titulo').textContent.trim();
         const blocos = linha.querySelectorAll('.bloco-contador');
 
-        const valorCasa = blocos[0].querySelector('.score-input').textContent.trim();
-        const valorVisitante = blocos[1].querySelector('.score-input').textContent.trim();
+        const scoreCasa = blocos[0].querySelector('.score-input');
+        const scoreVisitante = blocos[1].querySelector('.score-input');
+
+        const valorCasa = scoreCasa.textContent.trim() === ''
+            ? 0
+            : parseInt(scoreCasa.textContent.trim());
+
+        const valorVisitante = scoreVisitante.textContent.trim() === ''
+            ? 0
+            : parseInt(scoreVisitante.textContent.trim());
 
         dados.push({
             estatistica: nomeEstatistica,
@@ -185,6 +195,8 @@ function coletarEstatisticas() {
         });
     });
 
+    console.log(dados);
+
     return dados;
 }
 
@@ -192,14 +204,23 @@ function coletarEstatisticas() {
 
 async function salvarEstatisticas(idPartida, estatisticas) {
     try {
+
+        const modoEdicao =
+            document.querySelector('#modo_edicao').value === 'true';
+
+        console.log("MODO EDIÇÃO:", modoEdicao);
+        console.log("TIPO:", typeof modoEdicao);
+
         const response = await fetch('/salvarEstatisticas', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
+
             body: JSON.stringify({
                 id_partida: idPartida,
-                estatisticas: estatisticas
+                estatisticas: estatisticas,
+                modo_edicao: modoEdicao
             })
         });
 
@@ -208,6 +229,7 @@ async function salvarEstatisticas(idPartida, estatisticas) {
         }
 
         const resultado = await response.json();
+
         return resultado;
 
     } catch (erro) {
@@ -228,7 +250,14 @@ document.querySelector('form').addEventListener('submit', async (e) => {
 
         if (resultado.sucesso) {
             alert('Estatísticas salvas com sucesso!');
-        } else {
+
+            if (document.querySelector('#modo_edicao').value === 'true') {
+            document.querySelectorAll('.btn-contador').forEach(botao => {
+            botao.disabled = true;
+
+            document.querySelector('#modo_edicao').value = 'false';
+        });
+        }} else {
             alert('Erro ao salvar: ' + (resultado.mensagem || 'erro desconhecido'));
         }
 
@@ -243,6 +272,15 @@ function habilitarEdicao() {
     botoes.forEach(botao => {
         botao.disabled = false;
     });
+
+
+    document.querySelectorAll('.score-input').forEach(score => {
+        if (score.textContent.trim() === '') {
+            score.textContent = '0';
+        }
+    });
+
+    document.querySelector('#modo_edicao').value = 'true';
 }
 </script>
 

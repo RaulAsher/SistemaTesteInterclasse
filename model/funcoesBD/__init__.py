@@ -39,7 +39,7 @@ from .Cadastrar.cadastrarUsuario import cadastrarUsuario
 from .Cadastrar.criarConexao import criarConexao
 from .Cadastrar.criarEstatisticas import criarEstatisticas
 from .Cadastrar.criarPartidas import criarPartidas
-from .Cadastrar.salvarDadosEstatisticos import salvarDadosEstatisticos
+from .Chaveamento.salvarOuAtualizarEstatisticas import salvarOuAtualizarEstatistica
 from .Chaveamento.buscarEquipesPorModCla import buscarEquipesPorModCla
 from .Chaveamento.buscarPartidasParaGestao import buscarPartidasParaGestao
 from .Chaveamento.gerarProximaRodada import gerarProximaRodada

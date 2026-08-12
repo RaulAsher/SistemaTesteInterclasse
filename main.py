@@ -782,6 +782,7 @@ def verEstatisticas(partida_id):
 def salvarEstatisticas():
     try:
         dados = request.get_json()
+        modo_edicao = dados.get('modo_edicao')
 
         id_partida = dados.get("id_partida")
         estatisticas = dados.get("estatisticas", [])
@@ -798,19 +799,26 @@ def salvarEstatisticas():
         pontos_equipe_casa = 0
         pontos_equipe_visitante = 0
 
+        ponto_principal_casa = 0
+        ponto_principal_visitante = 0
+
         for stat in estatisticas:
 
             nome_estatistica = stat.get("estatistica")
             pontos_equipe_casa = int(stat.get("casa", 0))
             pontos_equipe_visitante = int(stat.get("visitante", 0))
-            salvarDadosEstatisticos(id_partida, nome_estatistica, pontos_equipe_casa, pontos_equipe_visitante)
+
+            salvarOuAtualizarEstatistica(id_partida, nome_estatistica, pontos_equipe_casa, pontos_equipe_visitante)
 
 
             if nome_estatistica == estatistica_principal:
 
+                ponto_principal_casa = pontos_equipe_casa
+                ponto_principal_visitante = pontos_equipe_visitante
+
                 vencedor_id = (
                     cod_equipe_casa
-                    if pontos_equipe_casa > pontos_equipe_visitante
+                    if ponto_principal_casa > ponto_principal_visitante
                     else cod_equipe_visitante
                 )
 
@@ -829,9 +837,10 @@ def salvarEstatisticas():
         salvarVencedorPartida(
             id_partida,
             vencedor_id,
-            pontos_equipe_casa,
-            pontos_equipe_visitante,
-            cod_partida_mae
+            ponto_principal_casa,
+            ponto_principal_visitante,
+            cod_partida_mae,
+            modo_edicao
         )
 
         return jsonify({
@@ -853,31 +862,6 @@ def salvarEstatisticas():
             "sucesso": False,
             "mensagem": f"{type(e).__name__}: {str(e)}"
         }), 500
-
-    
-
-            
-                
-
-@app.route("/verEstatisticasteste", methods=["GET"])
-def verEstatisticasteste():
-    dados = {
-        "id_partida": 123,
-        "estatisticas": [
-            {
-                "estatistica": "Finalizações",
-                "casa": 5,
-                "visitante": 3
-            },
-            {
-                "estatistica": "Escanteios",
-                "casa": 4,
-                "visitante": 6
-            }
-        ]
-    }
-
-    return jsonify(dados)
 
 @app.route("/chaveamento/vencedor", methods=["POST"])
 @requerAdmin
@@ -905,7 +889,8 @@ def rotaRegistrarVencedor():
         vencedor_id,
         pontos_equipe_casa,
         pontos_equipe_visitante,
-        cod_partida_mae
+        cod_partida_mae,
+        
     )
 
     tabela = buscarPartidasParaGestao(esporte, genero)
