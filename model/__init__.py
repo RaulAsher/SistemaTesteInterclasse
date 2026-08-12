@@ -57,5 +57,6 @@ from .funcoesBD import (
     buscarMembrosEquipe,
     buscarEstatisticasPrincipal,
     buscarEstatisticasRegistradas,
-    buscarEquipesPorID
+    buscarEquipesPorID,
+    buscarEstatisticasDasModalidades
 )

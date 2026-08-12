@@ -5,7 +5,7 @@ def buscarEstatisticasPorModalidade(modalidade):
     conexao = criarConexao()
     cursor = conexao.cursor()
     try:
-        cursor.execute(f'SELECT fk_nome_estatistica FROM estatisticas_esporte WHERE fk_esporte = %s', (modalidade,))
+        cursor.execute('SELECT fk_nome_estatistica, estatistica_principal FROM estatisticas_esporte WHERE fk_esporte = %s', (modalidade,))
         estatisticasBuscadas = cursor.fetchall()
         return estatisticasBuscadas
     except:

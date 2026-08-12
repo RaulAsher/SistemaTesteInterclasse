@@ -84,7 +84,7 @@
 
             <div class="form-group">
                 <label for="nivel">Nível:</label>
-                <select name="nivel" id="nivel" required onchange="toggleTurmaSelect('cadastro')">
+                <select name="nivel" id="nivel" required onchange="toggleTurmaSelect('cadastro'); toggleCamposUsuario('cadastro')">
                     <option value="">Selecione</option>
                     <option value="Administrador">Administrador</option>
                     <option value="AlunoMonitor">Aluno Monitor</option>
@@ -98,6 +98,41 @@
                     {% for turma in turmas %}
                     <option value="{{ turma['pk_nome_turma'] }}">{{ turma['pk_nome_turma'] }}</option>
                     {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" id="esporteCadastro" style="display: none;">
+                <label for="fk_esporte">Esporte:</label>
+                <select
+                    name="fk_esporte"
+                    id="fk_esporte"
+                    onchange="filtrarEstatisticas('cadastro')">
+
+                    <option value="">Selecione</option>
+
+                    {% for esporte in esportes %}
+                    <option value="{{ esporte['pk_esporte'] }}">
+                        {{ esporte['pk_esporte'] }}
+                    </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="form-group" id="estatisticaCadastro" style="display: none;">
+                <label for="fk_estatistica">Estatística:</label>
+
+                <select name="fk_estatistica" id="fk_estatistica">
+                    <option value="">Selecione</option>
+
+                    {% for estatistica in estatisticas %}
+                    <option
+                        value="{{ estatistica['fk_nome_estatistica'] }}"
+                        data-esporte="{{ estatistica['fk_esporte'] }}">
+                        {{ estatistica['fk_nome_estatistica'] }}
+                    </option>
+                    {% endfor %}
+
                 </select>
             </div>
 
@@ -121,7 +156,7 @@
 
             <div class="form-group">
                 <label>Nível:</label>
-                <select name="nivel" id="editNivel" required onchange="toggleTurmaSelect('edicao')">
+                <select name="nivel" id="nivel" required onchange="toggleTurmaSelect('edicao'); toggleCamposUsuario('edicao')">
                     <option value="Administrador">Administrador</option>
                     <option value="AlunoMonitor">Aluno Monitor</option>
                 </select>
@@ -135,6 +170,41 @@
                     {% for turma in turmas %}
                     <option value="{{ turma['pk_nome_turma'] }}">{{ turma['pk_nome_turma'] }}</option>
                     {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" id="esporteEdicao" style="display: none;">
+                <label for="edit_fk_esporte">Esporte:</label>
+                <select
+                    name="fk_esporte"
+                    id="fk_esporte"
+                    onchange="filtrarEstatisticas('cadastro')">
+
+                    <option value="">Selecione</option>
+
+                    {% for esporte in esportes %}
+                    <option value="{{ esporte['pk_esporte'] }}">
+                        {{ esporte['pk_esporte'] }}
+                    </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="form-group" id="estatisticaEdicao" style="display: none;">
+                <label for="fk_estatistica">Estatística:</label>
+
+                <select name="fk_estatistica" id="fk_estatistica">
+                    <option value="">Selecione</option>
+
+                    {% for estatistica in estatisticas %}
+                    <option
+                        value="{{ estatistica['fk_nome_estatistica'] }}"
+                        data-esporte="{{ estatistica['fk_esporte'] }}">
+                        {{ estatistica['fk_nome_estatistica'] }}
+                    </option>
+                    {% endfor %}
+
                 </select>
             </div>
 

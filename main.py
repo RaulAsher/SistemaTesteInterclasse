@@ -345,7 +345,14 @@ def jogadoresPorEquipe(id_equipe):
 def paginaCadastrarUsuario():
     usuarios = telaUsuarios()
     turmas = buscarTurmas()
-    return render_template("cadastrarUsuario.html", usuarios=usuarios, turmas=turmas)
+    esportes = buscarEsportes()
+    estatisticas = buscarEstatisticasDasModalidades()
+    return render_template("cadastrarUsuario.html", 
+    usuarios=usuarios, 
+    turmas=turmas, 
+    esportes=esportes, 
+    estatisticas=estatisticas,
+    )
 
 # Inserção no banco
 @app.route("/cadastrarUsuario", methods=["POST"])
@@ -354,6 +361,9 @@ def rotaCadastrarUsuario():
     senha = request.form.get("senha")
     nivel = request.form.get("nivel")
     fk_nome_turma = request.form.get("fk_nome_turma") if nivel == "AlunoMonitor" else None
+    esporte = request.form.get("fk_esporte")
+    estatistica = request.form.get("fk_estatistica")
+
     usuario_logado = session["nome"]
 
         #--Validação: aluno monitor precisa de turma
@@ -364,7 +374,7 @@ def rotaCadastrarUsuario():
 
     try:
 
-        cadastrarUsuario(pk_usuario, senha, nivel, usuario_logado, fk_nome_turma)
+        cadastrarUsuario(pk_usuario, senha, nivel, usuario_logado, fk_nome_turma, esporte, estatistica)
         flash("Usuário cadastrado com sucesso!", "success")
 
     except Exception as e:
@@ -395,7 +405,7 @@ def rotaDeletarUsuario(pk_usuario):
     deletarUsuario(pk_usuario)
     usuarios = telaUsuarios()
     turmas = buscarTurmas()
-    return render_template("cadastrarUsuario.html", usuarios=usuarios, turmas=turmas)
+    return redirect(url_for("paginaCadastrarUsuario"))
 
 
 ## ----------------GERENCIAR/CADASTRAR MODALIDADES------------------ ##
@@ -724,15 +734,25 @@ def verEstatisticas(partida_id):
     esporte = partida["fk_esporte"]
     fk_equipe_casa = partida["fk_equipe_casa"]
     fk_equipe_visitante = partida["fk_equipe_visitante"]
+    definida = partida["definida"]
+    nivel = session["nivel"]
     equipes = buscarEquipesPorID(fk_equipe_casa, fk_equipe_visitante)
     equipe_casa = equipes[0]
     equipe_visitante = equipes[1]
     estatisticasList = buscarEstatisticasPorModalidade(esporte)
     estatisticas = []
-    for i in range(0,len(estatisticasList)):
-        estatisticas.append(estatisticasList[i][0])
+    for estatistica, principal in estatisticasList:
+        if principal == 1:
+            estatisticas.insert(0, estatistica)
+        else:
+            estatisticas.append(estatistica)
+
+    usuario = buscarUsuarioPorNome(session["nome"])
+
+    estatistica_permitida = usuario["fk_estatistica_permitida"]
     
-        
+    if nivel == "AlunoMonitor":
+        estatisticas = [estatistica_permitida]
 
 
     return render_template("verEstatisticas.html", 
@@ -743,6 +763,8 @@ def verEstatisticas(partida_id):
     fk_equipe_visitante=fk_equipe_visitante,
     id_partida=partida_id,
     estatisticas=estatisticas,
+    definida=definida,
+    nivel=nivel,
     )
 
 @app.route("/salvarEstatisticas", methods=["POST"])
@@ -839,7 +861,8 @@ def processarRemoverEstatistica():
 def processarCadastrarEstatisticaModalidade():
     esporte = request.form['esporte']
     estatistica = request.form['estatistica']
-    cadastrarEstatisticasParaModalidade(esporte, estatistica)
+    principal = request.form.get("estatistica_principal") == "true"
+    cadastrarEstatisticasParaModalidade(esporte, estatistica, principal)
     return redirect(f'/gerenciarEstatisticas')
 
 #Remove estatistica de determinada modalidade
@@ -858,4 +881,5 @@ def processarRemoverEstatisticaModalidade():
 @app.route('/api/estatisticasPorModalidade/<string:esporte>')
 def processarEstatisticasPorModalidade(esporte):
     estatisticasFiltras = buscarEstatisticasPorModalidade(esporte)
-    return jsonify(estatisticasFiltras)
+    resultado = [{"fk_nome_estatistica": linha[0]} for linha in estatisticasFiltras]
+    return jsonify(resultado)

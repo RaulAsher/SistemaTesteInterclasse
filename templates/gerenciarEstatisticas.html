@@ -56,6 +56,10 @@
                 <option value="{{estatistica['pk_nome_estatistica']}}">{{estatistica['pk_nome_estatistica']}}</option>
                 {%endfor%}
             </select><br>
+            <label>
+            <input type="checkbox" name="estatistica_principal" value="true">
+            Estatística principal do esporte
+            </label>
             <button type="submit">Cadastrar Estatisticas</button>
         </form>
         <h3>Remover Estatisticas de uma Modalidade</h3>

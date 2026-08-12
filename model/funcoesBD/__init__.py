@@ -26,6 +26,7 @@ from .Buscar.buscarEstatisticasPrincipal import buscarEstatisticasPrincipal
 from .Buscar.buscarEstatisticasRegistradas import buscarEstatisticasRegistradas
 from .Buscar.telaUsuarios import telaUsuarios
 from .Buscar.buscarEquipesPorId import buscarEquipesPorID
+from .Buscar.buscarEstatisticasDasModalidades import buscarEstatisticasDasModalidades
 from .Cadastrar.cadastrarAluno import cadastrarAluno
 from .Cadastrar.cadastrarEquipe import cadastrarEquipe
 from .Cadastrar.cadastrarEsportes import cadastrarEsportes

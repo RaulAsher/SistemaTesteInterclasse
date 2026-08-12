@@ -34,40 +34,62 @@
 
             <input type="hidden" name="id_partida" value="{{ id_partida }}">
 
-
+            {% if definida == "sim" %}
             <div class="times-header">
                 <h3 class="time-nome">{{ equipe_casa }}</h3>
                 <h3 class="time-nome">{{ equipe_visitante }}</h3>
             </div>
-
+            {%endif%}
             
             <div class="estatisticas-grid">
 
                 {% for estatistica in estatisticas %}
                 <div class="linha-completa">
-
                     <div class="bloco-contador">
                         <div class="contador">
+                            {% if (nivel == "Administrador" or nivel == "AlunoMonitor") and definida == "nao" %}
+                            
                             <button type="button" class="btn-contador negativo">-</button>
                             <div class="score-input">0</div>
                             <button type="button" class="btn-contador positivo">+</button>
+
+                            {% else %}
+                            <button type="button" class="btn-contador negativo" disabled>-</button>
+                            <div class="score-input">0</div>
+                            <button type="button" class="btn-contador positivo" disabled>+</button>
+                            {% endif %}
                         </div>
+                    
+                        
                         <span class="time-mobile">{{ equipe_casa }}</span>
                     </div>
 
+                    {% if nivel == "Visitante" and definida == "sim" %}
                     <div class="labels">
                         <span class="titulo">{{estatistica}}</span>
                     </div>
+                    {% elif (nivel == "Administrador" or nivel == "AlunoMonitor") and (definida == "nao" or definida == "sim") %}
+                    <div class="labels">
+                        <span class="titulo">{{estatistica}}</span>
+                    </div>
+                    {%endif%}
 
                     <div class="bloco-contador">
                         <div class="contador">
+                            {% if (nivel == "Administrador" or nivel == "AlunoMonitor") and definida == "nao" %}
+                            
                             <button type="button" class="btn-contador negativo">-</button>
                             <div class="score-input">0</div>
                             <button type="button" class="btn-contador positivo">+</button>
+
+                            {% else %}
+                            <button type="button" class="btn-contador negativo" disabled>-</button>
+                            <div class="score-input">0</div>
+                            <button type="button" class="btn-contador positivo" disabled>+</button>
+                            {% endif %}
                         </div>
                         <span class="time-mobile">{{ equipe_visitante }}</span>
                     </div>
-
                 </div>
                 {% endfor %}
 
@@ -75,8 +97,8 @@
 
             <div class="form-actions">
 
-                {% if session['nivel'] == 'Administrador'
-                   or session['nivel'] == 'AlunoMonitor' %}
+                {% if (nivel == 'Administrador' or nivel == 'AlunoMonitor')%}
+
 
                 <button
                 type="submit"
@@ -84,7 +106,7 @@
                 >
                     Salvar
                 </button>
-
+                {% if nivel == "Administrador" and (definida == "sim" or definida == "nao")%}
                 <button
                     type="button"
                     class="btn btn-edit"
@@ -93,7 +115,7 @@
                     Editar
 
                 </button>
-
+                {% endif %}
                 {% endif %}
 
             </div>
@@ -194,6 +216,14 @@ document.querySelector('form').addEventListener('submit', async (e) => {
         alert('Não foi possível salvar. Verifique sua conexão e tente novamente.');
     }
 });
+
+function habilitarEdicao() {
+    const botoes = document.querySelectorAll('.btn-contador');
+
+    botoes.forEach(botao => {
+        botao.disabled = false;
+    });
+}
 </script>
 
 {% include 'footer.html' %}

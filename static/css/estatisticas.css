@@ -123,6 +123,10 @@
     font-size:clamp(14px, 2vw, 18px);
 }
 
+.btn-contador:disabled {
+    display: none;
+}
+
 .negativo{
     background-color:red;
 }
@@ -130,6 +134,7 @@
 .positivo{
     background-color:green;
 }
+
 
 .score-input{
     flex:1;

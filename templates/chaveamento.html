@@ -83,8 +83,18 @@
             cursor: pointer;
         }
 
-        button:hover {
+        button:hover,.btn-estatisticas:hover {
             opacity: 0.9;
+        }
+
+        .btn-estatisticas{
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
         }
 
         /* BRACKET */
@@ -323,18 +333,21 @@
                             <h4>ID: {{partida.id_Partida_mae}}</h4>
                         </div>
 
-                        {% if partida.definida == 'nao' and session["nivel"] == "Administrador"%}
+                        {% if partida.definida == 'nao' and (session["nivel"] == "Administrador" or session["nivel"] == "AlunoMonitor")%}
                         <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
-                            <button>Salvar</button>
+                            <a class="btn-estatisticas" href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Ver Estatísticas</a> 
                         </div>
                         {% elif session ["nivel"] == "Visitante" %}
                             {% if partida.definida == 'nao' %}
                             <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
-                                <a href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Ver Estatísticas</a>   
+                                <a class="btn-estatisticas" href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Ver Estatísticas</a>   
                             </div>
                             {% endif %}
 
                         {% else %}
+                        <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
+                            <a class="btn-estatisticas" href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Ver Estatísticas</a> 
+                        </div>
                         <div class="status" style="grid-column: span 3;">Encerrada</div>
                         {% endif %}
 
