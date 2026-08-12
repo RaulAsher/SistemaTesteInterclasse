@@ -13,6 +13,7 @@ from .Buscar.buscarEstatisticasPorModalidade import buscarEstatisticasPorModalid
 from .Buscar.buscarEsportes import buscarEsportes
 from .Buscar.buscarJogadoresPorEquipe import buscarJogadoresPorEquipe
 from .Buscar.buscarModalidades import buscarModalidades, buscarModalidadesAtletismo
+from .Buscar.buscarEstatisticasPrincipalPorModalidade import buscarEstatisticasPrincipal
 from .Buscar.buscarPartidaPorId import buscarPartidaPorId
 from .Buscar.buscarPartidas import buscarPartidas
 from .Buscar.buscarTurmas import buscarTurmas
@@ -22,11 +23,13 @@ from .Buscar.buscarEventosCalendario import buscarEventosCalendario
 from .Buscar.buscarEventosCalendarioFiltros import buscarEventosCalendarioFiltros
 from .Buscar.configuracao import buscarConfiguracao, alterarConfiguracao
 from .Buscar.buscarMembrosEquipe import buscarMembrosEquipe
-from .Buscar.buscarEstatisticasPrincipal import buscarEstatisticasPrincipal
+from .Buscar.buscarEstatisticasPrincipalPorModalidade import buscarEstatisticasPrincipal
 from .Buscar.buscarEstatisticasRegistradas import buscarEstatisticasRegistradas
 from .Buscar.telaUsuarios import telaUsuarios
 from .Buscar.buscarEquipesPorId import buscarEquipesPorID
 from .Buscar.buscarEstatisticasDasModalidades import buscarEstatisticasDasModalidades
+from .Buscar.buscarEsportePorPartida import buscarEsportePorPartida
+from .Buscar.buscarEstatisticasDasPartidas import buscarEstatisticasDasPartidas
 from .Cadastrar.cadastrarAluno import cadastrarAluno
 from .Cadastrar.cadastrarEquipe import cadastrarEquipe
 from .Cadastrar.cadastrarEsportes import cadastrarEsportes
@@ -36,6 +39,7 @@ from .Cadastrar.cadastrarUsuario import cadastrarUsuario
 from .Cadastrar.criarConexao import criarConexao
 from .Cadastrar.criarEstatisticas import criarEstatisticas
 from .Cadastrar.criarPartidas import criarPartidas
+from .Cadastrar.salvarDadosEstatisticos import salvarDadosEstatisticos
 from .Chaveamento.buscarEquipesPorModCla import buscarEquipesPorModCla
 from .Chaveamento.buscarPartidasParaGestao import buscarPartidasParaGestao
 from .Chaveamento.gerarProximaRodada import gerarProximaRodada

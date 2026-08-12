@@ -1,9 +1,10 @@
 from ..Cadastrar.criarConexao import criarConexao, database
 
-def buscarEstatisticasDasPartidas():
+def buscarEstatisticasDasPartidas(fk_partida):
     conexao = criarConexao()
     cursor = conexao.cursor(dictionary=True)
-    cursor.execute(f'SELECT * FROM {database}.estatisticas_partida')
+    query = 'SELECT * FROM estatisticas_partida where fk_partida = %s'
+    cursor.execute(query, (fk_partida, ))
 
     estatisticasBuscadas = cursor.fetchall()
 

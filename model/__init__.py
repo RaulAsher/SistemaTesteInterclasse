@@ -58,5 +58,9 @@ from .funcoesBD import (
     buscarEstatisticasPrincipal,
     buscarEstatisticasRegistradas,
     buscarEquipesPorID,
-    buscarEstatisticasDasModalidades
+    buscarEstatisticasDasModalidades,
+    buscarEstatisticasPrincipal,
+    buscarEsportePorPartida,
+    salvarDadosEstatisticos,
+    buscarEstatisticasDasPartidas,
 )

@@ -265,6 +265,7 @@
                                     <h4 class="status">Aguardando</h4>
                                 {% else %}
                                     <h4 class="status">Sem Equipe</h4>
+                                    
                                 {% endif %}
                             {% endif %}
 
@@ -338,7 +339,7 @@
                             <a class="btn-estatisticas" href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Ver Estatísticas</a> 
                         </div>
                         {% elif session ["nivel"] == "Visitante" %}
-                            {% if partida.definida == 'nao' %}
+                            {% if partida.definida == 'sim' or partida.definida == 'nao' %}
                             <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
                                 <a class="btn-estatisticas" href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Ver Estatísticas</a>   
                             </div>

@@ -4,6 +4,8 @@
 
 <div class="container">
 
+    <h1 class="titulo-esporte">{{ esporte }}</h1>
+    {% if equipe_casa != None and equipe_visitante != None%}
     <div class="placar-header">
 
         <div class="equipe-header">
@@ -29,7 +31,7 @@
 
     <!-- Card Principal -->
     <div class="card-partida">
-
+        
         <form action="/salvarEstatisticas" method="POST">
 
             <input type="hidden" name="id_partida" value="{{ id_partida }}">
@@ -42,6 +44,9 @@
             {%endif%}
             
             <div class="estatisticas-grid">
+                {% if nivel == "Visitante" and definida == "nao" %}
+                <h2 class="msg-partida">Esta partida ainda não aconteceu</h2>
+                {%endif%}
 
                 {% for estatistica in estatisticas %}
                 <div class="linha-completa">
@@ -54,9 +59,18 @@
                             <button type="button" class="btn-contador positivo">+</button>
 
                             {% else %}
+                            {% if nivel == "Visitante" and definida == "nao" %}
+                            {% elif definida == "sim" %}
                             <button type="button" class="btn-contador negativo" disabled>-</button>
-                            <div class="score-input">0</div>
+                            <div class="score-input">
+                                {% for stat in estatisticas_partida %}
+                                    {% if stat["fk_nome_estatistica"] == estatistica %}
+                                        {{ stat["valor_time_casa"] }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                             <button type="button" class="btn-contador positivo" disabled>+</button>
+                            {%endif%}
                             {% endif %}
                         </div>
                     
@@ -64,7 +78,7 @@
                         <span class="time-mobile">{{ equipe_casa }}</span>
                     </div>
 
-                    {% if nivel == "Visitante" and definida == "sim" %}
+                    {% if nivel == "Visitante" and (definida == "sim")%}
                     <div class="labels">
                         <span class="titulo">{{estatistica}}</span>
                     </div>
@@ -79,13 +93,22 @@
                             {% if (nivel == "Administrador" or nivel == "AlunoMonitor") and definida == "nao" %}
                             
                             <button type="button" class="btn-contador negativo">-</button>
-                            <div class="score-input">0</div>
+                            <div class="score-input">{{estatisticas_partida[]}}</div>
                             <button type="button" class="btn-contador positivo">+</button>
 
                             {% else %}
+                            {% if nivel == "Visitante" and definida == "nao" %}
+                            {% elif definida == "sim" %}
                             <button type="button" class="btn-contador negativo" disabled>-</button>
-                            <div class="score-input">0</div>
+                            <div class="score-input">
+                                {% for stat in estatisticas_partida %}
+                                    {% if stat["fk_nome_estatistica"] == estatistica %}
+                                        {{ stat["valor_time_visitante"] }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                             <button type="button" class="btn-contador positivo" disabled>+</button>
+                            {% endif %}
                             {% endif %}
                         </div>
                         <span class="time-mobile">{{ equipe_visitante }}</span>
@@ -102,14 +125,14 @@
 
                 <button
                 type="submit"
-                class="btn"
+                class="btn-save-edit"
                 >
                     Salvar
                 </button>
                 {% if nivel == "Administrador" and (definida == "sim" or definida == "nao")%}
                 <button
                     type="button"
-                    class="btn btn-edit"
+                    class="btn-save-edit btn-edit"
                     onclick="habilitarEdicao()">
 
                     Editar
@@ -117,13 +140,16 @@
                 </button>
                 {% endif %}
                 {% endif %}
-
             </div>
 
         </form>
 
     </div>
-
+    {%else%}
+    <div class="card-partida">
+        <h1 class="msg-partida">A Equipe dessa partida foi classificada de forma automatica pelo sistema para manter os dados de forma correta</h1>
+    </div>
+    {%endif%}
 </div>
 
 <script>
@@ -162,13 +188,7 @@ function coletarEstatisticas() {
     return dados;
 }
 
-// Exemplo de uso no submit
-document.querySelector('form').addEventListener('submit', (e) => {
-    e.preventDefault();
 
-    const estatisticas = coletarEstatisticas();
-    console.log(estatisticas);
-});
 
 async function salvarEstatisticas(idPartida, estatisticas) {
     try {

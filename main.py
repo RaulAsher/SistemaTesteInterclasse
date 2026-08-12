@@ -736,9 +736,16 @@ def verEstatisticas(partida_id):
     fk_equipe_visitante = partida["fk_equipe_visitante"]
     definida = partida["definida"]
     nivel = session["nivel"]
-    equipes = buscarEquipesPorID(fk_equipe_casa, fk_equipe_visitante)
-    equipe_casa = equipes[0]
-    equipe_visitante = equipes[1]
+    equipe_casa = None
+    equipe_visitante = None
+
+    if fk_equipe_casa is not None and fk_equipe_visitante is not None:
+        equipes = buscarEquipesPorID(fk_equipe_casa, fk_equipe_visitante)
+        equipe_casa = equipes[0]
+        equipe_visitante = equipes[1]
+    else:
+        redirect(url_for('chaveamentoTeste'))
+    
     estatisticasList = buscarEstatisticasPorModalidade(esporte)
     estatisticas = []
     for estatistica, principal in estatisticasList:
@@ -748,11 +755,13 @@ def verEstatisticas(partida_id):
             estatisticas.append(estatistica)
 
     usuario = buscarUsuarioPorNome(session["nome"])
-
-    estatistica_permitida = usuario["fk_estatistica_permitida"]
+    if usuario != None:
+        estatistica_permitida = usuario["fk_estatistica_permitida"]
     
     if nivel == "AlunoMonitor":
         estatisticas = [estatistica_permitida]
+
+    estatisticas_partida = buscarEstatisticasDasPartidas(partida_id)
 
 
     return render_template("verEstatisticas.html", 
@@ -765,34 +774,110 @@ def verEstatisticas(partida_id):
     estatisticas=estatisticas,
     definida=definida,
     nivel=nivel,
+    estatisticas_partida=estatisticas_partida
     )
 
 @app.route("/salvarEstatisticas", methods=["POST"])
 @requerAdminOuMonitor
 def salvarEstatisticas():
-    dados = request.get_json()
-
-    if not dados:
-        return jsonify({"sucesso": False, "mensagem": "Nenhum dado recebido"}), 400
-
-    id_partida = dados.get("id_partida")
-    estatisticas = dados.get("estatisticas", [])
-
-    if not id_partida or not estatisticas:
-        return jsonify({"sucesso": False, "mensagem": "Dados incompletos"}), 400
-
     try:
+        dados = request.get_json()
+
+        id_partida = dados.get("id_partida")
+        estatisticas = dados.get("estatisticas", [])
+
+        modalidade = buscarEsportePorPartida(id_partida)
+        estatistica_principal = buscarEstatisticasPrincipal(modalidade)
+        partida = buscarPartidaPorId(id_partida)
+
+        cod_partida_mae = partida["pk_partida_mae"]
+        cod_equipe_casa = partida["fk_equipe_casa"]
+        cod_equipe_visitante = partida["fk_equipe_visitante"]
+
+        vencedor_id = None
+        pontos_equipe_casa = 0
+        pontos_equipe_visitante = 0
+
         for stat in estatisticas:
-            nome = stat["estatistica"]
-            casa = stat["casa"]
-            visitante = stat["visitante"]
 
-            print(nome, casa, visitante)
+            nome_estatistica = stat.get("estatistica")
+            pontos_equipe_casa = int(stat.get("casa", 0))
+            pontos_equipe_visitante = int(stat.get("visitante", 0))
+            salvarDadosEstatisticos(id_partida, nome_estatistica, pontos_equipe_casa, pontos_equipe_visitante)
 
-        return jsonify({"sucesso": True})
+
+            if nome_estatistica == estatistica_principal:
+
+                vencedor_id = (
+                    cod_equipe_casa
+                    if pontos_equipe_casa > pontos_equipe_visitante
+                    else cod_equipe_visitante
+                )
+
+        if vencedor_id is None:
+
+            print("ERRO: vencedor_id continua None")
+
+            return jsonify({
+                "sucesso": False,
+                "mensagem": (
+                    "A estatística principal não foi encontrada. "
+                    f"Recebida: {estatistica_principal}"
+                )
+            }), 400
+
+        salvarVencedorPartida(
+            id_partida,
+            vencedor_id,
+            pontos_equipe_casa,
+            pontos_equipe_visitante,
+            cod_partida_mae
+        )
+
+        return jsonify({
+            "sucesso": True,
+            "mensagem": "Estatísticas salvas com sucesso"
+        }), 200
 
     except Exception as e:
-        return jsonify({"sucesso": False, "mensagem": str(e)}), 500
+
+        import traceback
+
+        print("\n========== ERRO ==========")
+        print("TIPO:", type(e).__name__)
+        print("MENSAGEM:", str(e))
+        traceback.print_exc()
+        print("===========================\n")
+
+        return jsonify({
+            "sucesso": False,
+            "mensagem": f"{type(e).__name__}: {str(e)}"
+        }), 500
+
+    
+
+            
+                
+
+@app.route("/verEstatisticasteste", methods=["GET"])
+def verEstatisticasteste():
+    dados = {
+        "id_partida": 123,
+        "estatisticas": [
+            {
+                "estatistica": "Finalizações",
+                "casa": 5,
+                "visitante": 3
+            },
+            {
+                "estatistica": "Escanteios",
+                "casa": 4,
+                "visitante": 6
+            }
+        ]
+    }
+
+    return jsonify(dados)
 
 @app.route("/chaveamento/vencedor", methods=["POST"])
 @requerAdmin

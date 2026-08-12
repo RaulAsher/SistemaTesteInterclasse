@@ -1,6 +1,28 @@
+:root {
+            --bg: #f5f7fb;
+            --card: #ffffff;
+            --primary: #2563eb;
+            --secondary: #1e293b;
+            --border: #e5e7eb;
+            --text: #111827;
+            --muted: #6b7280;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
 .container{
     width:90%;
     margin:auto;
+}
+
+.titulo-esporte{
+    color: var(--text);
+    text-align: center;
+}
+
+.msg-partida{
+    color: var(--text);
+    text-align: center;
 }
 
 .placar-header{
@@ -134,6 +156,16 @@
 .positivo{
     background-color:green;
 }
+
+.btn-save-edit{
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+        }
 
 
 .score-input{
