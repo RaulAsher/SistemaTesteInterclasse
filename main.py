@@ -139,7 +139,12 @@ def logout():
 
 @app.route("/home")
 def homeRedirect():
-    return render_template("home.html", nome_usuario=session['nome'], nivel=session['nivel'])
+    return render_template("home.html", 
+    nome_usuario=session['nome'], 
+    nivel=session['nivel'], 
+    partidas=buscarPartidas(),
+    
+    )
 
 ## ----------------LISTAGENS----------------- ##
 

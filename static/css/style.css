@@ -2,7 +2,7 @@
 :root {
   --cor-primaria: #122f4a;
   --cor-secundaria: #9cc7ec;
-  --cor-fundo: #f5f7fb;
+  --cor-fundo: #e6e8ec;
 
   --radius: 0.5rem;
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -511,4 +511,32 @@ h2 {
 
     border-left:8px solid #27ae60;
 
+}
+
+.box-bullet {
+  width: 800px;
+  height: 200px;
+  overflow: auto;
+
+  background: #f0f0f0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+
+  box-sizing: border-box;
+}
+
+.header{
+    width:min(500px, 95%);
+    margin:30px auto;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    background:#f5f5f5;
+    border-radius:12px;
+    padding:15px clamp(15px, 4vw, 30px);
+
+    box-shadow:0 8px 18px rgba(0,0,0,.25);
 }
