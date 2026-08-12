@@ -40,6 +40,8 @@
 
         </div>
 
+
+
         {% else %}
 
         <div class="info-box usuario">
@@ -54,6 +56,25 @@
         </div>
 
         {% endif %}
+
+        <hr style="visibility: hidden;">
+
+        <div class="box-bullet" style="overflow: auto;">
+            
+            {% for partida in partidas %}
+                {% if partida['fk_equipe_casa'] and partida['fk_equipe_visitante'] %}
+
+                <div class="header">
+                    <p> {{ partida['fk_equipe_casa'] }} </p>
+                    <p>VS</p>
+                    <p> {{ partida['fk_equipe_visitante'] }} </p>
+                </div>
+                
+                {% endif %}
+            {% endfor %}
+
+        </div>
+
 
     </div>
 
