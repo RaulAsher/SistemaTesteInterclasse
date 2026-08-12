@@ -1,233 +1,778 @@
-/* static/css/calendario.css */
+/* =====================================================
+   CALENDÁRIO
+===================================================== */
 
-/* --- Configurações Gerais e Variáveis de Cor --- */
-:root {
-    --cor-fundo: #f4f5f7;
-    --cor-container: #ffffff;
-    --cor-primaria: #2196f3;
-    --cor-texto-principal: #333333;
-    --cor-texto-secundario: #6c757d;
-    --cor-dia-outro-mes: #ff0000;
-    --cor-hoje: #e9ecef;
+#calendar {
+    width: 100%;
+    max-width: 1100px;
+    margin: 20px auto 30px;
+    padding: 18px;
+    box-sizing: border-box;
+
+    background: #f8fafc;
+    border-radius: 15px;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, .15);
 }
 
-.calendario-wrapper {
-    background-color: var(--cor-container);
-    padding: 15px;
-    border-radius: 12px;
-    width: 340px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
-    margin: 72px auto 10px auto;
-}
 
-.calendario-wrapper button {
-    background: none;
-    border: none;
-    font-size: 20px;
-}
+/* =====================================================
+   CABEÇALHO
+===================================================== */
 
-.header {
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 1.25em;
-    font-weight: 600;
-    color: var(--cor-texto-principal);
+.cabecalho-calendario {
+    width: 100%;
+    max-width: 1100px;
+    margin: 25px auto 0;
+
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
+
+    gap: 20px;
 }
 
-.header h1 {
-    font-size: 1.25em;
-    font-weight: 600;
+.titulo-calendario {
     margin: 0;
-    flex-grow: 1;
-    color: var(--cor-texto-principal);
-}
 
-.dias-semana, .dias-mes {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-}
+    color: #122f4a;
 
-.dias-semana div {
-    font-weight: 500;
-    color: var(--cor-texto-secundario);
-    text-align: center;
-    font-size: 0.9em;
-    padding-bottom: 8px;
-}
-
-.dia {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 40px;
-    width: 40px;
-    cursor: pointer;
-    border-radius: 50%;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-    font-weight: 500;
-    color: var(--cor-texto-principal);
-    position: relative;
-}
-
-.dias-mes a.dia {
-    text-decoration: none;
-    color: var(--cor-texto-principal);
-}
-
-.dias-mes a.dia.outro-mes {
-    color: rgb(168, 168, 168);
-    cursor: default;
-}
-
-.dia:not(.outro-mes):hover {
-    background-color: var(--cor-primaria);
-    color: white;
-}
-
-.dia.hoje {
-    background-color: var(--cor-hoje);
-    color: var(--cor-texto-principal);
-    font-weight: 600;
-}
-
-.dia.selecionado {
-    background-color: var(--cor-primaria);
-    color: white;
-    font-weight: 600;
-}
-
-.dia.selecionado span {
-    color: white;
-}
-
-.dia.com-evento::after {
-    content: '';
-    display: block;
-    width: 6px;
-    height: 6px;
-    background-color: var(--cor-primaria);
-    border-radius: 50%;
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.dia.selecionado::after, .dia.hoje.selecionado::after {
-    display: none;
-}
-
-.nav-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--cor-primaria);
-    font-size: 1.5em;
+    font-size: 30px;
     font-weight: 700;
-    padding: 0 10px;
-    transition: color 0.2s;
-    outline: none;
 }
 
-.nav-btn:hover {
-    color: #1a71c4; /* Tom mais escuro */
+.subtitulo-calendario {
+    margin: 5px 0 0;
+
+    color: #667788;
+
+    font-size: 14px;
 }
 
-.Filtros {
-    background-color: #ebf0f7;
+.acoes-calendario {
     display: flex;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     align-items: center;
-    padding: 20px;
-    margin-bottom: 10px;
+    gap: 10px;
 }
 
-.Filtros button, select {
-    padding: 5px;
-    height: 30px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    font-weight: bold;
-    color: #000;
+.btn-filtro-calendario,
+.btn-limpar-filtro {
+    padding: 10px 16px;
+
+    border: 0;
+    border-radius: 8px;
+
+    font-weight: 700;
+
     cursor: pointer;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
+
+    transition: .2s;
 }
 
-.Filtros button {
+.btn-filtro-calendario {
+    background: #122f4a;
+    color: white;
+}
+
+.btn-filtro-calendario:hover {
+    background: #1b456d;
+}
+
+.btn-limpar-filtro {
+    background: #e5e7eb;
+    color: #27313a;
+}
+
+.btn-limpar-filtro:hover {
+    background: #d5d9de;
+}
+
+.filtros-ativos {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 12px auto 0;
+
+    padding: 10px 14px;
+
+    box-sizing: border-box;
+
+    background: #e7edf5;
+
+    border-left: 5px solid #2f6ea8;
+
+    border-radius: 8px;
+
+    color: #122f4a;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   FULLCALENDAR
+===================================================== */
+
+.fc {
+    color: #122f4a;
+}
+
+.fc .fc-toolbar {
+    margin-bottom: 20px;
+}
+
+.fc .fc-toolbar-title {
+    color: #122f4a !important;
+
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.fc .fc-button {
+    background: #122f4a !important;
+
+    border: none !important;
+
+    box-shadow: none !important;
+}
+
+.fc .fc-button:hover {
+    background: #1b456d !important;
+}
+
+.fc .fc-button-active {
+    background: #2f6ea8 !important;
+}
+
+.fc .fc-col-header-cell {
+    background: #e7edf5;
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number {
+    color: #122f4a !important;
+
+    font-weight: 700;
+
+    text-decoration: none !important;
+}
+
+.fc .fc-daygrid-day-number {
+    padding: 6px 8px;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background: #d9eaff !important;
+}
+
+.fc .fc-daygrid-day:hover {
+    background: #edf5ff;
+
+    cursor: pointer;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+    border-color: #aab6c2;
+}
+
+
+/* =====================================================
+   PARTIDAS - MODO MÊS
+===================================================== */
+
+/*
+   Deixamos o evento pequeno para não estourar
+   o tamanho da célula do calendário.
+*/
+
+.fc .fc-daygrid-event {
+    margin: 2px 4px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+
+/*
+   IMPORTANTE:
+   Não forçamos branco aqui.
+   O evento usa o textColor enviado pelo Flask.
+*/
+
+.fc .fc-event-main {
+    color: inherit !important;
+}
+
+
+/* Nome da partida no mês */
+
+.evento-mes {
+    width: 100%;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+
+    color: inherit;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    line-height: 1.2;
+}
+
+
+/* Hover */
+
+.fc .fc-daygrid-event:hover {
+    filter: brightness(.92);
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   PARTIDAS - MODO DIA
+===================================================== */
+
+.evento-dia {
+    padding: 3px 5px;
+
+    overflow: hidden;
+
+    line-height: 1.2;
+}
+
+.evento-dia-titulo {
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+
+    color: inherit;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.evento-dia-info {
+    margin-top: 2px;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+
+    color: inherit;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    opacity: .9;
+}
+
+
+/* =====================================================
+   POPUPS
+===================================================== */
+
+.popup-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, .55);
+}
+
+.popup-calendario {
+    position: relative;
+
+    width: 100%;
+
+    max-width: 600px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    padding: 30px;
+
+    box-sizing: border-box;
+
+    background: white;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, .25);
+}
+
+.popup-calendario h2 {
+    margin: 0 40px 5px 0;
+
+    color: #122f4a;
+}
+
+.fechar-popup {
+    position: absolute;
+
+    top: 10px;
+    right: 15px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #122f4a;
+
+    font-size: 28px;
+
+    cursor: pointer;
+}
+
+.fechar-popup:hover {
+    color: #c62828;
+}
+
+.data-popup {
+    margin-bottom: 22px;
+
+    color: #667788;
+
+    text-transform: capitalize;
+}
+
+
+/* =====================================================
+   JOGOS NO POPUP
+===================================================== */
+
+.lista-jogos-popup {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.jogo-popup {
+    padding: 13px;
+
+    background: #f7f9fc;
+
+    border-left: 5px solid #3788d8;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, .06);
+}
+
+.jogo-popup strong {
+    display: block;
+
+    color: #122f4a;
+
+    font-size: 16px;
+}
+
+.jogo-detalhes {
+    margin-top: 5px;
+
+    color: #415364;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.jogo-popup > span {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #122f4a;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.sem-jogos {
+    padding: 20px;
+
+    background: #f7f9fc;
+
+    border-radius: 8px;
+
+    text-align: center;
+
+    color: #667788;
+}
+
+
+/* =====================================================
+   FORMULÁRIOS
+===================================================== */
+
+.campo-formulario {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    margin-bottom: 15px;
+}
+
+.campo-formulario label {
+    color: #122f4a;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.campo-formulario select,
+.campo-formulario input {
+    width: 100%;
+
+    padding: 10px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #b9c3ce;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background: white;
+
+    color: #122f4a;
+
+    font-size: 14px;
+}
+
+.campo-formulario select:focus,
+.campo-formulario input:focus {
+    border-color: #2f6ea8;
+
+    box-shadow:
+        0 0 0 2px rgba(47, 110, 168, .10);
+}
+
+.linha-horarios {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+}
+
+
+/* =====================================================
+   PARTIDAS DISPONÍVEIS
+===================================================== */
+
+.lista-partidas {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    max-height: 230px;
+
+    overflow-y: auto;
+
+    margin-bottom: 18px;
+}
+
+.partida-opcao {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 12px;
+
+    background: #f7f9fc;
+
+    border: 1px solid #d7dee6;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    color: #122f4a;
+}
+
+.partida-opcao:hover {
+    background: #edf5ff;
+
+    border-color: #2f6ea8;
+}
+
+.partida-opcao input {
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   FILTROS
+===================================================== */
+
+.filtro-ajuda {
+    margin: -5px 0 18px;
+
+    color: #667788;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.filtro-resumo {
+    margin-bottom: 12px;
+
+    padding: 10px 12px;
+
+    background: #f7f9fc;
+
+    border-radius: 8px;
+
+    color: #122f4a;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   EDIÇÃO
+===================================================== */
+
+.edicao-jogo {
+    margin-bottom: 15px;
+
+    padding: 15px;
+
+    background: #f7f9fc;
+
+    border: 1px solid #d7dee6;
+
+    border-radius: 10px;
+}
+
+.edicao-jogo h3 {
+    margin: 0 0 10px;
+
+    color: #122f4a;
+
+    font-size: 16px;
+}
+
+
+/* =====================================================
+   BOTÕES
+===================================================== */
+
+.popup-botoes {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.popup-botoes button {
+    padding: 10px 17px;
+
+    border: 0;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.btn-adicionar {
+    background: #1d7a46;
+
+    color: white;
+}
+
+.btn-editar {
+    background: #122f4a;
+
+    color: white;
+}
+
+.btn-salvar {
+    background: #2f6ea8;
+
+    color: white;
+}
+
+.btn-cancelar {
+    background: #e5e7eb;
+
+    color: #27313a;
+}
+
+.btn-remover {
+    background: #c62828;
+
+    color: white;
+}
+
+.btn-adicionar:hover,
+.btn-editar:hover,
+.btn-salvar:hover,
+.btn-remover:hover {
+    filter: brightness(.9);
+}
+
+.popup-botoes button:disabled {
+    opacity: .6;
+
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   MENSAGENS
+===================================================== */
+
+.mensagem-formulario {
     margin-top: 10px;
-    box-shadow: 0 2px 3px #000;
-    background-color: white;
+
+    color: #c62828;
+
+    font-size: 14px;
+
+    font-weight: 600;
 }
 
-.Filtros select {
-    margin: 8px 0px 0px 0px;
-    width: 130px;
-}
-
-.Filtros label {
-    font-size: 24px;
-    color: #000;
-}
-
-#mesPicker {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  border: none;
-  background: none;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-}
-
-/* Esconde o texto interno */
-#mesPicker::-webkit-datetime-edit {
-  display: none;
-}
-#mesPicker::-webkit-inner-spin-button {
-  display: none;
-}
-#mesPicker::-webkit-clear-button {
-  display: none;
-  margin: 0px;
-  margin-right: 10px;
-}
-
-#mesPicker::-webkit-calendar-picker-indicator {
-  display: block;
-  cursor: pointer;
-  width: 30px;
-  height: 30px;
-  margin: 0px;
+.mensagem-sucesso {
+    color: #1d7a46 !important;
 }
 
 
-@media (min-width: 768px) {
-    .calendario-wrapper {
-        padding: 15px;
-        margin-top: 45px;
-    }
-    .calendario-container {
-        display: block;
-    }
-    .Filtros {
-        width: auto;
-    }
-    .Filtros button {
-        margin-left: 20px;
-        margin-top: 0px;
-    }
-    .Filtros br {
-        display: none;
+/* =====================================================
+   ROLAGEM DO POPUP
+===================================================== */
+
+.popup-calendario::-webkit-scrollbar {
+    width: 8px;
+}
+
+.popup-calendario::-webkit-scrollbar-track {
+    background: #f1f3f5;
+
+    border-radius: 10px;
+}
+
+.popup-calendario::-webkit-scrollbar-thumb {
+    background: #aab6c2;
+
+    border-radius: 10px;
+}
+
+.popup-calendario::-webkit-scrollbar-thumb:hover {
+    background: #8795a3;
+}
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .cabecalho-calendario {
+        flex-direction: column;
+
+        align-items: stretch;
     }
 
-}
+    .acoes-calendario {
+        width: 100%;
+    }
 
+    .acoes-calendario button {
+        flex: 1;
+    }
+
+    #calendar {
+        margin: 15px auto;
+
+        padding: 8px;
+    }
+
+    .fc .fc-toolbar {
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 23px;
+    }
+
+    .popup-calendario {
+        padding: 22px;
+    }
+
+    .linha-horarios {
+        grid-template-columns: 1fr;
+    }
+
+    .popup-botoes {
+        flex-direction: column;
+    }
+
+    .popup-botoes button {
+        width: 100%;
+    }
+
+    .titulo-calendario {
+        font-size: 25px;
+    }
+
+    .subtitulo-calendario {
+        font-size: 13px;
+    }
+
+    .evento-dia-titulo {
+        font-size: 12px;
+    }
+
+    .evento-dia-info {
+        font-size: 10px;
+    }
+
+}
