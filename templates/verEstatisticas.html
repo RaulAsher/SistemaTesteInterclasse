@@ -1,0 +1,287 @@
+{% include 'head.html' %}
+
+<link rel="stylesheet" href=" {{ url_for('static', filename='css/estatisticas.css') }} ">
+
+<div class="container">
+
+    <h1 class="titulo-esporte">{{ esporte }}</h1>
+    {% if equipe_casa != None and equipe_visitante != None%}
+    <div class="placar-header">
+
+        <div class="equipe-header">
+            <h2>{{ equipe_casa }}</h2>
+            <small>Id Equipe: {{ fk_equipe_casa }}</small>
+        </div>
+
+        <div class="versus">
+            <span>VS</span>
+            <small>Id Partida: {{id_partida}}</small>
+        </div>
+
+        <div class="equipe-header">
+            <h2>{{ equipe_visitante }}</h2>
+            <small>Id Equipe: {{ fk_equipe_visitante }}</small>
+        </div>
+
+    </div>
+
+    <div class="titulo-partida">
+        <h3></h3>
+    </div>
+
+    <!-- Card Principal -->
+    <div class="card-partida">
+        
+        <form action="/salvarEstatisticas" method="POST">
+
+            <input type="hidden" name="id_partida" value="{{ id_partida }}">
+            <input type="hidden" name="modo_edicao" id="modo_edicao" value="false">
+
+            {% if definida == "sim" %}
+            <div class="times-header">
+                <h3 class="time-nome">{{ equipe_casa }}</h3>
+                <h3 class="time-nome">{{ equipe_visitante }}</h3>
+            </div>
+            {%endif%}
+            
+            <div class="estatisticas-grid">
+                {% if nivel == "Visitante" and definida == "nao" %}
+                <h2 class="msg-partida">Esta partida ainda não aconteceu</h2>
+                {%endif%}
+
+                {% for estatistica in estatisticas %}
+                <div class="linha-completa">
+                    <div class="bloco-contador">
+                        <div class="contador">
+                            {% if (nivel == "Administrador" or nivel == "AlunoMonitor") and definida == "nao" %}
+                            
+                            <button type="button" class="btn-contador negativo">-</button>
+                            <div class="score-input">0</div>
+                            <button type="button" class="btn-contador positivo">+</button>
+
+                            {% else %}
+                            {% if nivel == "Visitante" and definida == "nao" %}
+                            {% elif definida == "sim" %}
+                            <button type="button" class="btn-contador negativo" disabled>-</button>
+                            <div class="score-input">
+                                {% for stat in estatisticas_partida %}
+                                    {% if stat["fk_nome_estatistica"] == estatistica %}
+                                        {{ stat["valor_time_casa"] }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn-contador positivo" disabled>+</button>
+                            {%endif%}
+                            {% endif %}
+                        </div>
+                    
+                        
+                        <span class="time-mobile">{{ equipe_casa }}</span>
+                    </div>
+
+                    {% if nivel == "Visitante" and (definida == "sim")%}
+                    <div class="labels">
+                        <span class="titulo">{{estatistica}}</span>
+                    </div>
+                    {% elif (nivel == "Administrador" or nivel == "AlunoMonitor") and (definida == "nao" or definida == "sim") %}
+                    <div class="labels">
+                        <span class="titulo">{{estatistica}}</span>
+                    </div>
+                    {%endif%}
+
+                    <div class="bloco-contador">
+                        <div class="contador">
+                            {% if (nivel == "Administrador" or nivel == "AlunoMonitor") and definida == "nao" %}
+                            
+                            
+                            <button type="button" class="btn-contador negativo">-</button>
+                            <div class="score-input">0</div>
+                            <button type="button" class="btn-contador positivo">+</button>
+
+                            {% else %}
+                            {% if nivel == "Visitante" and definida == "nao" %}
+                            {% elif definida == "sim" %}
+                            <button type="button" class="btn-contador negativo" disabled>-</button>
+                            <div class="score-input">
+                                {% for stat in estatisticas_partida %}
+                                    {% if stat["fk_nome_estatistica"] == estatistica %}
+                                        {{ stat["valor_time_visitante"] }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn-contador positivo" disabled>+</button>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                        <span class="time-mobile">{{ equipe_visitante }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <div class="form-actions">
+
+                {% if (nivel == 'Administrador' or nivel == 'AlunoMonitor')%}
+
+
+                <button
+                type="submit"
+                class="btn-save-edit"
+                >
+                    Salvar
+                </button>
+                {% if nivel == "Administrador" and (definida == "sim" or definida == "nao")%}
+                <button
+                    type="button"
+                    class="btn-save-edit btn-edit"
+                    onclick="habilitarEdicao()">
+
+                    Editar
+
+                </button>
+                {% endif %}
+                {% endif %}
+            </div>
+
+        </form>
+
+    </div>
+    {%else%}
+    <div class="card-partida">
+        <h1 class="msg-partida">A Equipe dessa partida foi classificada de forma automatica pelo sistema para manter os dados de forma correta</h1>
+    </div>
+    {%endif%}
+</div>
+
+<script>
+document.querySelectorAll('.btn-contador').forEach(botao => {
+    botao.addEventListener('click', () => {
+        const scoreDiv = botao.parentElement.querySelector('.score-input');
+        let valor = parseInt(scoreDiv.textContent);
+
+        if (botao.classList.contains('positivo')) {
+            valor++;
+        } else {
+            valor = Math.max(0, valor - 1);
+        }
+
+        scoreDiv.textContent = valor;
+    });
+});
+
+function coletarEstatisticas() {
+    const dados = [];
+
+    document.querySelectorAll('.linha-completa').forEach(linha => {
+        const nomeEstatistica = linha.querySelector('.titulo').textContent.trim();
+        const blocos = linha.querySelectorAll('.bloco-contador');
+
+        const scoreCasa = blocos[0].querySelector('.score-input');
+        const scoreVisitante = blocos[1].querySelector('.score-input');
+
+        const valorCasa = scoreCasa.textContent.trim() === ''
+            ? 0
+            : parseInt(scoreCasa.textContent.trim());
+
+        const valorVisitante = scoreVisitante.textContent.trim() === ''
+            ? 0
+            : parseInt(scoreVisitante.textContent.trim());
+
+        dados.push({
+            estatistica: nomeEstatistica,
+            casa: valorCasa,
+            visitante: valorVisitante
+        });
+    });
+
+    console.log(dados);
+
+    return dados;
+}
+
+
+
+async function salvarEstatisticas(idPartida, estatisticas) {
+    try {
+
+        const modoEdicao =
+            document.querySelector('#modo_edicao').value === 'true';
+
+        console.log("MODO EDIÇÃO:", modoEdicao);
+        console.log("TIPO:", typeof modoEdicao);
+
+        const response = await fetch('/salvarEstatisticas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                id_partida: idPartida,
+                estatisticas: estatisticas,
+                modo_edicao: modoEdicao
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const resultado = await response.json();
+
+        return resultado;
+
+    } catch (erro) {
+        console.error('Falha ao salvar estatísticas:', erro);
+        throw erro;
+    }
+}
+
+// Liga tudo no submit do form
+document.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const idPartida = document.querySelector('input[name="id_partida"]').value;
+    const estatisticas = coletarEstatisticas();
+
+    try {
+        const resultado = await salvarEstatisticas(idPartida, estatisticas);
+
+        if (resultado.sucesso) {
+            alert('Estatísticas salvas com sucesso!');
+
+            if (document.querySelector('#modo_edicao').value === 'true') {
+            document.querySelectorAll('.btn-contador').forEach(botao => {
+            botao.disabled = true;
+
+            document.querySelector('#modo_edicao').value = 'false';
+        });
+        }} else {
+            alert('Erro ao salvar: ' + (resultado.mensagem || 'erro desconhecido'));
+        }
+
+    } catch (erro) {
+        alert('Não foi possível salvar. Verifique sua conexão e tente novamente.');
+    }
+});
+
+function habilitarEdicao() {
+    const botoes = document.querySelectorAll('.btn-contador');
+
+    botoes.forEach(botao => {
+        botao.disabled = false;
+    });
+
+
+    document.querySelectorAll('.score-input').forEach(score => {
+        if (score.textContent.trim() === '') {
+            score.textContent = '0';
+        }
+    });
+
+    document.querySelector('#modo_edicao').value = 'true';
+}
+</script>
+
+{% include 'footer.html' %}

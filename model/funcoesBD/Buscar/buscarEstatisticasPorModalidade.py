@@ -1,18 +1,16 @@
-from ..Cadastrar.criarConexao import criarConexao, database
+from ..Cadastrar.criarConexao import criarConexao
+from flask import flash
 
-def buscarEstatisticasPorModalidade(modalidade=None):
+def buscarEstatisticasPorModalidade(modalidade):
     conexao = criarConexao()
-    cursor = conexao.cursor(dictionary=True)
-    if modalidade is None:
-        cursor.execute(f'SELECT DISTINCT fk_esporte FROM {database}.estatisticas_esporte')
-        esportesComEst = cursor.fetchall()
-    
-        return esportesComEst
-    else:
-        cursor.execute(f'SELECT * FROM {database}.estatisticas_esporte WHERE fk_esporte = %s', (modalidade,))
-
+    cursor = conexao.cursor()
+    try:
+        cursor.execute('SELECT fk_nome_estatistica, estatistica_principal FROM estatisticas_esporte WHERE fk_esporte = %s', (modalidade,))
         estatisticasBuscadas = cursor.fetchall()
-
         return estatisticasBuscadas
-    cursor.close()
-    conexao.close()
+    except:
+        conexao.rollback()
+        flash('Ocorreu um erro inesperado', 'erro')
+    finally:
+        cursor.close()
+        conexao.close()

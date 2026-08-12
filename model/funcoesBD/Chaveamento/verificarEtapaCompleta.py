@@ -11,7 +11,7 @@ def verificarEtapaCompleta(esporte, classificacao, etapa):
     SELECT COUNT(*) 
     FROM partidas
     WHERE fk_esporte = %s 
-      AND fk_descricao = %s
+      AND fk_genero = %s
       AND etapa = %s
       AND definida = 'nao';
     """

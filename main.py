@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
-from datetime import timedelta
+from datetime import timedelta, datetime, date
 from model import *
+from calendar import *
 
 # Assumindo que seu gestao_chaveamento.py está em model/funcoesBD/Chaveamento
 # E que o Flask pode importá-lo a partir da raiz 'model'
@@ -13,15 +14,60 @@ except ImportError as e:
     def gerarChaveamento(esporte, classificacao):
         print("!!! FUNÇÃO DE CHAVEAMENTO NÃO CARREGADA !!!")
         return None
-
-
-def verificaSessao(f):
+ 
+#Decorator para verificar se o usuario é Administrador
+def requerAdmin(f):
     @wraps(f)
-    def verificando(*args, **kwargs):
-        if 'nome' not in session:
-            return redirect('/login')
+    def requerindoAdmin(*args, **kwargs):
+
+        if session['nivel'] != "Administrador":
+            return redirect('/')
+
+        if session['nivel'] != "Administrador":
+            flash("Faça login como Administrador para ativar esta função.", "error")
+            return redirect('/')
+        
         return f(*args, **kwargs)
-    return verificando
+    return requerindoAdmin
+
+#Decorator para verificar se o usuario é Administrador ou AlunoMonitor
+def requerAdminOuMonitor(f):
+    @wraps(f)
+    def requerindo(*args, **kwargs):
+        
+        if session['nivel'] not in ["Administrador", "AlunoMonitor"]:
+
+            flash("Faça login para ativar esta função.", "warning")
+            return redirect('/')
+        
+        return f(*args, **kwargs)
+    return requerindo
+
+def obterAcessoDoUsuario():
+    nivel = session.get("nivel", "Visitante")
+    turma = session.get("turma")
+
+    if nivel == "Administrador":
+
+
+        return {
+            "nivel": nivel,
+            "equipes": buscarEquipes(),
+            "turmas": buscarTurmas()
+        }
+
+    if nivel == "AlunoMonitor":
+        return {
+            "nivel": nivel,
+            "equipes": buscarEquipesPorTurma(turma),
+            "turmas": [{"pk_nome_turma": turma}]
+        }
+
+    return {
+        "nivel": "Visitante",
+        "equipes": buscarEquipes(),
+        "turmas": []
+    }
 
 app = Flask(__name__)
 app.secret_key = '29bfd352-ed9e-4818-b05b-498b8f77e4e3'
@@ -30,7 +76,7 @@ app.permanent_session_lifetime = timedelta(days=30)
 @app.route("/")
 def home():
     nome_usuario = session.get('nome')
-    return redirect('/cadastrarEquipe')
+    return redirect('/home')
 
 
 @app.context_processor
@@ -40,9 +86,18 @@ def inject_user():
 
 ## ---------------LOGIN---------------- ##
 
+# O usuário é considerado visitante se não estiver logado. Criamos uma sessão para ele:
+
+@app.before_request
+def criarSessaoVisitante():
+    if 'nome' not in session:
+        session['nome'] = 'Visitante'
+        session['nivel'] = 'Visitante'
+        session['turma'] = None
+
 @app.route('/login')
 def login():
-    if 'nome' in session:
+    if session['nivel'] != 'Visitante':
         return redirect('/')
     else:
         return render_template('login.html')
@@ -55,14 +110,10 @@ def verificarLogin():
     # Busca apenas pelo nome do usuário
     usuario_encontrado = buscarUsuarioPorNome(usuario)
 
-    if not usuario_encontrado:
-        flash('Usuário não encontrado.', 'error')
+    if not usuario_encontrado or senha != usuario_encontrado["senha"]:
+        flash('Usuário ou senha estão incorretos.', 'error')
         return redirect(url_for('login'))
-
-    if senha != usuario_encontrado['senha']:
-        flash('Senha incorreta.', 'error')
-        return redirect(url_for('login'))
-
+    
     # Login bem-sucedido
     session['nome'] = usuario
     session['nivel'] = usuario_encontrado['nivel']
@@ -79,12 +130,16 @@ def verificarLogin():
     else:
         session['turma'] = None
 
-    return redirect('/cadastrarEquipe')
+    return redirect('/')
 
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/cadastrarEquipe")
+    return redirect("/")
+
+@app.route("/home")
+def homeRedirect():
+    return render_template("home.html", nome_usuario=session['nome'], nivel=session['nivel'])
 
 ## ----------------LISTAGENS----------------- ##
 
@@ -100,46 +155,65 @@ def alunosPorTurma(turma):
     # função do model que retorna lista de alunos da turma
     return jsonify({"alunos": [{"matricula": a[0], "nome": a[1]} for a in alunos]})
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
-
 ## ----------------CADASTRAR ALUNOS---------------##
 
 @app.route("/cadastrarAluno", methods=["GET"])
+@requerAdminOuMonitor
 def paginacadastrarAluno():
-    if session['nivel'] == 'AlunoMonitor':
-        alunos = buscarAlunosPorTurma(session['turma'])  # apenas a turma do monitor
-        turmas = [ {"pk_nome_turma": session['turma']} ] # só a turma dele
-    else:  # Administrador
-        alunos = buscarAlunos()
-        turmas = buscarTurmas()
-    
-    return render_template("cadastrarAluno.html", alunos=alunos, turmas=turmas)
+
+    acesso = obterAcessoDoUsuario()
+
+    return render_template(
+        "cadastrarAluno.html",
+        alunos=buscarAlunos(),
+        turmas=buscarTurmas(),
+        nivel=acesso["nivel"]
+        )
 
 @app.route("/cadastrarAluno", methods=["POST"])
+@requerAdminOuMonitor
 def rotaCadastrarAluno():
+
     nome = request.form.get("nome")
     matricula = request.form.get("matricula")
-    turma = request.form.get("turma")
     genero = request.form.get("genero")
 
-    cadastrarAluno(matricula, nome, turma, genero)
+    if session['nivel'] == 'Administrador':
+        turma = request.form.get("turma")
+    else:
+        turma = session["turma"]
+
+    usuario_logado = session["nome"]
+
+    cadastrarAluno(matricula, nome, turma, genero, usuario_logado)
+
     return redirect(url_for("paginacadastrarAluno"))
 
 @app.route("/editarAluno/<antiga_matricula>", methods=["POST"])
+@requerAdminOuMonitor
 def rotaEditarAluno(antiga_matricula):
-    nome = request.form.get("nome")
-    turma = request.form.get("turma")
-    genero = request.form.get("genero")
-    antiga_matricula = request.form.get("antiga_matricula")
-    nova_matricula = request.form.get("nova_matricula")
 
-    editarAluno(nova_matricula, nome, turma, genero, antiga_matricula)
-    
+    nome = request.form["nome"]
+    genero = request.form["genero"]
+    nova_matricula = request.form["nova_matricula"]
+
+    if session["nivel"] == "Administrador":
+        turma = request.form["turma"]
+    else:
+        turma = session["turma"]
+
+    editarAluno(
+        nova_matricula,
+        nome,
+        turma,
+        genero,
+        antiga_matricula
+    )
+
     return redirect(url_for("paginacadastrarAluno"))
 
 @app.route("/deletarAluno/<matricula>")
+@requerAdminOuMonitor
 def rotaDeletarAluno(matricula):
     deletarAluno(matricula)
     
@@ -150,15 +224,17 @@ def rotaDeletarAluno(matricula):
 
 # Cadastrar
 @app.route("/cadastrarTurma", methods=["POST"])
+@requerAdminOuMonitor
 def rotaCadastrarTurma():
     pk_nome_turma = request.form.get("pk_nome_turma")
     icone_url = request.form.get("icone_url") 
-    cadastrarTurma(pk_nome_turma, icone_url)
+    cadastrarTurma(pk_nome_turma, icone_url, session["nome"])
     turmas = buscarTurmas()
     return render_template("turma.html", turmas=turmas)
 
 # Editar
 @app.route("/editarTurma/<string:turma>", methods=["POST"])
+@requerAdminOuMonitor
 def rotaEditarTurma(turma):
     novo_nome = request.form.get("pk_nome_turma")
     icone_url = request.form.get("icone_url") 
@@ -168,6 +244,7 @@ def rotaEditarTurma(turma):
 
 # Deletar
 @app.route("/deletarTurma/<string:turma>")
+@requerAdminOuMonitor
 def rotaDeletarTurma(turma):
     deletarTurma(turma)
     turmas = buscarTurmas()
@@ -178,57 +255,73 @@ def rotaDeletarTurma(turma):
 
 @app.route("/cadastrarEquipe", methods=["GET"])
 def paginaCadastrarEquipe():
-    esportes = buscarEsportes()
-    classificacoes = buscarClassificacoes()
 
-    # Visitante (sem login) → session.get('nivel') será None
-    nivel = session.get("nivel")
-    turma = session.get("turma")
-
-    if nivel == "AlunoMonitor":
-        equipes = buscarEquipesPorTurma(turma) if turma else []
-        turmas = [{"pk_nome_turma": turma}] if turma else []
-    elif nivel == "Administrador":
-        equipes = buscarEquipes()
-        turmas = buscarTurmas()
-    else:  # visitante
-        equipes = buscarEquipes()
-        turmas = []  # visitante não precisa cadastrar, só visualizar
+    acesso = obterAcessoDoUsuario()
 
     return render_template(
         "cadastrarEquipe.html",
-        equipes=equipes,
-        esportes=esportes,
-        turmas=turmas,
-        classificacoes=classificacoes,
-        nivel=nivel
+        equipes=acesso["equipes"],
+        turmas=acesso["turmas"],
+        esportes = buscarEsportes(),
+        classificacoes = buscarClassificacoes(),
+        nivel=acesso["nivel"],
+        prazo_edicao=buscarConfiguracao("prazo_edicao_equipes")
     )
 
 
 @app.route("/cadastrarEquipe", methods=["POST"])
+@requerAdminOuMonitor
 def rotaCadastrarEquipe():
     esporte = request.form.get("esporte")
     turma = request.form.get("turma")
     genero = request.form.get("genero")
     alunos = request.form.getlist("alunos")
+    usuario_logado = session["nome"]
 
-    cadastrarEquipe(esporte, turma, genero, alunos)
+    cadastrarEquipe(esporte, turma, genero, alunos, usuario_logado)
+    flash("Equipe cadastrada com sucesso.", "success")
+
     return redirect("/cadastrarEquipe")
 
 @app.route("/editarEquipe/<int:pk_equipe>", methods=["POST"])
+@requerAdminOuMonitor
 def rotaEditarEquipe(pk_equipe):
+
+    if not edicaoEquipesPermitida():
+        flash("O prazo para editar equipes foi encerrado.", "error")
+        return redirect("/cadastrarEquipe")
+
     esporte = request.form.get("esporte")
     turma = request.form.get("turma")
     genero = request.form.get("genero")
     alunos = request.form.getlist("alunos")
 
     editarEquipe(pk_equipe, esporte, turma, genero, alunos)
+
+    flash("Equipe editada com sucesso.", "success")
     return redirect("/cadastrarEquipe")
+
+@app.route("/alterarPrazoEdicao", methods=["POST"])
+@requerAdmin
+def alterarPrazo():
+
+    prazo = request.form.get("prazo")
+
+    alterarConfiguracao(
+        "prazo_edicao_equipes",
+        prazo
+    )
+
+    flash("Prazo atualizado com sucesso!", "success")
+
+    return redirect(url_for("paginaCadastrarEquipe"))
 
 #Deletar equipe
 @app.route("/deletarEquipe/<int:pk_equipe>")
+@requerAdminOuMonitor
 def rotaDeletarEquipe(pk_equipe):
     resultado = deletarEquipe(pk_equipe)
+    flash("Equipe deletada com sucesso.", "success")
     return resultado  # retorna texto direto pro fetch()
 
 
@@ -252,7 +345,14 @@ def jogadoresPorEquipe(id_equipe):
 def paginaCadastrarUsuario():
     usuarios = telaUsuarios()
     turmas = buscarTurmas()
-    return render_template("cadastrarUsuario.html", usuarios=usuarios, turmas=turmas)
+    esportes = buscarEsportes()
+    estatisticas = buscarEstatisticasDasModalidades()
+    return render_template("cadastrarUsuario.html", 
+    usuarios=usuarios, 
+    turmas=turmas, 
+    esportes=esportes, 
+    estatisticas=estatisticas,
+    )
 
 # Inserção no banco
 @app.route("/cadastrarUsuario", methods=["POST"])
@@ -261,14 +361,25 @@ def rotaCadastrarUsuario():
     senha = request.form.get("senha")
     nivel = request.form.get("nivel")
     fk_nome_turma = request.form.get("fk_nome_turma") if nivel == "AlunoMonitor" else None
+    esporte = request.form.get("fk_esporte")
+    estatistica = request.form.get("fk_estatistica")
 
-    #--Validação: aluno monitor precisa de turma
+    usuario_logado = session["nome"]
+
+        #--Validação: aluno monitor precisa de turma
     if nivel == "AlunoMonitor" and (not fk_nome_turma or fk_nome_turma.strip() == ""):
         flash("Erro: Aluno Monitor precisa estar vinculado a uma turma.", "error")
         return redirect(url_for("paginaCadastrarUsuario"))
 
-    cadastrarUsuario(pk_usuario, senha, nivel, fk_nome_turma)
-    flash("Usuário cadastrado com sucesso!", "success")
+
+    try:
+
+        cadastrarUsuario(pk_usuario, senha, nivel, usuario_logado, fk_nome_turma, esporte, estatistica)
+        flash("Usuário cadastrado com sucesso!", "success")
+
+    except Exception as e:
+        flash("O nome de usuário que você tentou cadastrar já existe.\n" "Por favor, tente outro.", "error")
+
     return redirect(url_for("paginaCadastrarUsuario"))
 
 # Edição
@@ -294,48 +405,254 @@ def rotaDeletarUsuario(pk_usuario):
     deletarUsuario(pk_usuario)
     usuarios = telaUsuarios()
     turmas = buscarTurmas()
-    return render_template("cadastrarUsuario.html", usuarios=usuarios, turmas=turmas)
+    return redirect(url_for("paginaCadastrarUsuario"))
 
+
+## ----------------GERENCIAR/CADASTRAR MODALIDADES------------------ ##
+
+@app.route("/gerenciarModalidades")
+def gerenciarModalidades():
+    esportes = buscarEsportes()
+    return render_template("gerenciarModalidades.html", esportes=esportes)
+
+#Cadastra modalidade juntamente com a classificação dela (Individual, Coletivo) e Quantidade de jogadores
+@app.route('/cadastrarModalidades', methods=['POST'])
+@requerAdmin
+def processarCadastroModalidades():
+    esporte = request.form['esporte']
+    esporte = esporte.title()
+    grupo = request.form['grupo']
+    qtdJogadores = request.form['qtdJogadores']
+    cadastrarEsportes(esporte, grupo, qtdJogadores)
+    return redirect('/gerenciarModalidades')
+
+@app.route('/removerModalidades', methods=['POST'])
+@requerAdmin
+def apagarModalidade():
+    esporte = request.form['esporte'].title()
+    removerModalidade(esporte)
+    return redirect('/gerenciarModalidades')
+
+
+## ----------------CALENDÁRIO------------------ ##
+
+@app.route('/calendario')
+@app.route('/calendario/<int:ano>/<int:mes>')
+@app.route('/calendario/<int:ano>/<int:mes>/<int:dia>')
+def calendario(ano = None, mes = None, dia = None):
+    # Lógica para obter o ano, mês e dia atuais caso não sejam fornecidos na URL
+    #Parâmetros:
+    #- ano (int): O ano para exibição do calendário. Se não fornecido, é o ano atual.
+    #- mes (int): O mês para exibição do calendário. Se não fornecido, é o mês atual.
+    #- dia (int): O dia selecionado. Se não fornecido, é o dia atual.
+    if ano is None or mes is None:
+        hoje = datetime.today()
+        ano = hoje.year
+        mes = hoje.month
+    
+    if dia is None:
+        dia_selecionado = datetime.today().day
+    else:
+        dia_selecionado = dia
+    
+    # Ajuste de mês e ano caso o usuário navegue para meses anteriores ou seguintes:
+    #Se o mes for igual a 0, significa que o usuario foi para o ano anterior, ou seja, mês se torna igual a 12 e ano = ano atual - 1
+    #Se o mes for igual a 13, significa que o usuario foi para o ano posterior, ou seja, mês se torna igual a 1 e ano = ano atual + 1
+    if mes == 0:
+        mes = 12
+        ano -=1
+    elif mes == 13:
+        mes = 1
+        ano += 1
+
+    turmas = buscarTurmas()
+
+    #Busca eventos no calendario do mês de determinado ano    
+    eventos = buscarEventosCalendario(ano, mes)
+    eventosDoDia = set() #Evita que tenha duplicatas, pois apenas registra em quais dias tem partidas
+    for evento in eventos:
+        eventosDoDia.add(evento['dia_evento'].day)
+
+    #Procura as partidas do dia que o usuário escolheu no calendário
+    partidas_dia_selecionado = []
+    for partida in eventos:
+        if partida['dia_evento'].day == dia_selecionado:
+            partidas_dia_selecionado.append(partida)
+
+    #Define domingo como o primeiro dia da semana
+    calendario_mes = Calendar(firstweekday=6)
+    #Busca as semanas do mês de determinado ano
+    semanas = calendario_mes.monthdatescalendar(ano, mes) 
+    
+    #Armazena os nomes dos meses para ser exibido no calendario
+    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    #nomeMes recebe meses[mes(numero do mês) - 1], pois em listas o primeiro indíce de uma lista é 0
+    nomeMes = meses[mes - 1]
+
+    #Funções necessárias para exibição do usuário
+    membrosEquipes = buscarMembrosEquipe()
+    esportes = buscarEsportes()
+    estatisticasPrincipal = buscarEstatisticasPrincipal()
+
+    return render_template('calendario.html', 
+        ptr = partidas_dia_selecionado,  
+        turmas = turmas,
+        hoje = date.today(),
+        ano = ano,
+        semanas = semanas,
+        mes = mes,
+        eventosDoDia = eventosDoDia,
+        nomeMes = nomeMes,
+        membrosEquipes = membrosEquipes,
+        esportes = esportes,
+        dia_selecionado = dia_selecionado,
+        estatisticasPrincipal = estatisticasPrincipal)
+
+#Rota necessária para a função de filtrar informações no calendário
+@app.route('/calendarioFiltrado/<int:ano>/<int:mes>/<int:dia>', methods=['POST'])
+def calendarioFiltrado(ano = None, mes = None, dia = None):
+    esporte = request.form['esporte']
+    genero = request.form['genero']
+    turma = request.form['turma']
+
+    if ano is None or mes is None:
+        hoje = datetime.today()
+        ano = hoje.year
+        mes = hoje.month
+    
+    if dia is None:
+        dia_selecionado = datetime.today().day
+    else:
+        dia_selecionado = dia
+    
+    if mes == 0:
+        mes = 12
+        ano -=1
+    elif mes == 13:
+        mes = 1
+        ano += 1
+
+    turmas = buscarTurmas()
+    
+    #Busca eventos de maneira especifica, conforme esporte e/ou turma e/ou genero -- OBS: Genero = Masculino ou Feminino
+    eventos = buscarEventosCalendarioFiltros(ano, mes, esporte, turma, genero)
+    eventosDoDia = set()
+    for evento in eventos:
+        eventosDoDia.add(evento['dia_evento'].day)
+
+    partidas_dia_selecionado = []
+    for partida in eventos:
+        if partida['dia_evento'].day == dia_selecionado:
+            partidas_dia_selecionado.append(partida)
+    
+    calendario_mes = Calendar(firstweekday=6)
+    semanas = calendario_mes.monthdatescalendar(ano, mes) 
+    
+    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    nomeMes = meses[mes - 1]
+
+    membrosEquipes = buscarMembrosEquipe()
+    esportes = buscarEsportes()
+    estatisticasPrincipal = buscarEstatisticasPrincipal()
+
+    return render_template('calendario.html', 
+        ptr = partidas_dia_selecionado,  
+        turmas = turmas,
+        hoje = date.today(),
+        ano = ano,
+        semanas = semanas,
+        mes = mes,
+        eventosDoDia = eventosDoDia,
+        nomeMes = nomeMes,
+        membrosEquipes = membrosEquipes,
+        esportes = esportes,
+        dia_selecionado = dia_selecionado,
+        filtroEsporte = esporte,
+        filtroGenero= genero,
+        filtroTurmas = turma,
+        estatisticasPrincipal = estatisticasPrincipal)
+
+## ----------------TABELA ATLETISMO------------------ ##
+
+@app.route("/tabelaAtletismo", methods=["GET"])
+def tabelaAtletismo():
+    return render_template(
+        "tabelaAtletismo.html",
+        esportes=buscarEsportes(),
+        classificacoes=buscarClassificacoes()
+    )
+
+# =========================================================
+# TABELA DO ATLETISMO - MODALIDADES
+# =========================================================
+
+@app.route("/tabelaAtletismo/Modalidades", methods=["GET"])
+def tabelaAtletismoModalidade():
+    return render_template(
+        "tabelaAtletismoModalidade.html",
+        modalidades=buscarModalidadesAtletismo()
+    )
+
+
+# =========================================================
+# TABELA DO ATLETISMO - RECORDES
+# =========================================================
+
+@app.route("/tabelaAtletismo/Recordes", methods=["GET"])
+def tabelaAtletismoRecordes():
+    return render_template(
+        "tabelaAtletismoRecordes.html"
+    )
+
+# =========================================================
+# TABELA DO ATLETISMO - PROVAS
+# =========================================================
+
+@app.route("/tabelaAtletismo/Provas", methods=["GET"])
+def tabelaAtletismoProvas():
+
+    return render_template(
+
+        "tabelaAtletismoProvas.html",
+
+    )
 
 ## ----------------CHAVEAMENTO------------------ ##
 
-@app.route("/chaveamentoExcluir", methods=["GET"])
+@app.route("/gerarChaveamento", methods=["GET"])
 def paginaGerarChaveamento():
     # Buscar esportes e classificações para preencher os <select> no HTML
     esportes = buscarEsportes()
     classificacoes = buscarClassificacoes()
     
     return render_template(
-        "chaveamento.html", 
+        "gerarChaveamento.html", 
         esportes=esportes, 
         classificacoes=classificacoes
     )
 
 
 @app.route("/chaveamento/gerar", methods=["POST"])
-@verificaSessao # Proteja a rota de geração
+@requerAdmin
 def rotaGerarChaveamento():
-    # Recebe os dados JSON enviados pelo JavaScript
-    dados = request.get_json()
+    dados = request.get_json() or {}
     esporte = dados.get('esporte')
     classificacao = dados.get('classificacao')
 
     if not esporte or not classificacao:
         return jsonify({"status": "erro", "mensagem": "Esporte e Classificação são obrigatórios."}), 400
 
+    # Redirecionamento dinâmico enviado para o Fetch/AJAX do Javascript
+    if esporte == "Atletismo":
+        return jsonify({
+            "status": "redirecionar",
+            "url": url_for("tabelaAtletismo")
+        })
+
     try:
-        # CHAMA SUA LÓGICA PYTHON
         chaveamento = gerarChaveamento(esporte, classificacao) 
-        
-        # Sua função gera o chaveamento e JÁ SALVA as partidas no BD.
-        # Agora precisamos apenas retornar o status para o frontend.
-        
-        # O resultado impresso no terminal será o log do 'gerarChaveamento'.
-        
-        # Como sua função retorna o chaveamento completo, podemos retornar o número de partidas da 1ª rodada
         total_partidas_1a_rodada = len(chaveamento[0]) if chaveamento and chaveamento[0] else 0
 
-        # Retorna o JSON de sucesso para o JavaScript
         return jsonify({
             "status": "sucesso",
             "mensagem": f"Chaveamento de {esporte} ({classificacao}) gerado e salvo.",
@@ -344,14 +661,12 @@ def rotaGerarChaveamento():
 
     except Exception as e:
         print(f"Erro Crítico ao Gerar Chaveamento: {e}")
-        # Retorna o JSON de erro
         return jsonify({
             "status": "erro", 
             "mensagem": f"Erro interno ao gerar chaveamento: {str(e)}"
         }), 500
     
 @app.route("/chaveamento/partidas", methods=["GET"])
-@verificaSessao
 def rotaBuscarPartidas():
     """
     Busca as partidas de uma chave (filtrada por GET) para listagem no painel.
@@ -391,47 +706,250 @@ def rotaBuscarPartidas():
         return jsonify({"status": "erro", "mensagem": "Falha ao carregar partidas do banco de dados."}), 500
 
 
-@app.route("/chaveamento", methods=['GET'])
-@verificaSessao
+@app.route("/chaveamento", methods=['GET', 'POST'])
 def chaveamentoTeste():
     esportes = buscarEsportes()
     generos = buscarClassificacoes()
 
-    return render_template("chaveamento.html", esportes=esportes, generos=generos)
+    tabela = None  # Inicializa a tabela como None
+    esporte = None
+    genero = None
 
-@app.route("/chaveamento", methods=['POST'])
-@verificaSessao
-def chaveamentoTesteCarregar():
-    esporte = request.form['esporte']
-    genero = request.form['genero']
+    if request.method == 'POST':
+        esporte = request.form['esporte']
+        genero = request.form['genero']
 
-    tabela = buscarPartidasParaGestao(esporte, genero)
-    print(tabela)
-    esportes = buscarEsportes()
-    generos = buscarClassificacoes()
+        if esporte == "Atletismo":
+            return redirect(url_for("tabelaAtletismo"))
+
+        if esporte and genero:
+            tabela = buscarPartidasParaGestao(esporte, genero)
+
     return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)
 
+@app.route("/verEstatisticas/<int:partida_id>", methods=["GET"])
+def verEstatisticas(partida_id):
+    partida = buscarPartidaPorId(partida_id)
+
+    esporte = partida["fk_esporte"]
+    fk_equipe_casa = partida["fk_equipe_casa"]
+    fk_equipe_visitante = partida["fk_equipe_visitante"]
+    definida = partida["definida"]
+    nivel = session["nivel"]
+    equipe_casa = None
+    equipe_visitante = None
+
+    if fk_equipe_casa is not None and fk_equipe_visitante is not None:
+        equipes = buscarEquipesPorID(fk_equipe_casa, fk_equipe_visitante)
+        equipe_casa = equipes[0]
+        equipe_visitante = equipes[1]
+    else:
+        redirect(url_for('chaveamentoTeste'))
+    
+    estatisticasList = buscarEstatisticasPorModalidade(esporte)
+    estatisticas = []
+    for estatistica, principal in estatisticasList:
+        if principal == 1:
+            estatisticas.insert(0, estatistica)
+        else:
+            estatisticas.append(estatistica)
+
+    usuario = buscarUsuarioPorNome(session["nome"])
+    if usuario != None:
+        estatistica_permitida = usuario["fk_estatistica_permitida"]
+    
+    if nivel == "AlunoMonitor":
+        estatisticas = [estatistica_permitida]
+
+    estatisticas_partida = buscarEstatisticasDasPartidas(partida_id)
+
+
+    return render_template("verEstatisticas.html", 
+    esporte=esporte, 
+    equipe_casa=equipe_casa, 
+    equipe_visitante=equipe_visitante,
+    fk_equipe_casa=fk_equipe_casa,
+    fk_equipe_visitante=fk_equipe_visitante,
+    id_partida=partida_id,
+    estatisticas=estatisticas,
+    definida=definida,
+    nivel=nivel,
+    estatisticas_partida=estatisticas_partida
+    )
+
+@app.route("/salvarEstatisticas", methods=["POST"])
+@requerAdminOuMonitor
+def salvarEstatisticas():
+    try:
+        dados = request.get_json()
+        modo_edicao = dados.get('modo_edicao')
+
+        id_partida = dados.get("id_partida")
+        estatisticas = dados.get("estatisticas", [])
+
+        modalidade = buscarEsportePorPartida(id_partida)
+        estatistica_principal = buscarEstatisticasPrincipal(modalidade)
+        partida = buscarPartidaPorId(id_partida)
+
+        cod_partida_mae = partida["pk_partida_mae"]
+        cod_equipe_casa = partida["fk_equipe_casa"]
+        cod_equipe_visitante = partida["fk_equipe_visitante"]
+
+        vencedor_id = None
+        pontos_equipe_casa = 0
+        pontos_equipe_visitante = 0
+
+        ponto_principal_casa = 0
+        ponto_principal_visitante = 0
+
+        for stat in estatisticas:
+
+            nome_estatistica = stat.get("estatistica")
+            pontos_equipe_casa = int(stat.get("casa", 0))
+            pontos_equipe_visitante = int(stat.get("visitante", 0))
+
+            salvarOuAtualizarEstatistica(id_partida, nome_estatistica, pontos_equipe_casa, pontos_equipe_visitante)
+
+
+            if nome_estatistica == estatistica_principal:
+
+                ponto_principal_casa = pontos_equipe_casa
+                ponto_principal_visitante = pontos_equipe_visitante
+
+                vencedor_id = (
+                    cod_equipe_casa
+                    if ponto_principal_casa > ponto_principal_visitante
+                    else cod_equipe_visitante
+                )
+
+        if vencedor_id is None:
+
+            print("ERRO: vencedor_id continua None")
+
+            return jsonify({
+                "sucesso": False,
+                "mensagem": (
+                    "A estatística principal não foi encontrada. "
+                    f"Recebida: {estatistica_principal}"
+                )
+            }), 400
+
+        salvarVencedorPartida(
+            id_partida,
+            vencedor_id,
+            ponto_principal_casa,
+            ponto_principal_visitante,
+            cod_partida_mae,
+            modo_edicao
+        )
+
+        return jsonify({
+            "sucesso": True,
+            "mensagem": "Estatísticas salvas com sucesso"
+        }), 200
+
+    except Exception as e:
+
+        import traceback
+
+        print("\n========== ERRO ==========")
+        print("TIPO:", type(e).__name__)
+        print("MENSAGEM:", str(e))
+        traceback.print_exc()
+        print("===========================\n")
+
+        return jsonify({
+            "sucesso": False,
+            "mensagem": f"{type(e).__name__}: {str(e)}"
+        }), 500
 
 @app.route("/chaveamento/vencedor", methods=["POST"])
-@verificaSessao
+@requerAdmin
 def rotaRegistrarVencedor():
-    """
-    Registra o vencedor e verifica se é hora de gerar a próxima etapa.
-    """
     partida_id = request.form['partida_id']
-    cod_partida_mae = request.form['cod_partida_mae']
+    cod_partida_mae = request.form.get('cod_partida_mae')
+
     cod_equipe_casa = request.form['cod_equipe_casa']
     cod_equipe_visitante = request.form['cod_equipe_visitante']
-    pontos_equipe_casa = request.form['pontos_equipe_casa']
-    pontos_equipe_visitante = request.form['pontos_equipe_visitante']
-    print(pontos_equipe_casa)
-    print(pontos_equipe_visitante)
+
+    pontos_equipe_casa = int(request.form['pontos_equipe_casa'])
+    pontos_equipe_visitante = int(request.form['pontos_equipe_visitante'])
+
     genero = request.form['genero']
     esporte = request.form['esporte']
-    vencedor_id = cod_equipe_casa if pontos_equipe_casa > pontos_equipe_visitante else cod_equipe_visitante
-    salvarVencedorPartida(partida_id, vencedor_id,pontos_equipe_casa,pontos_equipe_visitante,cod_partida_mae)
-    
+
+    vencedor_id = (
+        cod_equipe_casa
+        if pontos_equipe_casa > pontos_equipe_visitante
+        else cod_equipe_visitante
+    )
+
+    salvarVencedorPartida(
+        partida_id,
+        vencedor_id,
+        pontos_equipe_casa,
+        pontos_equipe_visitante,
+        cod_partida_mae,
+        
+    )
+
     tabela = buscarPartidasParaGestao(esporte, genero)
     esportes = buscarEsportes()
     generos = buscarClassificacoes()
-    return render_template("chaveamento.html", esportes=esportes, generos=generos, tabela=tabela)
+
+    return render_template(
+        "chaveamento.html",
+        esportes=esportes,
+        generos=generos,
+        tabela=tabela
+    )
+
+@app.route('/gerenciarEstatisticas')
+@requerAdmin
+def exibirGerenciarEstatisticas():
+    esportes = buscarModalidades()
+    estatisticas = buscarEstatisticasRegistradas()
+    esportesComEst = buscarEstatisticasDeModalidade()
+    return render_template('gerenciarEstatisticas.html', esportes=esportes, estatisticas=estatisticas, esportesComEst=esportesComEst)
+
+@app.route('/criarEstatistica', methods=['POST'])
+@requerAdmin
+def processarCriarEstatistica():
+    estatistica = request.form['estatistica']
+    estatistica = estatistica.title()
+    criarEstatisticas(estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+@app.route('/removerEstatistica', methods=['POST'])
+@requerAdmin
+def processarRemoverEstatistica():
+    estatistica = request.form['estatistica']
+    removerEstatisticas(estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+@app.route("/cadastrarEstatisticasParaModalidade", methods=['POST'])
+def processarCadastrarEstatisticaModalidade():
+    esporte = request.form['esporte']
+    estatistica = request.form['estatistica']
+    principal = request.form.get("estatistica_principal") == "true"
+    cadastrarEstatisticasParaModalidade(esporte, estatistica, principal)
+    return redirect(f'/gerenciarEstatisticas')
+
+#Remove estatistica de determinada modalidade
+@app.route("/removerEstatisticasParaModalidade", methods=["POST"])
+@requerAdmin
+def processarRemoverEstatisticaModalidade():
+    esporte = request.form['esporte']
+    estatistica = request.form['estatistica']
+    if esporte == '':
+        flash('Selecione um esporte valido!', 'erro')
+    else:
+        removerEstatisticasDaModalidade(esporte,estatistica)
+    return redirect(f'/gerenciarEstatisticas')
+
+#API relacionada a tela de gerenciar estatisticas na função remover estatisticas para modalidade
+@app.route('/api/estatisticasPorModalidade/<string:esporte>')
+def processarEstatisticasPorModalidade(esporte):
+    estatisticasFiltras = buscarEstatisticasPorModalidade(esporte)
+    resultado = [{"fk_nome_estatistica": linha[0]} for linha in estatisticasFiltras]
+    return jsonify(resultado)

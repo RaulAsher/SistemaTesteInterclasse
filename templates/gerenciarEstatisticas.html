@@ -1,0 +1,149 @@
+{% include 'head.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="icon" href="{{ url_for('static', filename='css/logo.jpeg') }}">
+   <link rel="stylesheet" href="/static/css/gerenciamento.css">
+   <link rel="stylesheet" href="/static/css/menu.css">
+   <link rel="stylesheet" href="/static/css/card.css">
+   <script src="/static/js/menu.js" defer></script>
+   <title>ETEPlacar - Gerenciar Modalidades</title>
+</head>
+<body>
+    <header>
+     <link rel="stylesheet" href="/static/css/menu.css">
+     <div class="barraSuperior">
+        <button class="menu-btn" id="menuToggle" aria-label="Abrir menu">☰</button>
+        <strong class="nomeEmCima">Gerenciar Modalidades</strong>
+        <span></span>
+      </div>
+  
+        
+  </header>
+    <div class="caixa">
+    <div class="divisao">
+        <h3>Criar Estatistica</h3>
+        <form action="/criarEstatistica" method="POST">
+            <label>Nome da Estatistica: </label>
+            <input name="estatistica" required/>
+            <button type="submit">Criar Estatistica</button>
+        </form>
+        <h3>Remover Estatistica</h3>
+        <form action="/removerEstatistica" method="POST">
+            <select name="estatistica" id="estatistica-Select">
+                {%for estatistica in estatisticas%}
+                <option value="{{estatistica['pk_nome_estatistica']}}">{{estatistica['pk_nome_estatistica']}}</option>
+                {%endfor%}
+            </select>
+            <button onclick="confirmarRemoverEstatistica(event)" type="submit">Remover Estatística</button>
+        </form>
+    </div>
+    <div class="divisao">  
+        <h3>Cadastrar Estatisticas</h3>
+        <form action="/cadastrarEstatisticasParaModalidade" method="POST">
+            <label>Esporte: </label>
+            <select name="esporte">
+                {%for esporte in esportes%}
+                <option value="{{esporte['pk_esporte']}}">{{esporte['pk_esporte']}}</option>
+                {%endfor%}
+            </select><br>
+            <label>Estatistica:</label>
+            <select name="estatistica">
+                {%for estatistica in estatisticas%}
+                <option value="{{estatistica['pk_nome_estatistica']}}">{{estatistica['pk_nome_estatistica']}}</option>
+                {%endfor%}
+            </select><br>
+            <label>
+            <input type="checkbox" name="estatistica_principal" value="true">
+            Estatística principal do esporte
+            </label>
+            <button type="submit">Cadastrar Estatisticas</button>
+        </form>
+        <h3>Remover Estatisticas de uma Modalidade</h3>
+        <form action="/removerEstatisticasParaModalidade" method="POST">
+            <label>Esporte: </label>
+            <select name="esporte" id="esporteRemover">
+                <option id="selecionarEsporte" value="">--Selecione um esporte</option>
+                {%set lista = []%}
+                {%for esporte in esportesComEst%}
+                    {%if esporte['fk_esporte'] not in lista%}
+                        {%set _ = lista.append(esporte['fk_esporte'])%}
+                        <option value="{{esporte['fk_esporte']}}">{{esporte['fk_esporte']}}</option>
+                    {%endif%}
+                {%endfor%}
+            </select><br>
+            <label>Estatistica:</label>
+            <select name="estatistica" id="estatisticaRemover">
+                <option value="">--Selecione um esporte primeiro--</option>
+            </select><br>
+            <button onclick="confirmarRemoverEstatisticaModalidade(event)" type="submit">Remover Estatística</button>
+        </form>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const esporteSelect = document.getElementById('esporteRemover');
+    const estatisticaSelect = document.getElementById('estatisticaRemover');
+    const selecionarEsporte = document.getElementById('selecionarEsporte');
+
+    esporteSelect.addEventListener('change', function() {
+        const esporteSelecionado = this.value;
+
+        // Se nenhum esporte for selecionado, limpa a lista de estatísticas
+        if (!esporteSelecionado) {
+            estatisticaSelect.innerHTML = '<option value="">--Selecione um esporte primeiro--</option>';
+            return; // Sai da função
+        }
+
+        fetch(`/api/estatisticasPorModalidade/${esporteSelecionado}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Falha na resposta do servidor');
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                if (selecionarEsporte) {
+                    selecionarEsporte.remove();
+                }
+                estatisticaSelect.innerHTML = '';
+
+                data.forEach(estatisticaFiltras => {
+                    const option = document.createElement('option');
+                    option.value = estatisticaFiltras['fk_nome_estatistica'];
+                    option.textContent = estatisticaFiltras['fk_nome_estatistica'];
+                    estatisticaSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao buscar estatísticas', error);
+                estatisticaSelect.innerHTML = '<option value="">Erro ao carregar estatísticas</option>';
+            });
+    });
+});
+
+    function confirmarRemoverEstatistica(event){
+        const estatisticaSelecionada = document.getElementById('estatistica-Select').value;
+        const mensagem = `Todas as partidas e modalidades relacionadas com ${estatisticaSelecionada} serão desassociadas! Tem certeza que deseja remover ${estatisticaSelecionada}?`
+        if (!window.confirm(mensagem)) {
+            event.preventDefault(); 
+        }
+    }
+
+    function confirmarRemoverEstatisticaModalidade(event){
+        const modalidadeSelecionada = document.getElementById('esporteRemover').value
+        const estatisticaSelecionada = document.getElementById('estatisticaRemover').value;
+        const mensagem = `Todas as partidas juntamente com a modalidade ${modalidadeSelecionada} serão desassociadas da estatistica ${estatisticaSelecionada}! Tem certeza que deseja remover ${estatisticaSelecionada}?`
+        if (!window.confirm(mensagem)) {
+            event.preventDefault(); 
+        }
+    }
+    </script>
+    {% extends 'baseflash.html' %}
+    </div>  
+</body>
+</html>
+
+{% include 'footer.html' %}

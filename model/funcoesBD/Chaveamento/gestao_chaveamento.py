@@ -134,7 +134,7 @@ def salvar_partidas(chaveamento, esporte, classificacao):
     # Query para inserção na tabela 'partidas'
     query = """
         INSERT INTO partidas 
-            (fk_esporte, fk_descricao, fk_equipe_casa, fk_equipe_visitante, etapa, definida, pk_partida_mae, pk_equipe_vencedora)
+            (fk_esporte, fk_genero, fk_equipe_casa, fk_equipe_visitante, etapa, definida, pk_partida_mae, pk_equipe_vencedora)
         VALUES 
             (%s, %s, %s, %s, %s, %s, %s, %s)
         """

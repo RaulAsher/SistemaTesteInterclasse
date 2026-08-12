@@ -13,7 +13,7 @@ def getVencedoresEtapa(esporte, classificacao, etapa):
     SELECT pk_equipe_vencedora 
     FROM partidas
     WHERE fk_esporte = %s 
-      AND fk_descricao = %s
+      AND fk_genero = %s
       AND etapa = %s
       AND definida = 'sim'
     ORDER BY par_re1 ASC, par_re2 ASC;

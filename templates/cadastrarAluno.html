@@ -31,12 +31,25 @@
             <tbody>
                 {% if alunos %}
                 {% for aluno in alunos %}
+                {% if session['nivel'] == 'AlunoMonitor' and aluno[2] == session['turma'] or session['nivel'] == 'Administrador' %}
                 <tr>
-                    <td class="cor-tx">{{ aluno[2] }}</td>
-                    <td class="cor-tx">{{ aluno[1] }}</td>
-                    <td class="cor-tx">{{ aluno[3] }}</td>
-                    <td class="cor-tx">{{ aluno[0] }}</td>
+                    
+                    {% if session['nivel'] == 'Administrador' %}
+                        <td class="cor-tx">{{ aluno[2] }}</td>
+                        <td class="cor-tx">{{ aluno[1] }}</td>
+                        <td class="cor-tx">{{ aluno[3] }}</td>
+                        <td class="cor-tx">{{ aluno[0] }}</td>
+                    {% endif %}
+                    
+                    {% if aluno[2] == session['turma'] %}
+                        <td class="cor-tx">{{ aluno[2] }}</td>
+                        <td class="cor-tx">{{ aluno[1] }}</td>
+                        <td class="cor-tx">{{ aluno[3] }}</td>
+                        <td class="cor-tx">{{ aluno[0] }}</td>
+                    {% endif %}
+                    
                     <td class="actions">
+                        {% if session['nivel'] == 'Administrador' or (session['nivel'] == 'AlunoMonitor' and aluno[2] == session['turma']) %}
                         <button class="btn btn-edit"
                             onclick="abrirModalEdicao('{{ aluno[0] }}','{{ aluno[1] }}','{{ aluno[2] }}','{{ aluno[3] }}', '{{ aluno[0] }}')">
                             Editar
@@ -44,8 +57,11 @@
                         <button class="btn btn-delete" onclick="confirmarDelecao('{{ aluno[0] }}','{{ aluno[1] }}')">
                             Deletar
                         </button>
+                        {% endif %}
+
                     </td>
                 </tr>
+                {% endif %}
                 {% endfor %}
                 {% else %}
                 <tr>
@@ -73,14 +89,31 @@
                 <input type="text" name="matricula" id="matricula" required pattern="\d{8}" maxlength="8">
             </div>
 
+
+
             <div class="form-group">
                 <label for="turma">Turma:</label>
-                <select name="turma" id="turma" required>
-                    <option value="">Selecione</option>
-                    {% for turma in turmas %}
-                    <option value="{{ turma['pk_nome_turma'] }}">{{ turma['pk_nome_turma'] }}</option>
-                    {% endfor %}
-                </select>
+
+                
+
+                    {% if session['nivel'] == 'AlunoMonitor' %}
+
+                        <input type="text" value="{{ session['turma'] }}" disabled>
+                        <input type="hidden" name="turma" value="{{ session['turma'] }}">
+
+                    {% else %}
+
+                        <select name="turma" id="turma" required>
+                        <option value="">Selecione</option>
+
+                            {% for turma in turmas %}
+                            <option value="{{ turma['pk_nome_turma'] }}">{{ turma['pk_nome_turma'] }}</option>
+                            {% endfor %}
+                        </select>
+
+                    {% endif %}
+
+
             </div>
 
             <div class="form-group">

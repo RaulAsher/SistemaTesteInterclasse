@@ -1,0 +1,63 @@
+{% include "head.html" %}
+
+{% include "flash.html" %}
+{% block content %}
+
+{% endblock %}
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<main class="card-container">
+    
+<div class="home-container">
+
+    <div class="hero">
+
+        <h1>🏆 Interclasse ETE MFL</h1>
+
+        <p class="subtitulo">
+            Sistema de gerenciamento do Interclasse da Escola Técnica Estadual Ministro Fernando Lyra.
+        </p>
+
+        {% if nivel == "Visitante" %}
+
+        <div class="info-box visitante">
+
+            <h2>Bem-vindo!</h2>
+
+            <p>
+                Você está navegando como <strong style="color: black;">Visitante</strong>.
+            </p>
+
+            <p>
+                Faça login para cadastrar equipes, gerenciar alunos e utilizar todas
+                as funcionalidades disponíveis.
+            </p>
+
+            <a href="/chaveamento" class="btn btn-primary">
+                Ver Partidas
+            </a>
+
+        </div>
+
+        {% else %}
+
+        <div class="info-box usuario">
+
+            <h2>Olá, {{ nome_usuario }}!</h2>
+
+            <p>
+                Você está conectado como
+                <strong style="color: black;">{{ nivel }}</strong>.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+</main>
+
+{% include "footer.html" %}

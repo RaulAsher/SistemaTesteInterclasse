@@ -1,72 +1,157 @@
 from ..Cadastrar.criarConexao import criarConexao
 import mysql.connector
 
-def atualizarPartidaProximaRodada(cod_partida_mae, partida_id , vencedor_id):
+
+def atualizarPartidaProximaRodada(cod_partida_mae, partida_id, vencedor_id):
+
+    # Caso seja a final, não existe próxima partida
+    if cod_partida_mae in (None, "", "NULL", "null"):
+        return True
+
     conexao = criarConexao()
-    if not conexao: return False
-    cod_partida_visitante = None
+
+    if not conexao:
+        return False
+
     try:
+
         with conexao.cursor() as cursor:
+
             query1 = """
-                    SELECT Max(pk_partida) as cod_partida_visitante 
-                    FROM etemfl83_inter_classe.partidas p 
-                    where p.pk_partida_mae = %s;
-                    """
+                SELECT MAX(pk_partida) AS cod_partida_visitante
+                FROM etemfl83_inter_classe.partidas
+                WHERE pk_partida_mae = %s;
+            """
+
             cursor.execute(query1, (cod_partida_mae,))
             cod_partida_visitante = cursor.fetchone()
-            
-    except mysql.connector.Error as err:
-        print(f"Erro ao salvar vencedor: {err}")
 
-    query = None
-    if(cod_partida_visitante[0] > int(partida_id)):
+            # Segurança
+            if (
+                cod_partida_visitante is None
+                or
+                cod_partida_visitante[0] is None
+            ):
+                return True
+
+    except mysql.connector.Error as err:
+
+        print(f"Erro ao buscar próxima partida: {err}")
+
+        return False
+
+    if cod_partida_visitante[0] > int(partida_id):
+
         query = """
             UPDATE partidas
             SET fk_equipe_casa = %s
-            WHERE pk_partida = %s AND definida = 'nao';
-            """
+            WHERE pk_partida = %s
+            AND definida = 'nao';
+        """
+
     else:
+
         query = """
             UPDATE partidas
             SET fk_equipe_visitante = %s
-            WHERE pk_partida = %s AND definida = 'nao';
-            """
+            WHERE pk_partida = %s
+            AND definida = 'nao';
+        """
 
     try:
+
         with conexao.cursor() as cursor:
+
             cursor.execute(query, (vencedor_id, cod_partida_mae))
+
             conexao.commit()
-            return cursor.rowcount > 0
+
+            return True
+
     except mysql.connector.Error as err:
-        print(f"Erro ao salvar vencedor: {err}")
+
+        print(f"Erro ao atualizar próxima partida: {err}")
+
         return False
+
     finally:
+
         conexao.close()
 
-def salvarVencedorPartida(partida_id, vencedor_id, pontos_equipe_casa, pontos_equipe_Visitante, cod_partida_mae):
-    """
-    Registra o vencedor de uma partida e marca como 'sim' (definida).
-    """
 
-    atualizarPartidaProximaRodada(cod_partida_mae,partida_id,vencedor_id)
+def salvarVencedorPartida(
+    partida_id,
+    vencedor_id,
+    pontos_equipe_casa,
+    pontos_equipe_visitante,
+    cod_partida_mae,
+    modo_edicao
+):
 
     conexao = criarConexao()
-    if not conexao: return False
+
+    if not conexao:
+        return False
 
     try:
+
         with conexao.cursor() as cursor:
-            query = """
-            UPDATE partidas
-            SET pk_equipe_vencedora = %s, definida = 'sim',
-            pontos_turma_casa = %s, 
-            pontos_turma_visitante = %s
-            WHERE pk_partida = %s AND definida = 'nao';
-            """
-            cursor.execute(query, (vencedor_id, pontos_equipe_casa, pontos_equipe_Visitante ,partida_id))
+
+            if modo_edicao == True:
+
+                # EDIÇÃO: pode atualizar uma partida já definida
+                query = """
+                    UPDATE partidas
+                    SET
+                        pk_equipe_vencedora = %s,
+                        pontos_turma_casa = %s,
+                        pontos_turma_visitante = %s
+                    WHERE pk_partida = %s
+                    AND definida = 'sim'
+                """
+
+            else:
+
+                # PRIMEIRO SALVAMENTO:
+                # só permite definir uma partida que ainda não foi definida
+                query = """
+                    UPDATE partidas
+                    SET
+                        pk_equipe_vencedora = %s,
+                        definida = 'sim',
+                        pontos_turma_casa = %s,
+                        pontos_turma_visitante = %s
+                    WHERE pk_partida = %s
+                    AND definida = 'nao'
+                """
+
+            cursor.execute(
+                query,
+                (
+                    vencedor_id,
+                    pontos_equipe_casa,
+                    pontos_equipe_visitante,
+                    partida_id
+                )
+            )
+
+            print("Linhas atualizadas:", cursor.rowcount)
+
             conexao.commit()
-            return cursor.rowcount > 0
+
     except mysql.connector.Error as err:
+
         print(f"Erro ao salvar vencedor: {err}")
+        conexao.rollback()
         return False
+
     finally:
         conexao.close()
+
+    atualizarPartidaProximaRodada(
+        cod_partida_mae,
+        partida_id,
+        vencedor_id
+    )
+
+    return True

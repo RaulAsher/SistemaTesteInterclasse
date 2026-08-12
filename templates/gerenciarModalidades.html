@@ -1,0 +1,194 @@
+{% include 'head.html' %}
+<link rel="stylesheet" href="/static/css/gerenciamento.css">
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="/static/js/menu.js" defer></script>
+
+    <title>ETEPlacar - Gerenciar Estatísticas</title>
+</head>
+
+<body>
+
+    <div class="barraSuperior">
+        <button class="menu-btn" id="menuToggle" aria-label="Abrir menu">☰</button>
+        <strong class="nomeEmCima">Gerenciar Estatísticas</strong>
+        <span></span>
+    </div>
+
+    <div class="caixa">
+
+        <!-- CADASTRO -->
+
+        <div class="divisao">
+
+            <h3>Cadastrar Modalidades</h3>
+
+            <form action="/cadastrarModalidades" method="POST">
+
+                <div class="form-linha">
+
+                    <div class="campo">
+                        <label for="esporte">Nome da modalidade</label>
+                        <input
+                            type="text"
+                            id="esporte"
+                            name="esporte"
+                            required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="grupo">Grupo</label>
+                        <select
+                            id="grupo"
+                            name="grupo">
+
+                            <option value="Coletivo">Coletivo</option>
+                            <option value="Individual">Individual</option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="form-linha">
+                    <div class="campo">
+                        <label for="qtdJogadores">Quantidade de Jogadores</label>
+                        <input
+                            type="number"
+                            id="qtdJogadores"
+                            name="qtdJogadores"
+                            required>
+                    </div>
+
+                    <button type="submit">
+                        Cadastrar Modalidade
+                    </button>
+
+                </div>
+            </form>
+        </div>
+
+        <!-- REMOÇÃO -->
+
+        <div class="divisao">
+
+            <h3>Remover Modalidades</h3>
+
+            <form action="/removerModalidades" method="POST">
+
+                <div class="form-linha">
+
+                    <div class="campo">
+                        <label for="modalidade-select">
+                            Modalidade
+                        </label>
+
+                        <select
+                            name="esporte"
+                            id="modalidade-select">
+
+                            {%for esporte in esportes%}
+                                <option value="{{esporte['pk_esporte']}}">
+                                    {{esporte['pk_esporte']}}
+                                </option>
+                            {%endfor%}
+
+                        </select>
+                    </div>
+
+                    <button
+                        type="submit"
+                        onclick="confirmarRemoverModalidade(event)">
+                        Remover Modalidade
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const esporteSelect = document.getElementById('esporteRemover');
+        const estatisticaSelect = document.getElementById('estatisticaRemover');
+        const selecionarEsporte = document.getElementById('selecionarEsporte');
+
+        if (esporteSelect) {
+
+            esporteSelect.addEventListener('change', function () {
+
+                const esporteSelecionado = this.value;
+
+                if (!esporteSelecionado) {
+
+                    estatisticaSelect.innerHTML =
+                        '<option value="">--Selecione um esporte primeiro--</option>';
+
+                    return;
+
+                }
+
+                fetch(`/api/estatisticasPorModalidade/${esporteSelecionado}`)
+
+                    .then(response => {
+
+                        if (!response.ok)
+                            throw new Error('Falha na resposta do servidor');
+
+                        return response.json();
+
+                    })
+
+                    .then(data => {
+
+                        if (selecionarEsporte) {
+                            selecionarEsporte.remove();
+                        }
+
+                        estatisticaSelect.innerHTML = '';
+
+                        data.forEach(estatistica => {
+
+                            const option = document.createElement('option');
+
+                            option.value = estatistica['fk_nome_estatistica'];
+                            option.textContent = estatistica['fk_nome_estatistica'];
+
+                            estatisticaSelect.appendChild(option);
+                        });
+                    })
+
+                    .catch(error => {
+                        console.error(error);
+                        estatisticaSelect.innerHTML =
+                            '<option value="">Erro ao carregar estatísticas</option>';
+                    });
+            });
+        }
+    });
+
+    function confirmarRemoverModalidade(event) {
+        const modalidadeSelecionada =
+            document.getElementById('modalidade-select').value;
+        const mensagem =
+            `Todas as partidas, estatísticas e equipes relacionadas com "${modalidadeSelecionada}" serão removidas.\n\nTem certeza que deseja continuar?`;
+        if (!window.confirm(mensagem)) {
+            event.preventDefault();
+        }
+
+    }
+    </script>
+    {% extends 'baseflash.html' %}
+
+</body>
+</html>

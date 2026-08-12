@@ -118,3 +118,55 @@ searchInput.addEventListener('keyup', function () {
         row.style.display = (usuario.includes(filter) || nivel.includes(filter)) ? '' : 'none';
     });
 });
+
+function toggleCamposUsuario(tipo) {
+    const nivel = document.getElementById(
+        tipo === 'cadastro' ? 'nivel' : 'editNivel'
+    ).value;
+
+    const esporte = document.getElementById(
+        tipo === 'cadastro' ? 'esporteCadastro' : 'esporteEdicao'
+    );
+
+    const estatistica = document.getElementById(
+        tipo === 'cadastro' ? 'estatisticaCadastro' : 'estatisticaEdicao'
+    );
+
+    if (nivel === 'AlunoMonitor') {
+        esporte.style.display = 'block';
+        estatistica.style.display = 'block';
+    } else {
+        esporte.style.display = 'none';
+        estatistica.style.display = 'none';
+    }
+}
+
+function filtrarEstatisticas(tipo) {
+
+    const esporte = document.getElementById(
+        tipo === "cadastro"
+            ? "fk_esporte"
+            : "edit_fk_esporte"
+    );
+
+    const estatistica = document.getElementById(
+        tipo === "cadastro"
+            ? "fk_estatistica"
+            : "edit_fk_estatistica"
+    );
+
+    const esporteSelecionado = esporte.value;
+
+    estatistica.value = "";
+
+    Array.from(estatistica.options).forEach(option => {
+
+        if (option.value === "") {
+            option.hidden = false;
+        } else {
+            option.hidden =
+                option.dataset.esporte !== esporteSelecionado;
+        }
+
+    });
+}

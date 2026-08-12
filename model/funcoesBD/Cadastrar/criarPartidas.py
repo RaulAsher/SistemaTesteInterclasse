@@ -5,7 +5,7 @@ def criarPartidas(esporte, genero, turma_casa, turma_visitante, dia):
     conexao = criarConexao()
     cursor = conexao.cursor()
     cursor.execute(f"""
-        INSERT INTO {database}.partidas (fk_esporte, fk_genero, fk_turma_casa, pontos_turma_casa, fk_turma_visitante, pontos_turma_visitante)
+        INSERT INTO partidas (fk_esporte, fk_genero, fk_turma_casa, pontos_turma_casa, fk_turma_visitante, pontos_turma_visitante)
         VALUES (%s, %s, %s, %s, %s, %s)
     """, (esporte, genero, turma_casa, 0, turma_visitante, 0))
 
@@ -13,7 +13,7 @@ def criarPartidas(esporte, genero, turma_casa, turma_visitante, dia):
 
     conexao.commit()
 
-    cursor.execute(f'INSERT INTO {database}.calendario (dia_evento, fk_partida) values (%s,%s)', (dia, idNovaPartida))
+    cursor.execute(f'INSERT INTO calendario (dia_evento, fk_partida) values (%s,%s)', (dia, idNovaPartida))
 
     conexao.commit()
 
