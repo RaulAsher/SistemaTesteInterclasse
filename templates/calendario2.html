@@ -2,13 +2,11 @@
 
 <!-- #---------------- CALENDÁRIO ------------------# -->
 
-<!-- CSS do FullCalendar -->
 <link
-    href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css"
     rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css"
 >
 
-<!-- Seu CSS -->
 <link
     rel="stylesheet"
     href="{{ url_for('static', filename='css/calendario.css') }}"
@@ -17,25 +15,75 @@
 
 <div class="content">
 
+    <div class="cabecalho-calendario">
+
+        <div>
+
+            <h1 class="titulo-calendario">
+                Calendário
+            </h1>
+
+            <p class="subtitulo-calendario">
+                Visualize as partidas programadas do Interclasse.
+            </p>
+
+        </div>
+
+
+        <div class="acoes-calendario">
+
+            <button
+                type="button"
+                class="btn-filtro-calendario"
+                id="btnFiltroCalendario"
+            >
+                Filtrar
+            </button>
+
+
+            <button
+                type="button"
+                class="btn-limpar-filtro"
+                id="btnLimparFiltro"
+                style="display: none;"
+            >
+                Limpar filtro
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="filtrosAtivos"
+        class="filtros-ativos"
+        style="display: none;"
+    ></div>
+
+
     <div id="calendar"></div>
 
 </div>
 
+<div
+    id="calendar"
+    data-pode-editar="{{ podeEditar | lower }}"
+></div>
 
-<!-- Permissão do usuário -->
 <script>
-    window.usuarioPodeEditar = {{ podeEditar | tojson }};
+    window.usuarioPodeEditar = {{ podeEditar|tojson }};
 </script>
 
 
-<!-- FullCalendar -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales-all.global.min.js"></script>
 
 
-<!-- Seu JS -->
-<script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
+<script
+    src="{{ url_for('static', filename='js/calendario.js') }}"
+></script>
 
 
 {% include "footer.html" %}
