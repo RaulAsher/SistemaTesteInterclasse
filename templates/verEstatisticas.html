@@ -1,0 +1,199 @@
+{% include 'head.html' %}
+
+<link rel="stylesheet" href=" {{ url_for('static', filename='css/estatisticas.css') }} ">
+
+<div class="container">
+
+    <div class="placar-header">
+
+        <div class="equipe-header">
+            <h2>{{ equipe_casa }}</h2>
+            <small>Id Equipe: {{ fk_equipe_casa }}</small>
+        </div>
+
+        <div class="versus">
+            <span>VS</span>
+            <small>Id Partida: {{id_partida}}</small>
+        </div>
+
+        <div class="equipe-header">
+            <h2>{{ equipe_visitante }}</h2>
+            <small>Id Equipe: {{ fk_equipe_visitante }}</small>
+        </div>
+
+    </div>
+
+    <div class="titulo-partida">
+        <h3></h3>
+    </div>
+
+    <!-- Card Principal -->
+    <div class="card-partida">
+
+        <form action="/salvarEstatisticas" method="POST">
+
+            <input type="hidden" name="id_partida" value="{{ id_partida }}">
+
+
+            <div class="times-header">
+                <h3 class="time-nome">{{ equipe_casa }}</h3>
+                <h3 class="time-nome">{{ equipe_visitante }}</h3>
+            </div>
+
+            
+            <div class="estatisticas-grid">
+
+                {% for estatistica in estatisticas %}
+                <div class="linha-completa">
+
+                    <div class="bloco-contador">
+                        <div class="contador">
+                            <button type="button" class="btn-contador negativo">-</button>
+                            <div class="score-input">0</div>
+                            <button type="button" class="btn-contador positivo">+</button>
+                        </div>
+                        <span class="time-mobile">{{ equipe_casa }}</span>
+                    </div>
+
+                    <div class="labels">
+                        <span class="titulo">{{estatistica}}</span>
+                    </div>
+
+                    <div class="bloco-contador">
+                        <div class="contador">
+                            <button type="button" class="btn-contador negativo">-</button>
+                            <div class="score-input">0</div>
+                            <button type="button" class="btn-contador positivo">+</button>
+                        </div>
+                        <span class="time-mobile">{{ equipe_visitante }}</span>
+                    </div>
+
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <div class="form-actions">
+
+                {% if session['nivel'] == 'Administrador'
+                   or session['nivel'] == 'AlunoMonitor' %}
+
+                <button
+                type="submit"
+                class="btn"
+                >
+                    Salvar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-edit"
+                    onclick="habilitarEdicao()">
+
+                    Editar
+
+                </button>
+
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.btn-contador').forEach(botao => {
+    botao.addEventListener('click', () => {
+        const scoreDiv = botao.parentElement.querySelector('.score-input');
+        let valor = parseInt(scoreDiv.textContent);
+
+        if (botao.classList.contains('positivo')) {
+            valor++;
+        } else {
+            valor = Math.max(0, valor - 1);
+        }
+
+        scoreDiv.textContent = valor;
+    });
+});
+
+function coletarEstatisticas() {
+    const dados = [];
+
+    document.querySelectorAll('.linha-completa').forEach(linha => {
+        const nomeEstatistica = linha.querySelector('.titulo').textContent.trim();
+        const blocos = linha.querySelectorAll('.bloco-contador');
+
+        const valorCasa = blocos[0].querySelector('.score-input').textContent.trim();
+        const valorVisitante = blocos[1].querySelector('.score-input').textContent.trim();
+
+        dados.push({
+            estatistica: nomeEstatistica,
+            casa: valorCasa,
+            visitante: valorVisitante
+        });
+    });
+
+    return dados;
+}
+
+// Exemplo de uso no submit
+document.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const estatisticas = coletarEstatisticas();
+    console.log(estatisticas);
+});
+
+async function salvarEstatisticas(idPartida, estatisticas) {
+    try {
+        const response = await fetch('/salvarEstatisticas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id_partida: idPartida,
+                estatisticas: estatisticas
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const resultado = await response.json();
+        return resultado;
+
+    } catch (erro) {
+        console.error('Falha ao salvar estatísticas:', erro);
+        throw erro;
+    }
+}
+
+// Liga tudo no submit do form
+document.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const idPartida = document.querySelector('input[name="id_partida"]').value;
+    const estatisticas = coletarEstatisticas();
+
+    try {
+        const resultado = await salvarEstatisticas(idPartida, estatisticas);
+
+        if (resultado.sucesso) {
+            alert('Estatísticas salvas com sucesso!');
+        } else {
+            alert('Erro ao salvar: ' + (resultado.mensagem || 'erro desconhecido'));
+        }
+
+    } catch (erro) {
+        alert('Não foi possível salvar. Verifique sua conexão e tente novamente.');
+    }
+});
+</script>
+
+{% include 'footer.html' %}
