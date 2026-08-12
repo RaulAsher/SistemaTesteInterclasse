@@ -8,3 +8,5 @@ __pycache__/
 
 .venv/
 *.cpython-312.pyc
+model/funcoesBD/Cadastrar/criarConexao.py
+.venv/pyvenv.cfg
