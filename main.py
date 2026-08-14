@@ -152,6 +152,9 @@ def tabelaAtletismo():
 @app.route("/tabelaAtletismo/Provas", methods=["GET", "POST"])
 def tabelaAtletismoProvas():
 
+    if request.method == "POST":
+        return render_template("tabelaAtletismoProvas.html")
+
     # =========================
     # CADASTRAR NOVA PROVA
     # =========================
@@ -182,7 +185,7 @@ def tabelaAtletismoProvas():
             )
 
         # CADASTRA NO BANCO
-        cadastrarProvaAtletismoBD(
+        cadastrarProvaAtletismo(
             fk_modalidade,
             fk_genero,
             nome_prova,
@@ -207,7 +210,9 @@ def tabelaAtletismoProvas():
     return render_template(
         "tabelaAtletismoProvas.html",
         provas=buscarProvas(),
-        modalidades=buscarModalidadesAtletismo()
+        modalidades=buscarModalidadesAtletismo(),
+        generos=buscarClassificacoes()
+
     )
 
 

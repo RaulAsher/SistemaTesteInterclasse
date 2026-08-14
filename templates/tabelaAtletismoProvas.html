@@ -690,9 +690,11 @@
 
                     {% for genero in generos %}
 
+                    {% if genero.pk_genero != 'Misto' %}
                         <option value="{{ genero[0] }}">
-                            {{ genero[0] }}
+                            {{ genero.pk_genero }}
                         </option>
+                    {% endif %}
 
                     {% endfor %}
 

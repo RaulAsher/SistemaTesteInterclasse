@@ -1570,6 +1570,9 @@
     text-decoration: underline;
 }
 
+option{
+    color: #000000;
+}
 
 /* =========================================================
    RESPONSIVIDADE
