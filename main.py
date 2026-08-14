@@ -142,6 +142,75 @@ def logout():
 def homeRedirect():
     return render_template("home.html", nome_usuario=session.get("nome", "Visitante"), nivel=session.get("nivel", "Visitante"))
 
+## ----------------ATLETISMO----------------- ##
+
+@app.route("/tabelaAtletismo", methods=["GET", "POST"])
+def tabelaAtletismo():
+    if request.method == "GET":
+            return render_template("tabelaAtletismo.html")
+
+@app.route("/tabelaAtletismo/Provas", methods=["GET", "POST"])
+def tabelaAtletismoProvas():
+
+    # =========================
+    # CADASTRAR NOVA PROVA
+    # =========================
+    if request.method == "POST":
+
+        fk_modalidade = request.form.get("fk_modalidade")
+        fk_genero = request.form.get("fk_genero")
+        nome_prova = request.form.get("nome_prova")
+        tipo_resultado = request.form.get("tipo_resultado")
+        unidade_medida = request.form.get("unidade_medida")
+        data_hora = request.form.get("data_hora")
+
+        # Validação
+        if (
+            not fk_modalidade
+            or not fk_genero
+            or not nome_prova
+            or not tipo_resultado
+            or not unidade_medida
+        ):
+            flash(
+                "Preencha todos os campos obrigatórios.",
+                "error"
+            )
+
+            return redirect(
+                url_for("tabelaAtletismoProvas")
+            )
+
+        # CADASTRA NO BANCO
+        cadastrarProvaAtletismoBD(
+            fk_modalidade,
+            fk_genero,
+            nome_prova,
+            tipo_resultado,
+            unidade_medida,
+            data_hora if data_hora else None
+        )
+
+        flash(
+            "Prova cadastrada com sucesso!",
+            "success"
+        )
+
+        return redirect(
+            url_for("tabelaAtletismoProvas")
+        )
+
+
+    # =========================
+    # CARREGAR A PÁGINA
+    # =========================
+    return render_template(
+        "tabelaAtletismoProvas.html",
+        provas=buscarProvas(),
+        modalidades=buscarModalidadesAtletismo()
+    )
+
+
 ## ----------------LISTAGENS----------------- ##
 
 @app.route("/turma")

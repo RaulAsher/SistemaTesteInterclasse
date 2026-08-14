@@ -514,3 +514,1132 @@
     }
 
 }
+
+/* =========================================================
+   TELA DE PROVAS DO ATLETISMO
+   ========================================================= */
+
+.provas-atletismo-page {
+    margin-left: 234px;
+    min-height: 100vh;
+
+    padding: 45px 40px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.provas-atletismo-header {
+    width: 100%;
+    max-width: 1050px;
+
+    margin: 0 auto 35px auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+}
+
+
+.provas-atletismo-header-texto h1 {
+    margin: 0 0 8px 0;
+
+    color: #000000;
+
+    font-size: 36px;
+    font-weight: 700;
+}
+
+
+.provas-atletismo-header-texto p {
+    margin: 0;
+
+    color: #555555;
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   BOTÃO NOVA PROVA
+   ========================================================= */
+
+.btn-nova-prova {
+    padding: 11px 18px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: var(--cor-primaria);
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    text-decoration: none;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    transition: 0.2s ease;
+}
+
+
+.btn-nova-prova:hover {
+    opacity: 0.90;
+
+    transform: translateY(-2px);
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.provas-filtros {
+    width: 100%;
+    max-width: 1050px;
+
+    margin: 0 auto 30px auto;
+
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   PESQUISA
+   ========================================================= */
+
+.provas-pesquisa {
+    flex: 1;
+
+    min-width: 250px;
+
+    position: relative;
+}
+
+
+.provas-pesquisa i {
+    position: absolute;
+
+    left: 15px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #777777;
+
+    font-size: 15px;
+}
+
+
+.provas-pesquisa input {
+    width: 100%;
+
+    padding: 12px 15px 12px 42px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d8dee4;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    font-size: 14px;
+
+    background: #ffffff;
+}
+
+
+.provas-pesquisa input:focus {
+    border-color: var(--cor-primaria);
+}
+
+
+/* =========================================================
+   SELECTS
+   ========================================================= */
+
+.provas-filtros select {
+    padding: 12px 14px;
+
+    border: 1px solid #d8dee4;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #333333;
+
+    font-size: 14px;
+
+    outline: none;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   RESUMO
+   ========================================================= */
+
+.provas-resumo {
+    width: 100%;
+    max-width: 1050px;
+
+    margin: 0 auto 30px auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 15px;
+}
+
+
+.provas-resumo-card {
+    padding: 18px;
+
+    border: 1px solid #e1e5e9;
+
+    border-radius: 14px;
+
+    background: #fafbfc;
+}
+
+
+.provas-resumo-card span {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #666666;
+
+    font-size: 13px;
+}
+
+
+.provas-resumo-card strong {
+    color: #111111;
+
+    font-size: 26px;
+}
+
+
+/* =========================================================
+   LISTA DE PROVAS
+   ========================================================= */
+
+.provas-atletismo-section {
+    width: 100%;
+    max-width: 1050px;
+
+    margin: 0 auto;
+}
+
+
+.provas-lista {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   CARD DA PROVA
+   ========================================================= */
+
+.prova-atletismo-card {
+    width: 100%;
+
+    padding: 22px 24px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 2px solid #d8dee4;
+
+    border-radius: 18px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 25px;
+
+    transition: 0.2s ease;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+
+.prova-atletismo-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.09);
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DA PROVA
+   ========================================================= */
+
+.prova-atletismo-principal {
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    flex: 1;
+}
+
+
+.prova-atletismo-icone {
+    width: 52px;
+    height: 52px;
+
+    border-radius: 14px;
+
+    background: #f1f4f7;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    color: var(--cor-primaria);
+
+    font-size: 21px;
+}
+
+
+.prova-atletismo-info h2 {
+    margin: 0 0 7px 0;
+
+    color: #111111;
+
+    font-size: 21px;
+}
+
+
+.prova-atletismo-meta {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 8px 14px;
+
+    color: #666666;
+
+    font-size: 13px;
+}
+
+
+.prova-atletismo-meta span {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.prova-status {
+    padding: 6px 11px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.prova-status.nao-iniciada {
+    background: #f1f5f9;
+
+    color: #475569;
+}
+
+
+.prova-status.andamento {
+    background: #dcfce7;
+
+    color: #15803d;
+}
+
+
+.prova-status.finalizada {
+    background: #dbeafe;
+
+    color: #1d4ed8;
+}
+
+
+/* =========================================================
+   LADO DIREITO
+   ========================================================= */
+
+.prova-atletismo-direita {
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+}
+
+
+.prova-participantes {
+    text-align: center;
+
+    min-width: 90px;
+}
+
+
+.prova-participantes strong {
+    display: block;
+
+    color: #111111;
+
+    font-size: 21px;
+}
+
+
+.prova-participantes span {
+    color: #777777;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   BOTÃO ACESSAR
+   ========================================================= */
+
+.btn-acessar-prova {
+    padding: 9px 14px;
+
+    border: 1px solid var(--cor-primaria);
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: var(--cor-primaria);
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    transition: 0.2s ease;
+}
+
+
+.btn-acessar-prova:hover {
+    background: var(--cor-primaria);
+
+    color: #ffffff;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   SEM PROVAS
+   ========================================================= */
+
+.provas-vazio {
+    padding: 55px 30px;
+
+    text-align: center;
+
+    border: 2px dashed #d0d7de;
+
+    border-radius: 18px;
+
+    background: #fafbfc;
+}
+
+
+.provas-vazio i {
+    margin-bottom: 15px;
+
+    color: #999999;
+
+    font-size: 35px;
+}
+
+
+.provas-vazio h2 {
+    margin: 0 0 8px;
+
+    color: #222222;
+}
+
+
+.provas-vazio p {
+    margin: 0;
+
+    color: #666666;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 950px) {
+
+    .provas-resumo {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    .prova-atletismo-card {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .prova-atletismo-direita {
+        width: 100%;
+
+        justify-content: space-between;
+    }
+
+}
+
+
+@media (max-width: 800px) {
+
+    .provas-atletismo-page {
+        margin-left: 0;
+
+        padding: 30px 20px;
+    }
+
+
+    .provas-atletismo-header {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .btn-nova-prova {
+        justify-content: center;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .provas-resumo {
+        grid-template-columns: 1fr 1fr;
+    }
+
+
+    .prova-atletismo-principal {
+        align-items: flex-start;
+    }
+
+
+    .prova-atletismo-direita {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .prova-participantes {
+        text-align: left;
+    }
+
+
+    .btn-acessar-prova {
+        text-align: center;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .provas-atletismo-page {
+        padding: 25px 15px;
+    }
+
+
+    .provas-atletismo-header-texto h1 {
+        font-size: 28px;
+    }
+
+
+    .provas-resumo {
+        grid-template-columns: 1fr;
+    }
+
+
+    .prova-atletismo-card {
+        padding: 18px;
+    }
+
+
+    .prova-atletismo-icone {
+        width: 45px;
+        height: 45px;
+    }
+
+
+    .prova-atletismo-info h2 {
+        font-size: 18px;
+    }
+
+}
+
+/* =========================================================
+   DESTAQUES DO ATLETISMO
+   ========================================================= */
+
+.atletismo-destaques {
+    width: 100%;
+    max-width: 1050px;
+
+    margin: 45px auto 0 auto;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 35px;
+}
+
+
+/* =========================================================
+   BLOCO
+   ========================================================= */
+
+.atletismo-destaque-bloco {
+    width: 100%;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.atletismo-destaque-header {
+    margin-bottom: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+.atletismo-destaque-header > div {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.atletismo-destaque-header h2 {
+    margin: 0;
+
+    color: #111111;
+
+    font-size: 23px;
+
+    font-weight: 700;
+}
+
+
+.destaque-contador {
+    padding: 5px 11px;
+
+    border-radius: 20px;
+
+    background: #f1f4f7;
+
+    color: #555555;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   INDICADOR AO VIVO
+   ========================================================= */
+
+.destaque-indicador {
+    width: 10px;
+    height: 10px;
+
+    display: inline-block;
+
+    border-radius: 50%;
+}
+
+
+.destaque-indicador.ao-vivo {
+    background: #16a34a;
+
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.14);
+}
+
+
+.destaque-relogio {
+    color: var(--cor-primaria);
+
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   PROVAS EM ANDAMENTO
+   ========================================================= */
+
+.atletismo-destaque-lista {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+.atletismo-destaque-card {
+    width: 100%;
+
+    padding: 18px 20px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d8dee4;
+
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    transition: 0.2s ease;
+}
+
+
+.atletismo-destaque-card.andamento {
+    border-left: 5px solid #16a34a;
+}
+
+
+.atletismo-destaque-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   INFO DA PROVA
+   ========================================================= */
+
+.destaque-prova-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+.destaque-icone {
+    width: 45px;
+    height: 45px;
+
+    border-radius: 12px;
+
+    background: #f1f5f9;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: var(--cor-primaria);
+
+    font-size: 19px;
+
+    flex-shrink: 0;
+}
+
+
+.destaque-prova-info h3 {
+    margin: 0 0 6px 0;
+
+    color: #111111;
+
+    font-size: 18px;
+}
+
+
+.destaque-meta {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    flex-wrap: wrap;
+
+    color: #666666;
+
+    font-size: 13px;
+}
+
+
+.destaque-meta span {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+/* =========================================================
+   AÇÕES
+   ========================================================= */
+
+.destaque-prova-acoes {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+.badge-ao-vivo {
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    background: #dcfce7;
+
+    color: #15803d;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.badge-ao-vivo span {
+    width: 7px;
+    height: 7px;
+
+    background: #16a34a;
+
+    border-radius: 50%;
+}
+
+
+.btn-destaque-prova {
+    padding: 8px 13px;
+
+    border: 1px solid var(--cor-primaria);
+
+    border-radius: 9px;
+
+    color: var(--cor-primaria);
+
+    background: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    transition: 0.2s ease;
+}
+
+
+.btn-destaque-prova:hover {
+    background: var(--cor-primaria);
+
+    color: #ffffff;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   PRÓXIMAS PROVAS
+   ========================================================= */
+
+.proximas-provas-lista {
+    border: 1px solid #d8dee4;
+
+    border-radius: 16px;
+
+    background: #ffffff;
+
+    overflow: hidden;
+}
+
+
+.proxima-prova-card {
+    min-height: 82px;
+
+    padding: 14px 18px;
+
+    box-sizing: border-box;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    border-bottom: 1px solid #edf0f2;
+}
+
+
+.proxima-prova-card:last-child {
+    border-bottom: none;
+}
+
+
+.proxima-prova-card:hover {
+    background: #fafbfc;
+}
+
+
+/* =========================================================
+   HORÁRIO
+   ========================================================= */
+
+.proxima-prova-horario {
+    width: 65px;
+
+    flex-shrink: 0;
+
+    text-align: center;
+}
+
+
+.proxima-prova-horario strong {
+    display: block;
+
+    color: #111111;
+
+    font-size: 18px;
+}
+
+
+.proxima-prova-horario span {
+    color: #777777;
+
+    font-size: 11px;
+}
+
+
+.proxima-prova-linha {
+    width: 3px;
+    height: 42px;
+
+    border-radius: 4px;
+
+    background: var(--cor-primaria);
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES PRÓXIMA PROVA
+   ========================================================= */
+
+.proxima-prova-info {
+    flex: 1;
+}
+
+
+.proxima-prova-info h3 {
+    margin: 0 0 6px 0;
+
+    color: #111111;
+
+    font-size: 16px;
+}
+
+
+.proxima-prova-info div {
+    display: flex;
+
+    gap: 15px;
+
+    color: #666666;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   BOTÃO
+   ========================================================= */
+
+.btn-proxima-prova {
+    color: var(--cor-primaria);
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.btn-proxima-prova:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .atletismo-destaque-card {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .destaque-prova-acoes {
+        width: 100%;
+
+        justify-content: space-between;
+    }
+
+
+    .proxima-prova-card {
+        align-items: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+
+    .proxima-prova-info {
+        min-width: 200px;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .atletismo-destaque-header h2 {
+        font-size: 19px;
+    }
+
+
+    .destaque-prova-acoes {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .btn-destaque-prova {
+        text-align: center;
+    }
+
+
+    .proxima-prova-linha {
+        display: none;
+    }
+
+
+    .proxima-prova-info {
+        width: calc(100% - 85px);
+
+        min-width: 0;
+    }
+
+
+    .btn-proxima-prova {
+        width: 100%;
+
+        justify-content: flex-end;
+    }
+
+}

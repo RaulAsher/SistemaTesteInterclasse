@@ -17,7 +17,6 @@ def buscarModalidadesAtletismo():
         SELECT
             pk_modalidade,
             nome_modalidade,
-            genero,
             ativo
         FROM modalidades_atletismo
         ORDER BY nome_modalidade

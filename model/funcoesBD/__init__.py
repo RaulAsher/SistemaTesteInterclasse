@@ -30,6 +30,8 @@ from .Buscar.buscarEquipesPorId import buscarEquipesPorID
 from .Buscar.buscarEstatisticasDasModalidades import buscarEstatisticasDasModalidades
 from .Buscar.buscarEsportePorPartida import buscarEsportePorPartida
 from .Buscar.buscarEstatisticasDasPartidas import buscarEstatisticasDasPartidas
+from .Buscar.buscarProvas import buscarProvas
+from .Buscar.buscarProvaPorID import buscarProvaPorID
 from .Cadastrar.cadastrarAluno import cadastrarAluno
 from .Cadastrar.cadastrarEquipe import cadastrarEquipe
 from .Cadastrar.cadastrarEsportes import cadastrarEsportes
@@ -39,6 +41,7 @@ from .Cadastrar.cadastrarUsuario import cadastrarUsuario
 from .Cadastrar.criarConexao import criarConexao
 from .Cadastrar.criarEstatisticas import criarEstatisticas
 from .Cadastrar.criarPartidas import criarPartidas
+from .Cadastrar.cadastrarProvaAtletismo import cadastrarProvaAtletismo
 from .Chaveamento.salvarOuAtualizarEstatisticas import salvarOuAtualizarEstatistica
 from .Chaveamento.buscarEquipesPorModCla import buscarEquipesPorModCla
 from .Chaveamento.buscarPartidasParaGestao import buscarPartidasParaGestao

@@ -1,3 +1,814 @@
 {% include 'head.html' %}
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/atletismo.css') }}">
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Provas do Atletismo</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- SUA SIDEBAR CONTINUA AQUI -->
+
+
+    <main class="provas-atletismo-page">
+
+        <!-- =========================================
+             CABEÇALHO
+             ========================================= -->
+
+        <header class="provas-atletismo-header">
+
+            <div class="provas-atletismo-header-texto">
+
+                <h1>
+                    Provas do Atletismo
+                </h1>
+
+                <p>
+                    Acompanhe as provas, participantes e resultados.
+                </p>
+
+            </div>
+
+
+            <a  
+                type="button"
+                href="#"
+                class="btn-nova-prova"
+                id="btnAbrirModalProva">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Nova prova
+            </a>
+
+        </header>
+
+
+        <!-- =========================================
+             FILTROS
+             ========================================= -->
+
+        <section class="provas-filtros">
+
+            <div class="provas-pesquisa">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    id="buscarProva"
+                    placeholder="Buscar prova..."
+                >
+
+            </div>
+
+
+            <select id="filtroGenero">
+
+                <option value="">
+                    Todos os gêneros
+                </option>
+
+                <option value="Masculino">
+                    Masculino
+                </option>
+
+                <option value="Feminino">
+                    Feminino
+                </option>
+
+            </select>
+
+
+            <select id="filtroStatus">
+
+                <option value="">
+                    Todos os status
+                </option>
+
+                <option value="nao-iniciada">
+                    Não iniciada
+                </option>
+
+                <option value="andamento">
+                    Em andamento
+                </option>
+
+                <option value="finalizada">
+                    Finalizada
+                </option>
+
+            </select>
+
+        </section>
+
+
+        <!-- =========================================
+             RESUMO
+             ========================================= -->
+
+        <section class="provas-resumo">
+
+            <div class="provas-resumo-card">
+
+                <span>
+                    Total de provas
+                </span>
+
+                <strong>
+                    {{ provas|length }}
+                </strong>
+
+            </div>
+
+
+            <div class="provas-resumo-card">
+
+                <span>
+                    Em andamento
+                </span>
+
+                <strong>
+                    2
+                </strong>
+
+            </div>
+
+
+            <div class="provas-resumo-card">
+
+                <span>
+                    Finalizadas
+                </span>
+
+                <strong>
+                    3
+                </strong>
+
+            </div>
+
+
+            <div class="provas-resumo-card">
+
+                <span>
+                    Participantes
+                </span>
+
+                <strong>
+                    86
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================================
+             PROVAS
+             ========================================= -->
+
+        <section class="provas-atletismo-section">
+
+
+            {% if provas %}
+
+                <div class="provas-lista">
+
+
+                    {% for prova in provas %}
+
+                        <div class="prova-atletismo-card">
+
+
+                            <div class="prova-atletismo-principal">
+
+
+                                <div class="prova-atletismo-icone">
+
+                                    <i class="fa-solid fa-person-running"></i>
+
+                                </div>
+
+
+                                <div class="prova-atletismo-info">
+
+                                    <h2>
+                                        {{ prova[3] }}
+                                    </h2>
+
+
+                                    <div class="prova-atletismo-meta">
+
+                                        <span>
+
+                                            <i class="fa-solid fa-venus-mars"></i>
+
+                                            {{ prova[2] }}
+
+                                        </span>
+
+
+                                        <span>
+
+                                            <i class="fa-solid fa-stopwatch"></i>
+
+                                            {{ prova[4] }}
+
+                                        </span>
+
+
+                                        <span>
+
+                                            <i class="fa-solid fa-ruler"></i>
+
+                                            {{ prova[5] }}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="prova-atletismo-direita">
+
+
+                                <span class="prova-status nao-iniciada">
+
+                                    Não iniciada
+
+                                </span>
+
+
+                                <div class="prova-participantes">
+
+                                    <strong>
+                                        0
+                                    </strong>
+
+                                    <span>
+                                        participantes
+                                    </span>
+
+                                </div>
+
+
+                                <a
+                                    href="{{ url_for('tabelaAtletismo') }}"
+                                    class="btn-acessar-prova"
+                                >
+
+                                    Ver prova
+
+                                    <i class="fa-solid fa-arrow-right"></i>
+
+                                </a>
+
+                            </div>
+
+
+                        </div>
+
+                    {% endfor %}
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <div class="provas-vazio">
+
+                    <i class="fa-solid fa-person-running"></i>
+
+                    <h2>
+                        Nenhuma prova cadastrada
+                    </h2>
+
+                    <p>
+                        Cadastre uma prova para começar a organizar o atletismo.
+                    </p>
+
+                </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+        <section class="atletismo-destaques">
+
+            <!-- =====================================================
+                PROVAS EM ANDAMENTO
+                ===================================================== -->
+
+            <div class="atletismo-destaque-bloco">
+
+                <div class="atletismo-destaque-header">
+
+                    <div>
+                        <span class="destaque-indicador ao-vivo"></span>
+
+                        <h2>Provas em andamento</h2>
+                    </div>
+
+                    <span class="destaque-contador">
+                        2 provas
+                    </span>
+
+                </div>
+
+
+                <div class="atletismo-destaque-lista">
+
+
+                    <div class="atletismo-destaque-card andamento">
+
+                        <div class="destaque-prova-info">
+
+                            <div class="destaque-icone">
+                                <i class="fa-solid fa-person-running"></i>
+                            </div>
+
+                            <div>
+
+                                <h3>100 metros rasos</h3>
+
+                                <div class="destaque-meta">
+
+                                    <span>
+                                        <i class="fa-solid fa-venus-mars"></i>
+                                        Masculino
+                                    </span>
+
+                                    <span>
+                                        <i class="fa-solid fa-users"></i>
+                                        12 participantes
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="destaque-prova-acoes">
+
+                            <span class="badge-ao-vivo">
+                                <span></span>
+                                AO VIVO
+                            </span>
+
+                            <a href="#" class="btn-destaque-prova">
+                                Acompanhar
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="atletismo-destaque-card andamento">
+
+                        <div class="destaque-prova-info">
+
+                            <div class="destaque-icone">
+                                <i class="fa-solid fa-person-running"></i>
+                            </div>
+
+                            <div>
+
+                                <h3>Salto em distância</h3>
+
+                                <div class="destaque-meta">
+
+                                    <span>
+                                        <i class="fa-solid fa-venus-mars"></i>
+                                        Feminino
+                                    </span>
+
+                                    <span>
+                                        <i class="fa-solid fa-users"></i>
+                                        8 participantes
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="destaque-prova-acoes">
+
+                            <span class="badge-ao-vivo">
+                                <span></span>
+                                AO VIVO
+                            </span>
+
+                            <a href="#" class="btn-destaque-prova">
+                                Acompanhar
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                PRÓXIMAS PROVAS
+                ===================================================== -->
+
+            <div class="atletismo-destaque-bloco">
+
+                <div class="atletismo-destaque-header">
+
+                    <div>
+                        <i class="fa-regular fa-clock destaque-relogio"></i>
+
+                        <h2>Próximas provas</h2>
+                    </div>
+
+                    <span class="destaque-contador">
+                        Hoje
+                    </span>
+
+                </div>
+
+
+                <div class="proximas-provas-lista">
+
+
+                    <div class="proxima-prova-card">
+
+                        <div class="proxima-prova-horario">
+
+                            <strong>10:30</strong>
+
+                            <span>Hoje</span>
+
+                        </div>
+
+
+                        <div class="proxima-prova-linha"></div>
+
+
+                        <div class="proxima-prova-info">
+
+                            <h3>200 metros rasos</h3>
+
+                            <div>
+
+                                <span>
+                                    Masculino
+                                </span>
+
+                                <span>
+                                    10 participantes
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <a href="#" class="btn-proxima-prova">
+
+                            Ver prova
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="proxima-prova-card">
+
+                        <div class="proxima-prova-horario">
+
+                            <strong>11:00</strong>
+
+                            <span>Hoje</span>
+
+                        </div>
+
+
+                        <div class="proxima-prova-linha"></div>
+
+
+                        <div class="proxima-prova-info">
+
+                            <h3>Salto em altura</h3>
+
+                            <div>
+
+                                <span>
+                                    Feminino
+                                </span>
+
+                                <span>
+                                    9 participantes
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <a href="#" class="btn-proxima-prova">
+
+                            Ver prova
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="proxima-prova-card">
+
+                        <div class="proxima-prova-horario">
+
+                            <strong>11:30</strong>
+
+                            <span>Hoje</span>
+
+                        </div>
+
+
+                        <div class="proxima-prova-linha"></div>
+
+
+                        <div class="proxima-prova-info">
+
+                            <h3>400 metros</h3>
+
+                            <div>
+
+                                <span>
+                                    Masculino
+                                </span>
+
+                                <span>
+                                    14 participantes
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <a href="#" class="btn-proxima-prova">
+
+                            Ver prova
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
+
+<!-- =====================================================
+     MODAL - CADASTRAR NOVA PROVA
+     ===================================================== -->
+
+<div id="modalNovaProva" class="modal">
+
+    <div class="modal-content">
+
+        <span
+            class="close"
+            id="btnFecharModalProva"
+        >
+            &times;
+        </span>
+
+        <h2>Cadastrar Nova Prova</h2>
+
+
+        <form
+            action="{{ url_for('tabelaAtletismoProvas') }}"
+            method="POST"
+            id="formNovaProva"
+        >
+
+            <!-- MODALIDADE -->
+            <div class="form-group">
+
+                <label for="fk_modalidade">
+                    Modalidade:
+                </label>
+
+                <select
+                    name="fk_modalidade"
+                    id="fk_modalidade"
+                    required
+                >
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                    {% for modalidade in modalidades %}
+
+                        <option value="{{ modalidade[0] }}">
+                            {{ modalidade[1] }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- GÊNERO -->
+            <div class="form-group">
+
+                <label for="fk_genero">
+                    Gênero:
+                </label>
+
+                <select
+                    name="fk_genero"
+                    id="fk_genero"
+                    required
+                >
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                    {% for genero in generos %}
+
+                        <option value="{{ genero[0] }}">
+                            {{ genero[0] }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- NOME -->
+            <div class="form-group">
+
+                <label for="nome_prova">
+                    Nome da prova:
+                </label>
+
+                <input
+                    type="text"
+                    name="nome_prova"
+                    id="nome_prova"
+                    placeholder="Ex.: 100 metros rasos"
+                    required
+                >
+
+            </div>
+
+
+            <!-- TIPO DE RESULTADO -->
+            <div class="form-group">
+
+                <label for="tipo_resultado">
+                    Tipo de resultado:
+                </label>
+
+                <select
+                    name="tipo_resultado"
+                    id="tipo_resultado"
+                    required
+                >
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                    <option value="tempo">
+                        Tempo
+                    </option>
+
+                    <option value="distancia">
+                        Distância
+                    </option>
+
+                    <option value="altura">
+                        Altura
+                    </option>
+
+                    <option value="pontos">
+                        Pontos
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- UNIDADE -->
+            <div class="form-group">
+
+                <label for="unidade_medida">
+                    Unidade de medida:
+                </label>
+
+                <input
+                    type="text"
+                    name="unidade_medida"
+                    id="unidade_medida"
+                    placeholder="Ex.: segundos, metros, pontos"
+                    required
+                >
+
+            </div>
+
+
+            <!-- DATA / HORÁRIO -->
+            <div class="form-group">
+
+                <label for="data_hora">
+                    Data e horário:
+                </label>
+
+                <input
+                    type="datetime-local"
+                    name="data_hora"
+                    id="data_hora"
+                >
+
+            </div>
+
+
+            <!-- BOTÃO -->
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Cadastrar
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/atletismoJS.js') }}"></script>
+
 {% include 'footer.html' %}
