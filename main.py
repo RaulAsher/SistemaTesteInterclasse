@@ -140,7 +140,15 @@ def logout():
 
 @app.route("/home")
 def homeRedirect():
-    return render_template("home.html", nome_usuario=session.get("nome", "Visitante"), nivel=session.get("nivel", "Visitante"))
+
+    partidas = buscarPartidasDoDia()
+
+    return render_template(
+        "home.html",
+        nome_usuario=session.get("nome", "Visitante"),
+        nivel=session.get("nivel", "Visitante"),
+        partidas=partidas
+    )
 
 ## ----------------ATLETISMO----------------- ##
 
@@ -149,17 +157,174 @@ def tabelaAtletismo():
     if request.method == "GET":
             return render_template("tabelaAtletismo.html")
 
+
+# =========================================================
+# TABELA DO ATLETISMO - MODALIDADES
+# =========================================================
+
+@app.route("/tabelaAtletismo/Modalidades", methods=["GET", "POST"])
+@requerAdmin
+def tabelaAtletismoModalidade():
+
+    # =====================================================
+    # GET - EXIBIR MODALIDADES
+    # =====================================================
+
+    if request.method == "GET":
+
+        dados = buscarModalidades()
+
+        modalidades = dados["modalidades_atletismo"]
+
+        return render_template(
+            "tabelaAtletismoModalidade.html",
+            modalidades=modalidades
+        )
+
+
+    # =====================================================
+    # POST
+    # =====================================================
+
+    elif request.method == "POST":
+
+        dados = request.get_json(silent=True)
+
+        if dados is None:
+            dados = request.form
+
+
+        # =================================================
+        # DADOS RECEBIDOS
+        # =================================================
+
+        acao = dados.get("acao")
+
+        pk_modalidade = dados.get("pk_modalidade")
+        nome_modalidade = dados.get("nome_modalidade")
+        descricao = dados.get("descricao")
+        ativo = dados.get("ativo", 1)
+
+
+        # =================================================
+        # EXCLUSÃO
+        # =================================================
+
+        if acao == "deletar":
+
+            if not pk_modalidade:
+
+                return jsonify({
+                    "status": "erro",
+                    "mensagem": "Modalidade não informada."
+                }), 400
+
+
+            try:
+
+                deletarModalidadeAtletismo(
+                    pk_modalidade
+                )
+
+                return jsonify({
+                    "status": "sucesso",
+                    "mensagem": "Modalidade excluída com sucesso."
+                })
+
+
+            except Exception as erro:
+
+                print(
+                    f"Erro ao excluir modalidade: {erro}"
+                )
+
+                return jsonify({
+                    "status": "erro",
+                    "mensagem": (
+                        "Não foi possível excluir a modalidade."
+                    )
+                }), 500
+
+
+        # =================================================
+        # VALIDAÇÃO - CADASTRO / EDIÇÃO
+        # =================================================
+
+        if not nome_modalidade:
+
+            return jsonify({
+                "status": "erro",
+                "mensagem": "O nome da modalidade é obrigatório."
+            }), 400
+
+
+        try:
+
+            # =============================================
+            # EDIÇÃO
+            # =============================================
+
+            if pk_modalidade:
+
+                editarModalidadeAtletismo(
+                    pk_modalidade,
+                    nome_modalidade,
+                    descricao,
+                    ativo
+                )
+
+                return jsonify({
+                    "status": "sucesso",
+                    "mensagem": (
+                        f"Modalidade '{nome_modalidade}' "
+                        "atualizada com sucesso."
+                    )
+                })
+
+
+            # =============================================
+            # CADASTRO
+            # =============================================
+
+            else:
+
+                novo_id = cadastrarModalidadeAtletismo(
+                    nome_modalidade,
+                    descricao,
+                    ativo
+                )
+
+                return jsonify({
+                    "status": "sucesso",
+                    "mensagem": (
+                        f"Modalidade '{nome_modalidade}' "
+                        "cadastrada com sucesso."
+                    ),
+                    "pk_modalidade": novo_id
+                })
+
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao processar modalidade: {erro}"
+            )
+
+            return jsonify({
+                "status": "erro",
+                "mensagem": (
+                    f"Erro interno ao processar modalidade: {str(erro)}"
+                )
+            }), 500
+
+
 @app.route("/tabelaAtletismo/Provas", methods=["GET", "POST"])
 def tabelaAtletismoProvas():
 
-    if request.method == "POST":
-        return render_template("tabelaAtletismoProvas.html")
-
     # =========================
-    # CADASTRAR NOVA PROVA
+    # CADASTRAR NOVA PROVA (POST)
     # =========================
     if request.method == "POST":
-
         fk_modalidade = request.form.get("fk_modalidade")
         fk_genero = request.form.get("fk_genero")
         nome_prova = request.form.get("nome_prova")
@@ -167,54 +332,111 @@ def tabelaAtletismoProvas():
         unidade_medida = request.form.get("unidade_medida")
         data_hora = request.form.get("data_hora")
 
-        # Validação
-        if (
-            not fk_modalidade
-            or not fk_genero
-            or not nome_prova
-            or not tipo_resultado
-            or not unidade_medida
-        ):
-            flash(
-                "Preencha todos os campos obrigatórios.",
-                "error"
+        if not (fk_modalidade and fk_genero and nome_prova and tipo_resultado and unidade_medida):
+            flash("Preencha todos os campos obrigatórios.", "error")
+            return redirect(url_for("tabelaAtletismoProvas"))
+
+        try:
+            cadastrarProvaAtletismo(
+                fk_modalidade,
+                fk_genero,
+                nome_prova,
+                tipo_resultado,
+                unidade_medida,
+                data_hora if data_hora else None
             )
+            flash("Prova cadastrada com sucesso!", "success")
+        except Exception as erro:
+            print("ERRO AO CADASTRAR PROVA:", erro)
+            flash("Erro ao cadastrar a prova.", "error")
 
-            return redirect(
-                url_for("tabelaAtletismoProvas")
-            )
-
-        # CADASTRA NO BANCO
-        cadastrarProvaAtletismo(
-            fk_modalidade,
-            fk_genero,
-            nome_prova,
-            tipo_resultado,
-            unidade_medida,
-            data_hora if data_hora else None
-        )
-
-        flash(
-            "Prova cadastrada com sucesso!",
-            "success"
-        )
-
-        return redirect(
-            url_for("tabelaAtletismoProvas")
-        )
-
+        return redirect(url_for("tabelaAtletismoProvas"))
 
     # =========================
-    # CARREGAR A PÁGINA
+    # CARREGAR PÁGINA (GET)
     # =========================
+    dadosAtletismo = buscarModalidades()
+
+    # (OPCIONAL) Crie ou importe essa função para buscar os alunos cadastrados
+    alunos = buscarAlunos() 
+
     return render_template(
         "tabelaAtletismoProvas.html",
         provas=buscarProvas(),
-        modalidades=buscarModalidadesAtletismo(),
-        generos=buscarClassificacoes()
-
+        provasProximas=buscarProvasProximas(),
+        modalidades=dadosAtletismo["modalidades_atletismo"],
+        generos=buscarClassificacoes(),
+        alunos=alunos  # <--- Passando a lista de alunos para o template
     )
 
+@app.route("/tabelaAtletismo/Provas/Inscrever", methods=["POST"])
+def inscreverAtletaProva():
+    fk_prova = request.form.get("fk_prova")
+    fk_matricula = request.form.get("fk_matricula")
+
+    if not fk_prova or not fk_matricula:
+        flash("Selecione um atleta para inscrever.", "error")
+        return redirect(url_for("tabelaAtletismoProvas"))
+
+    try:
+        # Função no seu Model para inserir na tabela associativa
+        cadastrarAtletaAtletismo(fk_prova, fk_matricula) 
+        flash("Atleta inscrito com sucesso!", "success")
+    except Exception as erro:
+        print("ERRO AO INSCREVER ATLETA:", erro)
+        flash("Este atleta já está inscrito nesta prova ou ocorreu um erro.", "error")
+
+    return redirect(url_for("tabelaAtletismoProvas"))
+
+@app.route("/tabelaAtletismo/Provas/AlterarStatus", methods=["POST"])
+def alterarStatusProva():
+    fk_prova = request.form.get("fk_prova")
+    novo_status = request.form.get("status") # Ex: 'em_andamento', 'finalizada'
+
+    if fk_prova and novo_status:
+        try:
+            conexao = criarConexao()
+            cursor = conexao.cursor()
+            cursor.execute(
+                "UPDATE provas_atletismo SET status = %s WHERE pk_prova = %s",
+                (novo_status, fk_prova)
+            )
+            conexao.commit()
+            cursor.close()
+            conexao.close()
+            flash("Status da prova atualizado!", "success")
+        except Exception as e:
+            print("Erro ao atualizar status:", e)
+            flash("Erro ao atualizar status da prova.", "error")
+
+    return redirect(url_for("tabelaAtletismoProvas"))
+
+@app.route("/tabelaAtletismo/Provas/Deletar", methods=["POST"])
+@requerAdmin
+def deletarProvaAtletismoRota():
+
+    pk_prova = request.form.get("pk_prova")
+
+    if not pk_prova:
+        flash("Prova não informada.", "error")
+        return redirect(url_for("tabelaAtletismoProvas"))
+
+    try:
+
+        deletarProvaAtletismo(pk_prova)
+
+        flash("Prova excluída permanentemente.", "success")
+
+    except Exception as erro:
+
+        print("ERRO AO EXCLUIR PROVA:", erro)
+
+        flash(
+            "Não foi possível excluir a prova.",
+            "error"
+        )
+
+    return redirect(url_for("tabelaAtletismoProvas"))
 
 ## ----------------LISTAGENS----------------- ##
 
@@ -522,6 +744,7 @@ def paginaGerarChaveamento():
         esportes=esportes, 
         classificacoes=classificacoes
     )
+
 
 
 @app.route("/chaveamento/gerar", methods=["POST"])

@@ -58,23 +58,54 @@
         {% endif %}
 
         <hr style="visibility: hidden;">
+            <h2>Partidas do Dia</h2>
+            <div class="box-bullet" style="overflow: auto;">
 
-        <div class="box-bullet" style="overflow: auto;">
-            
-            {% for partida in partidas %}
-                {% if partida['fk_equipe_casa'] and partida['fk_equipe_visitante'] %}
+                {% if partidas %}
 
-                <div class="header">
-                    <p> {{ partida['fk_equipe_casa'] }} </p>
-                    <p>VS</p>
-                    <p> {{ partida['fk_equipe_visitante'] }} </p>
-                </div>
-                
+                    {% for partida in partidas %}
+
+                        {% if partida['fk_equipe_casa'] and partida['fk_equipe_visitante'] %}
+
+                            <div class="header">
+
+                                <div>
+                                    <p>
+                                        {{ partida['turma_casa'] }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p>
+                                        VS
+                                    </p>
+
+                                    <small>
+                                        {{ partida['fk_esporte'] }}
+                                    </small>
+                                </div>
+
+                                <div>
+                                    <p>
+                                        {{ partida['turma_visitante'] }}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <p style="text-align: center;">
+                        Não há partidas programadas para hoje.
+                    </p>
+
                 {% endif %}
-            {% endfor %}
 
-        </div>
-
+            </div>
 
     </div>
 
