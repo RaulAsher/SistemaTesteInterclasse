@@ -290,7 +290,8 @@ def rotaEditarAluno(antiga_matricula):
 @app.route("/deletarAluno/<matricula>")
 @requerAdminOuMonitor
 def rotaDeletarAluno(matricula):
-    deletarAluno(matricula)
+    usuario_logado = session["nome"]
+    deletarAluno(matricula, usuario_logado)
     
     return redirect(url_for("paginacadastrarAluno"))
 
