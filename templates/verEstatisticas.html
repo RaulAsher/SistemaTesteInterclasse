@@ -210,6 +210,13 @@ async function salvarEstatisticas(idPartida, estatisticas) {
 
         console.log("MODO EDIÇÃO:", modoEdicao);
         console.log("TIPO:", typeof modoEdicao);
+        console.log('ID PARTIDA:', idPartida);
+        console.log('ESTATÍSTICAS:', estatisticas);
+        console.log('JSON ENVIADO:', JSON.stringify({
+            id_partida: idPartida,
+            estatisticas: estatisticas,
+            modo_edicao: modoEdicao
+        }));
 
         const response = await fetch('/salvarEstatisticas', {
             method: 'POST',
@@ -225,8 +232,16 @@ async function salvarEstatisticas(idPartida, estatisticas) {
         });
 
         if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`);
+            const erroTexto = await response.text();
+
+            console.error('STATUS:', response.status);
+            console.error('RESPOSTA DO SERVIDOR:', erroTexto);
+
+            throw new Error(
+                `Erro HTTP: ${response.status} - ${erroTexto}`
+            );
         }
+
 
         const resultado = await response.json();
 

@@ -1,8 +1,7 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
-from datetime import timedelta, datetime, date
+from datetime import timedelta
 from model import *
-from calendar import *
 
 print("Main iniciado")
 # Assumindo que seu gestao_chaveamento.py está em model/funcoesBD/Chaveamento
@@ -1022,7 +1021,13 @@ def rotaRegistrarVencedor():
 @app.route('/gerenciarEstatisticas')
 @requerAdmin
 def exibirGerenciarEstatisticas():
-    esportes = buscarModalidades()
+    modalidades = buscarModalidades()
+
+    esportes = (
+        modalidades["esportes_atletismo"]
+        + modalidades["esportes_outros"]
+    )
+
     estatisticas = buscarEstatisticasRegistradas()
     esportesComEst = buscarEstatisticasDeModalidade()
     return render_template('gerenciarEstatisticas.html', esportes=esportes, estatisticas=estatisticas, esportesComEst=esportesComEst)
