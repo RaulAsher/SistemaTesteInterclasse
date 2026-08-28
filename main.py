@@ -147,7 +147,7 @@ def homeRedirect():
         nome_usuario=session.get("nome", "Visitante"),
         nivel=session.get("nivel", "Visitante"),
         partidas=partidas
-    )
+ )
 
 ## ----------------ATLETISMO----------------- ##
 
@@ -1569,6 +1569,17 @@ def adicionarCalendario():
             fim
         ))
 
+        cursor.execute("""
+            UPDATE partidas
+
+            SET data_hora = CONCAT(%s, ' ', %s)
+
+            WHERE pk_partida = %s
+        """, (
+            data_evento,
+            inicio,
+            partida
+        ))
 
         conexao.commit()
 

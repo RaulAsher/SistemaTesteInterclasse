@@ -34,10 +34,6 @@
                 as funcionalidades disponíveis.
             </p>
 
-            <a href="/chaveamento" class="btn btn-primary">
-                Ver Partidas
-            </a>
-
         </div>
 
 
@@ -57,17 +53,19 @@
 
         {% endif %}
 
+        {% if partidas %}
+
         <hr style="visibility: hidden;">
             <h2>Partidas do Dia</h2>
             <div class="box-bullet" style="overflow: auto;">
 
-                {% if partidas %}
+                
 
                     {% for partida in partidas %}
 
                         {% if partida['fk_equipe_casa'] and partida['fk_equipe_visitante'] %}
 
-                            <div class="header">
+                            <div class="header" esporte="{{ partida['fk_esporte'] }}">
 
                                 <div>
                                     <p>
@@ -76,13 +74,18 @@
                                 </div>
 
                                 <div>
+                                    <small class="small">
+                                        {{ partida['fk_esporte'] }}
+                                    </small>
+
                                     <p>
                                         VS
                                     </p>
 
-                                    <small>
-                                        {{ partida['fk_esporte'] }}
-                                    </small>
+                                    <a class="btn btn-primary" style="font-size: 12px;" href="/verEstatisticas/{{ partida['pk_partida'] }}">
+                                        Ver Partida
+                                    </a>
+
                                 </div>
 
                                 <div>
@@ -97,19 +100,19 @@
 
                     {% endfor %}
 
-                {% else %}
+            {% else %}
 
                     <p style="text-align: center;">
                         Não há partidas programadas para hoje.
                     </p>
 
+                </div>
                 {% endif %}
-
-            </div>
 
     </div>
 
 </div>
 </main>
+
 
 {% include "footer.html" %}
