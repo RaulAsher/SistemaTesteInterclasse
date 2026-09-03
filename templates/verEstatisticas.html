@@ -9,7 +9,11 @@
     <div class="placar-header">
 
         <div class="equipe-header">
+            {% if tipoModalidade == "Individual" %}
+            <h2>{{ equipe_casa }} - {{ alunoCasa }}</h2>
+            {% else %}
             <h2>{{ equipe_casa }}</h2>
+            {% endif %}
             <small>Id Equipe: {{ fk_equipe_casa }}</small>
         </div>
 
@@ -19,7 +23,11 @@
         </div>
 
         <div class="equipe-header">
+            {% if tipoModalidade == "Individual" %}
+            <h2>{{ equipe_visitante }} - {{ alunoVisitante }}</h2>
+            {% else %}
             <h2>{{ equipe_visitante }}</h2>
+            {% endif %}
             <small>Id Equipe: {{ fk_equipe_visitante }}</small>
         </div>
 
@@ -37,10 +45,15 @@
             <input type="hidden" name="id_partida" value="{{ id_partida }}">
             <input type="hidden" name="modo_edicao" id="modo_edicao" value="false">
 
-            {% if definida == "sim" %}
+            {% if definida == "sim"  %}
             <div class="times-header">
+                {% if tipoModalidade == "Individual" %}
+                <h3 class="time-nome">{{ equipe_casa }} - {{ alunoCasa }} </h3>
+                <h3 class="time-nome">{{ equipe_visitante }} - {{ alunoVisitante }}</h3>
+                {% else %}
                 <h3 class="time-nome">{{ equipe_casa }}</h3>
                 <h3 class="time-nome">{{ equipe_visitante }}</h3>
+                {% endif %}
             </div>
             {%endif%}
             

@@ -852,6 +852,8 @@ def verEstatisticas(partida_id):
     nivel = session["nivel"]
     equipe_casa = None
     equipe_visitante = None
+    alunoCasa = None
+    alunoVisitante = None
 
     if fk_equipe_casa is not None and fk_equipe_visitante is not None:
         equipes = buscarEquipesPorID(fk_equipe_casa, fk_equipe_visitante)
@@ -876,6 +878,10 @@ def verEstatisticas(partida_id):
         estatisticas = [estatistica_permitida]
 
     estatisticas_partida = buscarEstatisticasDasPartidas(partida_id)
+    tipoModalidade = buscarTipoModalidade(esporte)
+    if tipoModalidade == "Individual":
+        alunoCasa = getAlunoEquipe(fk_equipe_casa)
+        alunoVisitante = getAlunoEquipe(fk_equipe_visitante)
 
 
     return render_template("verEstatisticas.html", 
@@ -888,7 +894,10 @@ def verEstatisticas(partida_id):
     estatisticas=estatisticas,
     definida=definida,
     nivel=nivel,
-    estatisticas_partida=estatisticas_partida
+    estatisticas_partida=estatisticas_partida,
+    tipoModalidade=tipoModalidade,
+    alunoCasa=alunoCasa,
+    alunoVisitante=alunoVisitante,
     )
 
 @app.route("/salvarEstatisticas", methods=["POST"])

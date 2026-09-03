@@ -72,4 +72,6 @@ from .funcoesBD import (
     buscarProvasProximas,
     buscarPartidasDoDia,
     salvarOuAtualizarEstatistica,
+    getAlunoEquipe,
+    buscarTipoModalidade
 )
