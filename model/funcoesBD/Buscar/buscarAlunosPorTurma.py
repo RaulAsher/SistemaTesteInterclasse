@@ -1,13 +1,23 @@
 from ..Cadastrar.criarConexao import criarConexao
 
-def buscarAlunosPorTurma(turma):
-    conn = criarConexao()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT pk_matricula, nome_aluno, fk_nome_turma, fk_classificacao FROM alunos WHERE fk_nome_turma = %s",
-        (turma,)
-    )
-    alunos = cursor.fetchall()  # retorna lista de tuplas
-    conn.close()
-    return alunos
 
+def buscarAlunosPorTurma(turma):
+    conexao = criarConexao()
+    try:
+        with conexao.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    a.pk_matricula,
+                    a.nome_aluno,
+                    a.fk_nome_turma,
+                    a.fk_classificacao,
+                    t.icone_url
+                FROM alunos AS a
+                LEFT JOIN turmas AS t
+                    ON a.fk_nome_turma = t.pk_nome_turma
+                WHERE a.fk_nome_turma = %s
+                ORDER BY a.nome_aluno ASC
+            """, (turma,))
+            return cursor.fetchall()
+    finally:
+        conexao.close()

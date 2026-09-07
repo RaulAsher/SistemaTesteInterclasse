@@ -1,0 +1,50 @@
+/* Visual do modal de alunos da turma */
+
+.turma-imagem-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 0 20px;
+}
+
+.turma-imagem {
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 1px solid #d7dce2;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    background: #f4f6f8;
+}
+
+.turma-imagem-placeholder {
+    width: 170px;
+    height: 170px;
+    border-radius: 16px;
+    border: 1px dashed #b8c0ca;
+    background: #f4f6f8;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.lista-alunos-turma {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.lista-alunos-turma li {
+    padding: 11px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #1f2937;
+}
+
+.lista-alunos-turma li:last-child {
+    border-bottom: none;
+}

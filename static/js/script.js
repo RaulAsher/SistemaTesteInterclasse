@@ -1,34 +1,52 @@
-// Barra superior e latera
-const btn = document.getElementById('menuToggle');
-const barraLateral = document.getElementById('barraLateral');
-
-//mudança de classe
-const setOpen = (open) => {
-  barraLateral.classList.toggle('open', open);
-  btn.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
-};
-
-btn.addEventListener('click', () => {
-  setOpen(!barraLateral.classList.contains('open'));
-});
-
-// Fecha o menu se clicar fora (em mobile)
-document.addEventListener('click', (e) => {
-  const isMobile = window.matchMedia('(max-width: 900px)').matches;
-  if (!isMobile) return;
-  const clickedOutside = !barraLateral.contains(e.target) && !btn.contains(e.target);
-  if (clickedOutside) setOpen(false);
-});
-
 document.addEventListener("DOMContentLoaded", function () {
-  const toggle = document.querySelector(".submenu-toggle");
-  const submenu = document.querySelector(".submenu");
+    const btn = document.getElementById("menuToggle");
+    const barraLateral = document.getElementById("barraLateral");
 
-  toggle.addEventListener("click", () => {
-    submenu.classList.toggle("active");
-    // Muda a setinha ▾ para ▴
-    toggle.innerHTML = toggle.innerHTML.includes("▾")
-      ? toggle.innerHTML.replace("▾", "▴")
-      : toggle.innerHTML.replace("▴", "▾");
-  });
+    if (!btn || !barraLateral) return;
+
+    function abrirMenu() {
+        barraLateral.classList.add("open");
+        btn.setAttribute("aria-label", "Fechar menu");
+    }
+
+    function fecharMenu() {
+        barraLateral.classList.remove("open");
+        btn.setAttribute("aria-label", "Abrir menu");
+    }
+
+    btn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        barraLateral.classList.contains("open") ? fecharMenu() : abrirMenu();
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!window.matchMedia("(max-width: 900px)").matches) return;
+        if (!barraLateral.classList.contains("open")) return;
+
+        if (!barraLateral.contains(event.target) && !btn.contains(event.target)) {
+            fecharMenu();
+        }
+    });
+
+    barraLateral.addEventListener("click", function (event) {
+        event.stopPropagation();
+    });
+
+    const toggle = document.querySelector(".submenu-toggle");
+    const submenu = document.querySelector(".submenu");
+
+    if (toggle && submenu) {
+        toggle.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            submenu.classList.toggle("active");
+            const aberto = submenu.classList.contains("active");
+
+            toggle.innerHTML = toggle.innerHTML
+                .replace("▾", "")
+                .replace("▴", "")
+                .trim() + (aberto ? " ▴" : " ▾");
+        });
+    }
 });

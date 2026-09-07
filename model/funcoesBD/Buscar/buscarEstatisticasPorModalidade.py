@@ -1,16 +1,39 @@
 from ..Cadastrar.criarConexao import criarConexao
 from flask import flash
 
+
 def buscarEstatisticasPorModalidade(modalidade):
-    conexao = criarConexao()
-    cursor = conexao.cursor()
+    conexao = None
+    cursor = None
+
     try:
-        cursor.execute('SELECT fk_nome_estatistica, estatistica_principal FROM estatisticas_esporte WHERE fk_esporte = %s', (modalidade,))
+        conexao = criarConexao()
+        cursor = conexao.cursor()
+
+        query = """
+            SELECT fk_nome_estatistica, estatistica_principal
+            FROM estatisticas_esporte
+            WHERE fk_esporte = %s
+        """
+
+        cursor.execute(query, (modalidade,))
         estatisticasBuscadas = cursor.fetchall()
+
         return estatisticasBuscadas
-    except:
-        conexao.rollback()
-        flash('Ocorreu um erro inesperado', 'erro')
+
+    except Exception as erro:
+        print(f"Erro ao buscar estatísticas da modalidade: {erro}")
+
+        flash(
+            "Não foi possível carregar as estatísticas da modalidade.",
+            "error"
+        )
+
+        return []
+
     finally:
-        cursor.close()
-        conexao.close()
+        if cursor is not None:
+            cursor.close()
+
+        if conexao is not None and conexao.is_connected():
+            conexao.close()
