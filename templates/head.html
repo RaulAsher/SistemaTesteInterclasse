@@ -53,7 +53,7 @@
       
         <nav>
         
-          <a class="nav-link {% if request.path.startswith('/calendario') %}active{% endif %}" href="/calendario">
+          <a class="nav-link {% if request.path.startswith('/calendario') %}active{% endif %}" href="/calendarioteste">
             <span class="nav-icon" aria-hidden="true"></span>
             Calendário
           </a>
@@ -117,7 +117,7 @@
           {% if session['nivel'] == 'AlunoMonitor' or session['nivel'] == 'Administrador'%}
           <a href="/logout" class="logout-link">Sair</a>
           {%endif%}
-          <div class="muted">ETE Ministro Fernando Lyra 2025</div>
+          <div class="muted">ETE Ministro Fernando Lyra 2025-2026</div>
         </div>
       
       </aside>

@@ -270,11 +270,6 @@
                             {% endif %}
 
                             {% if partida.definida == 'nao' %}
-                                {% if partida.nome_equipe_casa %}
-                                    {% if session.get("nivel") == "Administrador" %}
-                                        <input type="number" name="pontos_equipe_casa">
-                                    {% endif %}
-                                {% endif %}
                             {% else %}
                             <div class="{% if partida.cod_equipe_casa == partida.vencedora %}winner{% else %}loser{% endif %}">
                                 {% if partida.pontos_turma_casa is not none %}
@@ -313,11 +308,7 @@
                             {% endif %}
 
                             {% if partida.definida == 'nao' %}
-                                {% if partida.nome_equipe_visitante %}
-                                    {% if session.get("nivel") == "Administrador" %}
-                                        <input type="number" name="pontos_equipe_visitante">
-                                    {% endif %}
-                                {% endif %}
+                                
                             {% else %}
                             <div class="{% if partida.cod_equipe_vistante == partida.vencedora %}winner{% else %}loser{% endif %}">
                                 {% if partida.pontos_turma_visitante is not none %}
@@ -335,6 +326,10 @@
                         </div>
 
                         {% if partida.definida == 'nao' and (session["nivel"] == "Administrador" or session["nivel"] == "AlunoMonitor")%}
+                        <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
+                            <a class="btn-estatisticas" href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Adicionar Estatísticas</a> 
+                        </div>
+                        {% elif partida.definida == 'sim' and (session["nivel"] == "Administrador" or session["nivel"] == "AlunoMonitor")%}
                         <div style="grid-column: span 3; display: grid; align-items: center; justify-content: center;">
                             <a class="btn-estatisticas" href="{{ url_for('verEstatisticas', partida_id=partida.id_partida) }}">Ver Estatísticas</a> 
                         </div>

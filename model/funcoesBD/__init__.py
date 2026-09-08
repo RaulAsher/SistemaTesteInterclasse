@@ -1,6 +1,8 @@
 from .Buscar.alunosPorTurmaListaEquipes import alunosPorTurmaListaEquipes
 from .Buscar.buscarAlunos import buscarAlunos
 from .Buscar.buscarAlunosPorTurma import buscarAlunosPorTurma
+from .Buscar.buscarAlunoPorEquipe import getAlunoEquipe
+from .Buscar.buscarTipoDaModalidade import buscarTipoModalidade
 from .Buscar.buscarClassificacoes import buscarClassificacoes
 from .Buscar.buscarEquipes import buscarEquipes
 from .Buscar.buscarEquipesPorEsporte import buscarEquipesPorEsporte
@@ -12,7 +14,7 @@ from .Buscar.buscarEstatisticasDeModalidade import buscarEstatisticasDeModalidad
 from .Buscar.buscarEstatisticasPorModalidade import buscarEstatisticasPorModalidade
 from .Buscar.buscarEsportes import buscarEsportes
 from .Buscar.buscarJogadoresPorEquipe import buscarJogadoresPorEquipe
-from .Buscar.buscarModalidades import buscarModalidades, buscarModalidadesAtletismo
+from .Buscar.buscarModalidades import buscarModalidades
 from .Buscar.buscarEstatisticasPrincipalPorModalidade import buscarEstatisticasPrincipal
 from .Buscar.buscarPartidaPorId import buscarPartidaPorId
 from .Buscar.buscarPartidas import buscarPartidas
@@ -30,6 +32,10 @@ from .Buscar.buscarEquipesPorId import buscarEquipesPorID
 from .Buscar.buscarEstatisticasDasModalidades import buscarEstatisticasDasModalidades
 from .Buscar.buscarEsportePorPartida import buscarEsportePorPartida
 from .Buscar.buscarEstatisticasDasPartidas import buscarEstatisticasDasPartidas
+from .Buscar.buscarProvas import buscarProvas
+from .Buscar.buscarProvaPorID import buscarProvaPorID
+from .Buscar.buscarPartidasDoDia import buscarPartidasDoDia
+from .Buscar.buscarProvasProximas import buscarProvasProximas
 from .Cadastrar.cadastrarAluno import cadastrarAluno
 from .Cadastrar.cadastrarEquipe import cadastrarEquipe
 from .Cadastrar.cadastrarEsportes import cadastrarEsportes
@@ -39,6 +45,9 @@ from .Cadastrar.cadastrarUsuario import cadastrarUsuario
 from .Cadastrar.criarConexao import criarConexao
 from .Cadastrar.criarEstatisticas import criarEstatisticas
 from .Cadastrar.criarPartidas import criarPartidas
+from .Cadastrar.cadastrarProvaAtletismo import cadastrarProvaAtletismo
+from .Cadastrar.cadastrarModalidadeAtletismo import cadastrarModalidadeAtletismo
+from .Cadastrar.cadastrarAtletaAtletismo import cadastrarAtletaAtletismo
 from .Chaveamento.salvarOuAtualizarEstatisticas import salvarOuAtualizarEstatistica
 from .Chaveamento.buscarEquipesPorModCla import buscarEquipesPorModCla
 from .Chaveamento.buscarPartidasParaGestao import buscarPartidasParaGestao
@@ -54,8 +63,11 @@ from .Deletar.deletarUsuario import deletarUsuario
 from .Deletar.removerEstatisticas import removerEstatisticas
 from .Deletar.removerEstatisticasDaModalidade import removerEstatisticasDaModalidade
 from .Deletar.removerModalidade import removerModalidade
+from .Deletar.deletarProvaAtletismo import deletarProvaAtletismo
+from .Deletar.deletarModalidadeAtletismo import deletarModalidadeAtletismo
 from .Editar.editarAluno import editarAluno
 from .Editar.editarEquipe import editarEquipe, edicaoEquipesPermitida
 from .Editar.editarTurma import editarTurma
 from .Editar.editarUsuario import editarUsuario
 from .Editar.trocarSenha import trocarSenha
+from .Editar.editarModalidadesAtletismo import editarModalidadeAtletismo

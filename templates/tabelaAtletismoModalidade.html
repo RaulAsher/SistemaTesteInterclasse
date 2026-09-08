@@ -3,114 +3,426 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/atletismo.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-
 <main class="modalidades-atletismo-page">
 
     <div class="modalidades-atletismo-header">
 
-        <div>
-            <h1>Modalidades do Atletismo</h1>
 
-            <p>
-                Gerencie as modalidades disponíveis no atletismo.
-            </p>
-        </div>
+    <div>
+        <h1>Modalidades do Atletismo</h1>
 
-        <a href="#" class="btn btn-primary">
-            + Nova modalidade
-        </a>
+        <p>
+            Gerencie as modalidades disponíveis no atletismo.
+        </p>
+    </div>
+
+    <button
+        type="button"
+        class="btn btn-primary"
+        id="btnNovaModalidade"
+    >
+        + Nova modalidade
+    </button>
+
 
     </div>
 
-
     <section class="modalidades-atletismo-section">
 
-        {% if modalidades %}
 
-            <div class="modalidades-grid">
+    {% if modalidades %}
 
-                {% for modalidade in modalidades %}
+        <div class="modalidades-grid">
 
-                    <article class="modalidade-atletismo-card">
+            {% for modalidade in modalidades %}
 
-                        <div class="modalidade-atletismo-info">
+                <article class="modalidade-atletismo-card">
 
-                            <h2>
-                                {{ modalidade[1] }}
-                            </h2>
+                    <div class="modalidade-atletismo-info">
 
-                            {% if modalidade[2] %}
-                                <p>
-                                    {{ modalidade[2] }}
-                                </p>
-                            {% else %}
-                                <p class="sem-descricao">
-                                    Sem descrição.
-                                </p>
-                            {% endif %}
+                        <h2>
+                            {{ modalidade.nome_modalidade }}
+                        </h2>
+
+                        {% if modalidade.descricao %}
+
+                            <p>
+                                {{ modalidade.descricao }}
+                            </p>
+
+                        {% else %}
+
+                            <p class="sem-descricao">
+                                Sem descrição.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="modalidade-atletismo-footer">
+
+                        {% if modalidade.ativo %}
+
+                            <span class="status-modalidade ativo">
+                                Ativa
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-modalidade inativo">
+                                Inativa
+                            </span>
+
+                        {% endif %}
+
+
+                        <div class="modalidade-atletismo-acoes">
+
+                        <button
+                            type="button"
+                            class="btn btn-edit btn-editar-modalidade"
+                            data-id="{{ modalidade.pk_modalidade }}"
+                            data-nome="{{ modalidade.nome_modalidade }}"
+                            data-descricao="{{ modalidade.descricao or '' }}"
+                            data-ativo="{{ modalidade.ativo }}"
+                        >
+                            Editar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-delete"
+                            data-id="{{ modalidade.pk_modalidade }}"
+
+                            
+                        >
+                            Deletar
+                        </button>
 
                         </div>
 
+                    </div>
 
-                        <div class="modalidade-atletismo-footer">
+                </article>
 
-                            {% if modalidade[3] %}
+            {% endfor %}
 
-                                <span class="status-modalidade ativo">
-                                    Ativa
-                                </span>
+        </div>
 
-                            {% else %}
+    {% else %}
 
-                                <span class="status-modalidade inativo">
-                                    Inativa
-                                </span>
+        <div class="modalidades-vazio">
 
-                            {% endif %}
+            <h2>Nenhuma modalidade cadastrada</h2>
+
+            <p>
+                Ainda não existem modalidades de atletismo cadastradas.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</main>
 
 
-                            <div class="modalidade-atletismo-acoes">
+    </section>
+<!-- =====================================================
+     MODAL - NOVA MODALIDADE
+     ===================================================== -->
 
-                                <button
-                                    type="button"
-                                    class="btn btn-edit"
-                                >
-                                    Editar
-                                </button>
+<div
+    id="modalNovaModalidade"
+    class="modal"
+    style="display: none;"
+>
 
-                                <button
-                                    type="button"
-                                    class="btn btn-delete"
-                                >
-                                    Excluir
-                                </button>
+    <div class="modal-content modal-modalidade">
 
-                            </div>
+        <div class="modal-header">
 
-                        </div>
+            <div>
 
-                    </article>
-
-                {% endfor %}
-
-            </div>
-
-        {% else %}
-
-            <div class="modalidades-vazio">
-
-                <h2>Nenhuma modalidade cadastrada</h2>
+                <h2>Cadastrar Modalidade</h2>
 
                 <p>
-                    Ainda não existem modalidades de atletismo cadastradas.
+                    Cadastre uma nova modalidade de atletismo.
                 </p>
 
             </div>
 
-        {% endif %}
+            <span
+                type="button"
+                class="close"
+                id="btnFecharNovaModal"
+                aria-label="Fechar"
+            >
+                &times;
+            </span>
 
-    </section>
+        </div>
 
-</main>
+
+        <form
+            id="formNovaModalidade"
+            method="POST"
+        >
+
+            <!-- Nome -->
+
+            <div class="form-group">
+
+                <label for="nome_modalidade">
+                    Nome da modalidade:
+                </label>
+
+                <input
+                    type="text"
+                    id="nome_modalidade"
+                    name="nome_modalidade"
+                    placeholder="Ex.: 100 metros"
+                    maxlength="100"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Descrição -->
+
+            <div class="form-group">
+
+                <label for="descricao">
+                    Descrição:
+                </label>
+
+                <input
+                    type="text"
+                    id="descricao"
+                    name="descricao"
+                    placeholder="Descrição da modalidade"
+                    maxlength="255"
+                >
+
+            </div>
+
+
+            <!-- Status -->
+
+            <div class="form-group">
+
+                <label for="ativo">
+                    Status:
+                </label>
+
+                <select
+                    name="ativo"
+                    id="ativo"
+                    required
+                >
+
+                    <option value="1" selected>
+                        Ativa
+                    </option>
+
+                    <option value="0">
+                        Inativa
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Mensagem -->
+
+            <div
+                id="mensagemNovaModalidade"
+                class="modal-mensagem"
+                style="display: none;"
+            ></div>
+
+
+            <!-- Ações -->
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btnCancelarNovaModalidade"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Cadastrar Modalidade
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- =====================================================
+     MODAL - EDITAR MODALIDADE
+     ===================================================== -->
+
+<div
+    id="modalEditarModalidade"
+    class="modal"
+    style="display: none;"
+>
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>Editar Modalidade</h2>
+
+                <p>
+                    Altere os dados da modalidade selecionada.
+                </p>
+
+            </div>
+
+
+            <span
+                type="button"
+                class="close"
+                id="btnFecharEditarModal"
+                aria-label="Fechar"
+            >
+                &times;
+            </span>
+
+        </div>
+
+
+        <form
+            id="formEditarModalidade"
+            method="POST"
+        >
+
+            <!-- ID oculto -->
+
+            <input
+                type="hidden"
+                id="editar_pk_modalidade"
+                name="pk_modalidade"
+            >
+
+
+            <!-- Nome -->
+
+            <div class="form-group">
+
+                <label for="editar_nome_modalidade">
+                    Nome da modalidade:
+                </label>
+
+                <input
+                    type="text"
+                    id="editar_nome_modalidade"
+                    name="nome_modalidade"
+                    maxlength="100"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Descrição -->
+
+            <div class="form-group">
+
+                <label for="editar_descricao">
+                    Descrição:
+                </label>
+
+                <input
+                    type="text"
+                    id="editar_descricao"
+                    name="descricao"
+                    maxlength="255"
+                >
+
+            </div>
+
+
+            <!-- Status -->
+
+            <div class="form-group">
+
+                <label for="editar_ativo">
+                    Status:
+                </label>
+
+                <select
+                    name="ativo"
+                    id="editar_ativo"
+                    required
+                >
+
+                    <option value="1">
+                        Ativa
+                    </option>
+
+                    <option value="0">
+                        Inativa
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Mensagem -->
+
+            <div
+                id="mensagemEditarModalidade"
+                class="modal-mensagem"
+                style="display: none;"
+            ></div>
+
+
+            <!-- Ações -->
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btnCancelarEdicao"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-edit"
+                >
+                    Salvar Alterações
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/cadastrarModalidadeAtletismo.js') }}"></script>
 
 {% include 'footer.html' %}

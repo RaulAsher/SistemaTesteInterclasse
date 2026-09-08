@@ -1,9 +1,9 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
-from datetime import timedelta, datetime, date
+from datetime import timedelta
 from model import *
-from calendar import *
 
+print("Main iniciado")
 # Assumindo que seu gestao_chaveamento.py está em model/funcoesBD/Chaveamento
 # E que o Flask pode importá-lo a partir da raiz 'model'
 try:
@@ -139,12 +139,303 @@ def logout():
 
 @app.route("/home")
 def homeRedirect():
-    return render_template("home.html", 
-    nome_usuario=session['nome'], 
-    nivel=session['nivel'], 
-    partidas=buscarPartidas(),
-    
+
+    partidas = buscarPartidasDoDia()
+
+    return render_template(
+        "home.html",
+        nome_usuario=session.get("nome", "Visitante"),
+        nivel=session.get("nivel", "Visitante"),
+        partidas=partidas
+ )
+
+## ----------------ATLETISMO----------------- ##
+
+@app.route("/tabelaAtletismo", methods=["GET", "POST"])
+def tabelaAtletismo():
+    if request.method == "GET":
+            return render_template("tabelaAtletismo.html")
+
+
+# =========================================================
+# TABELA DO ATLETISMO - MODALIDADES
+# =========================================================
+
+@app.route("/tabelaAtletismo/Modalidades", methods=["GET", "POST"])
+@requerAdmin
+def tabelaAtletismoModalidade():
+
+    # =====================================================
+    # GET - EXIBIR MODALIDADES
+    # =====================================================
+
+    if request.method == "GET":
+
+        dados = buscarModalidades()
+
+        modalidades = dados["modalidades_atletismo"]
+
+        return render_template(
+            "tabelaAtletismoModalidade.html",
+            modalidades=modalidades
+        )
+
+
+    # =====================================================
+    # POST
+    # =====================================================
+
+    elif request.method == "POST":
+
+        dados = request.get_json(silent=True)
+
+        if dados is None:
+            dados = request.form
+
+
+        # =================================================
+        # DADOS RECEBIDOS
+        # =================================================
+
+        acao = dados.get("acao")
+
+        pk_modalidade = dados.get("pk_modalidade")
+        nome_modalidade = dados.get("nome_modalidade")
+        descricao = dados.get("descricao")
+        ativo = dados.get("ativo", 1)
+
+
+        # =================================================
+        # EXCLUSÃO
+        # =================================================
+
+        if acao == "deletar":
+
+            if not pk_modalidade:
+
+                return jsonify({
+                    "status": "erro",
+                    "mensagem": "Modalidade não informada."
+                }), 400
+
+
+            try:
+
+                deletarModalidadeAtletismo(
+                    pk_modalidade
+                )
+
+                return jsonify({
+                    "status": "sucesso",
+                    "mensagem": "Modalidade excluída com sucesso."
+                })
+
+
+            except Exception as erro:
+
+                print(
+                    f"Erro ao excluir modalidade: {erro}"
+                )
+
+                return jsonify({
+                    "status": "erro",
+                    "mensagem": (
+                        "Não foi possível excluir a modalidade."
+                    )
+                }), 500
+
+
+        # =================================================
+        # VALIDAÇÃO - CADASTRO / EDIÇÃO
+        # =================================================
+
+        if not nome_modalidade:
+
+            return jsonify({
+                "status": "erro",
+                "mensagem": "O nome da modalidade é obrigatório."
+            }), 400
+
+
+        try:
+
+            # =============================================
+            # EDIÇÃO
+            # =============================================
+
+            if pk_modalidade:
+
+                editarModalidadeAtletismo(
+                    pk_modalidade,
+                    nome_modalidade,
+                    descricao,
+                    ativo
+                )
+
+                return jsonify({
+                    "status": "sucesso",
+                    "mensagem": (
+                        f"Modalidade '{nome_modalidade}' "
+                        "atualizada com sucesso."
+                    )
+                })
+
+
+            # =============================================
+            # CADASTRO
+            # =============================================
+
+            else:
+
+                novo_id = cadastrarModalidadeAtletismo(
+                    nome_modalidade,
+                    descricao,
+                    ativo
+                )
+
+                return jsonify({
+                    "status": "sucesso",
+                    "mensagem": (
+                        f"Modalidade '{nome_modalidade}' "
+                        "cadastrada com sucesso."
+                    ),
+                    "pk_modalidade": novo_id
+                })
+
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao processar modalidade: {erro}"
+            )
+
+            return jsonify({
+                "status": "erro",
+                "mensagem": (
+                    f"Erro interno ao processar modalidade: {str(erro)}"
+                )
+            }), 500
+
+
+@app.route("/tabelaAtletismo/Provas", methods=["GET", "POST"])
+def tabelaAtletismoProvas():
+
+    # =========================
+    # CADASTRAR NOVA PROVA (POST)
+    # =========================
+    if request.method == "POST":
+        fk_modalidade = request.form.get("fk_modalidade")
+        fk_genero = request.form.get("fk_genero")
+        nome_prova = request.form.get("nome_prova")
+        tipo_resultado = request.form.get("tipo_resultado")
+        unidade_medida = request.form.get("unidade_medida")
+        data_hora = request.form.get("data_hora")
+
+        if not (fk_modalidade and fk_genero and nome_prova and tipo_resultado and unidade_medida):
+            flash("Preencha todos os campos obrigatórios.", "error")
+            return redirect(url_for("tabelaAtletismoProvas"))
+
+        try:
+            cadastrarProvaAtletismo(
+                fk_modalidade,
+                fk_genero,
+                nome_prova,
+                tipo_resultado,
+                unidade_medida,
+                data_hora if data_hora else None
+            )
+            flash("Prova cadastrada com sucesso!", "success")
+        except Exception as erro:
+            print("ERRO AO CADASTRAR PROVA:", erro)
+            flash("Erro ao cadastrar a prova.", "error")
+
+        return redirect(url_for("tabelaAtletismoProvas"))
+
+    # =========================
+    # CARREGAR PÁGINA (GET)
+    # =========================
+    dadosAtletismo = buscarModalidades()
+
+    # (OPCIONAL) Crie ou importe essa função para buscar os alunos cadastrados
+    alunos = buscarAlunos() 
+
+    return render_template(
+        "tabelaAtletismoProvas.html",
+        provas=buscarProvas(),
+        provasProximas=buscarProvasProximas(),
+        modalidades=dadosAtletismo["modalidades_atletismo"],
+        generos=buscarClassificacoes(),
+        alunos=alunos  # <--- Passando a lista de alunos para o template
     )
+
+@app.route("/tabelaAtletismo/Provas/Inscrever", methods=["POST"])
+def inscreverAtletaProva():
+    fk_prova = request.form.get("fk_prova")
+    fk_matricula = request.form.get("fk_matricula")
+
+    if not fk_prova or not fk_matricula:
+        flash("Selecione um atleta para inscrever.", "error")
+        return redirect(url_for("tabelaAtletismoProvas"))
+
+    try:
+        # Função no seu Model para inserir na tabela associativa
+        cadastrarAtletaAtletismo(fk_prova, fk_matricula) 
+        flash("Atleta inscrito com sucesso!", "success")
+    except Exception as erro:
+        print("ERRO AO INSCREVER ATLETA:", erro)
+        flash("Este atleta já está inscrito nesta prova ou ocorreu um erro.", "error")
+
+    return redirect(url_for("tabelaAtletismoProvas"))
+
+@app.route("/tabelaAtletismo/Provas/AlterarStatus", methods=["POST"])
+def alterarStatusProva():
+    fk_prova = request.form.get("fk_prova")
+    novo_status = request.form.get("status") # Ex: 'em_andamento', 'finalizada'
+
+    if fk_prova and novo_status:
+        try:
+            conexao = criarConexao()
+            cursor = conexao.cursor()
+            cursor.execute(
+                "UPDATE provas_atletismo SET status = %s WHERE pk_prova = %s",
+                (novo_status, fk_prova)
+            )
+            conexao.commit()
+            cursor.close()
+            conexao.close()
+            flash("Status da prova atualizado!", "success")
+        except Exception as e:
+            print("Erro ao atualizar status:", e)
+            flash("Erro ao atualizar status da prova.", "error")
+
+    return redirect(url_for("tabelaAtletismoProvas"))
+
+@app.route("/tabelaAtletismo/Provas/Deletar", methods=["POST"])
+@requerAdmin
+def deletarProvaAtletismoRota():
+
+    pk_prova = request.form.get("pk_prova")
+
+    if not pk_prova:
+        flash("Prova não informada.", "error")
+        return redirect(url_for("tabelaAtletismoProvas"))
+
+    try:
+
+        deletarProvaAtletismo(pk_prova)
+
+        flash("Prova excluída permanentemente.", "success")
+
+    except Exception as erro:
+
+        print("ERRO AO EXCLUIR PROVA:", erro)
+
+        flash(
+            "Não foi possível excluir a prova.",
+            "error"
+        )
+
+    return redirect(url_for("tabelaAtletismoProvas"))
 
 ## ----------------LISTAGENS----------------- ##
 
@@ -439,189 +730,6 @@ def apagarModalidade():
     return redirect('/gerenciarModalidades')
 
 
-## ----------------CALENDÁRIO------------------ ##
-
-@app.route('/calendario')
-@app.route('/calendario/<int:ano>/<int:mes>')
-@app.route('/calendario/<int:ano>/<int:mes>/<int:dia>')
-def calendario(ano = None, mes = None, dia = None):
-    # Lógica para obter o ano, mês e dia atuais caso não sejam fornecidos na URL
-    #Parâmetros:
-    #- ano (int): O ano para exibição do calendário. Se não fornecido, é o ano atual.
-    #- mes (int): O mês para exibição do calendário. Se não fornecido, é o mês atual.
-    #- dia (int): O dia selecionado. Se não fornecido, é o dia atual.
-    if ano is None or mes is None:
-        hoje = datetime.today()
-        ano = hoje.year
-        mes = hoje.month
-    
-    if dia is None:
-        dia_selecionado = datetime.today().day
-    else:
-        dia_selecionado = dia
-    
-    # Ajuste de mês e ano caso o usuário navegue para meses anteriores ou seguintes:
-    #Se o mes for igual a 0, significa que o usuario foi para o ano anterior, ou seja, mês se torna igual a 12 e ano = ano atual - 1
-    #Se o mes for igual a 13, significa que o usuario foi para o ano posterior, ou seja, mês se torna igual a 1 e ano = ano atual + 1
-    if mes == 0:
-        mes = 12
-        ano -=1
-    elif mes == 13:
-        mes = 1
-        ano += 1
-
-    turmas = buscarTurmas()
-
-    #Busca eventos no calendario do mês de determinado ano    
-    eventos = buscarEventosCalendario(ano, mes)
-    eventosDoDia = set() #Evita que tenha duplicatas, pois apenas registra em quais dias tem partidas
-    for evento in eventos:
-        eventosDoDia.add(evento['dia_evento'].day)
-
-    #Procura as partidas do dia que o usuário escolheu no calendário
-    partidas_dia_selecionado = []
-    for partida in eventos:
-        if partida['dia_evento'].day == dia_selecionado:
-            partidas_dia_selecionado.append(partida)
-
-    #Define domingo como o primeiro dia da semana
-    calendario_mes = Calendar(firstweekday=6)
-    #Busca as semanas do mês de determinado ano
-    semanas = calendario_mes.monthdatescalendar(ano, mes) 
-    
-    #Armazena os nomes dos meses para ser exibido no calendario
-    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-    #nomeMes recebe meses[mes(numero do mês) - 1], pois em listas o primeiro indíce de uma lista é 0
-    nomeMes = meses[mes - 1]
-
-    #Funções necessárias para exibição do usuário
-    membrosEquipes = buscarMembrosEquipe()
-    esportes = buscarEsportes()
-    estatisticasPrincipal = buscarEstatisticasPrincipal()
-
-    return render_template('calendario.html', 
-        ptr = partidas_dia_selecionado,  
-        turmas = turmas,
-        hoje = date.today(),
-        ano = ano,
-        semanas = semanas,
-        mes = mes,
-        eventosDoDia = eventosDoDia,
-        nomeMes = nomeMes,
-        membrosEquipes = membrosEquipes,
-        esportes = esportes,
-        dia_selecionado = dia_selecionado,
-        estatisticasPrincipal = estatisticasPrincipal)
-
-#Rota necessária para a função de filtrar informações no calendário
-@app.route('/calendarioFiltrado/<int:ano>/<int:mes>/<int:dia>', methods=['POST'])
-def calendarioFiltrado(ano = None, mes = None, dia = None):
-    esporte = request.form['esporte']
-    genero = request.form['genero']
-    turma = request.form['turma']
-
-    if ano is None or mes is None:
-        hoje = datetime.today()
-        ano = hoje.year
-        mes = hoje.month
-    
-    if dia is None:
-        dia_selecionado = datetime.today().day
-    else:
-        dia_selecionado = dia
-    
-    if mes == 0:
-        mes = 12
-        ano -=1
-    elif mes == 13:
-        mes = 1
-        ano += 1
-
-    turmas = buscarTurmas()
-    
-    #Busca eventos de maneira especifica, conforme esporte e/ou turma e/ou genero -- OBS: Genero = Masculino ou Feminino
-    eventos = buscarEventosCalendarioFiltros(ano, mes, esporte, turma, genero)
-    eventosDoDia = set()
-    for evento in eventos:
-        eventosDoDia.add(evento['dia_evento'].day)
-
-    partidas_dia_selecionado = []
-    for partida in eventos:
-        if partida['dia_evento'].day == dia_selecionado:
-            partidas_dia_selecionado.append(partida)
-    
-    calendario_mes = Calendar(firstweekday=6)
-    semanas = calendario_mes.monthdatescalendar(ano, mes) 
-    
-    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-    nomeMes = meses[mes - 1]
-
-    membrosEquipes = buscarMembrosEquipe()
-    esportes = buscarEsportes()
-    estatisticasPrincipal = buscarEstatisticasPrincipal()
-
-    return render_template('calendario.html', 
-        ptr = partidas_dia_selecionado,  
-        turmas = turmas,
-        hoje = date.today(),
-        ano = ano,
-        semanas = semanas,
-        mes = mes,
-        eventosDoDia = eventosDoDia,
-        nomeMes = nomeMes,
-        membrosEquipes = membrosEquipes,
-        esportes = esportes,
-        dia_selecionado = dia_selecionado,
-        filtroEsporte = esporte,
-        filtroGenero= genero,
-        filtroTurmas = turma,
-        estatisticasPrincipal = estatisticasPrincipal)
-
-## ----------------TABELA ATLETISMO------------------ ##
-
-@app.route("/tabelaAtletismo", methods=["GET"])
-def tabelaAtletismo():
-    return render_template(
-        "tabelaAtletismo.html",
-        esportes=buscarEsportes(),
-        classificacoes=buscarClassificacoes()
-    )
-
-# =========================================================
-# TABELA DO ATLETISMO - MODALIDADES
-# =========================================================
-
-@app.route("/tabelaAtletismo/Modalidades", methods=["GET"])
-def tabelaAtletismoModalidade():
-    return render_template(
-        "tabelaAtletismoModalidade.html",
-        modalidades=buscarModalidadesAtletismo()
-    )
-
-
-# =========================================================
-# TABELA DO ATLETISMO - RECORDES
-# =========================================================
-
-@app.route("/tabelaAtletismo/Recordes", methods=["GET"])
-def tabelaAtletismoRecordes():
-    return render_template(
-        "tabelaAtletismoRecordes.html"
-    )
-
-# =========================================================
-# TABELA DO ATLETISMO - PROVAS
-# =========================================================
-
-@app.route("/tabelaAtletismo/Provas", methods=["GET"])
-def tabelaAtletismoProvas():
-
-    return render_template(
-
-        "tabelaAtletismoProvas.html",
-
-    )
-
 ## ----------------CHAVEAMENTO------------------ ##
 
 @app.route("/gerarChaveamento", methods=["GET"])
@@ -635,6 +743,7 @@ def paginaGerarChaveamento():
         esportes=esportes, 
         classificacoes=classificacoes
     )
+
 
 
 @app.route("/chaveamento/gerar", methods=["POST"])
@@ -743,6 +852,8 @@ def verEstatisticas(partida_id):
     nivel = session["nivel"]
     equipe_casa = None
     equipe_visitante = None
+    alunoCasa = None
+    alunoVisitante = None
 
     if fk_equipe_casa is not None and fk_equipe_visitante is not None:
         equipes = buscarEquipesPorID(fk_equipe_casa, fk_equipe_visitante)
@@ -767,6 +878,10 @@ def verEstatisticas(partida_id):
         estatisticas = [estatistica_permitida]
 
     estatisticas_partida = buscarEstatisticasDasPartidas(partida_id)
+    tipoModalidade = buscarTipoModalidade(esporte)
+    if tipoModalidade == "Individual":
+        alunoCasa = getAlunoEquipe(fk_equipe_casa)
+        alunoVisitante = getAlunoEquipe(fk_equipe_visitante)
 
 
     return render_template("verEstatisticas.html", 
@@ -779,7 +894,10 @@ def verEstatisticas(partida_id):
     estatisticas=estatisticas,
     definida=definida,
     nivel=nivel,
-    estatisticas_partida=estatisticas_partida
+    estatisticas_partida=estatisticas_partida,
+    tipoModalidade=tipoModalidade,
+    alunoCasa=alunoCasa,
+    alunoVisitante=alunoVisitante,
     )
 
 @app.route("/salvarEstatisticas", methods=["POST"])
@@ -912,7 +1030,13 @@ def rotaRegistrarVencedor():
 @app.route('/gerenciarEstatisticas')
 @requerAdmin
 def exibirGerenciarEstatisticas():
-    esportes = buscarModalidades()
+    modalidades = buscarModalidades()
+
+    esportes = (
+        modalidades["esportes_atletismo"]
+        + modalidades["esportes_outros"]
+    )
+
     estatisticas = buscarEstatisticasRegistradas()
     esportesComEst = buscarEstatisticasDeModalidade()
     return render_template('gerenciarEstatisticas.html', esportes=esportes, estatisticas=estatisticas, esportesComEst=esportesComEst)
@@ -958,3 +1082,740 @@ def processarEstatisticasPorModalidade(esporte):
     estatisticasFiltras = buscarEstatisticasPorModalidade(esporte)
     resultado = [{"fk_nome_estatistica": linha[0]} for linha in estatisticasFiltras]
     return jsonify(resultado)
+
+#---------------- CALENDÁRIO ------------------#
+
+@app.route('/calendarioteste')
+def calendarioteste():
+
+    podeEditar = session.get('nivel') in [
+        'Administrador',
+        'AlunoMonitor'
+    ]
+
+    return render_template(
+    'calendario2.html',
+    podeEditar=podeEditar
+
+    )
+
+
+# =====================================================
+# EVENTOS DO CALENDÁRIO
+# =====================================================
+@app.route('/calendario/eventos')
+def eventosCalendario():
+
+    conexao = criarConexao()
+    cursor = conexao.cursor(dictionary=True)
+
+    try:
+
+        cursor.execute("""
+            SELECT
+                c.pk_evento,
+                c.dia_evento,
+                c.hora_inicio,
+                c.hora_fim,
+
+                p.fk_esporte,
+                p.fk_genero,
+                p.etapa,
+
+                ec.fk_nome_turma AS turma_casa,
+                ev.fk_nome_turma AS turma_visitante
+
+            FROM calendario c
+
+            INNER JOIN partidas p
+                ON c.fk_partida = p.pk_partida
+
+            INNER JOIN equipes ec
+                ON p.fk_equipe_casa = ec.pk_equipe
+
+            INNER JOIN equipes ev
+                ON p.fk_equipe_visitante = ev.pk_equipe
+
+            ORDER BY
+                c.dia_evento,
+                c.hora_inicio
+        """)
+
+        cores = {
+            'Vôlei': '#1976d2',
+            'Futsal': '#111111',
+            'Basquete': '#f57c00',
+            'Handebol': '#d32f2f',
+            'Queimada': '#2e7d32',
+            'Xadrez': '#6a1b9a',
+            'Tênis de Mesa': '#c9a227'
+        }
+
+        etapas = {
+            1: 'Rodada 1',
+            2: 'Rodada 2',
+            3: 'Rodada 3',
+            4: 'Rodada 4'
+        }
+
+        eventos = []
+
+        for e in cursor.fetchall():
+
+            turma_casa = e['turma_casa']
+            turma_visitante = e['turma_visitante']
+
+            turmas = [
+                turma
+                for turma in [
+                    turma_casa,
+                    turma_visitante
+                ]
+                if turma
+            ]
+
+            cor = cores.get(
+                e['fk_esporte'],
+                '#3788d8'
+            )
+
+            # Texto claro para fundos escuros
+            # e escuro para fundos claros.
+            if e['fk_esporte'] in [
+                'Vôlei',
+                'Futsal',
+                'Handebol',
+                'Xadrez'
+            ]:
+                texto = '#ffffff'
+            else:
+                texto = '#122f4a'
+
+            eventos.append({
+
+                'id':
+                    str(e['pk_evento']),
+
+                'title':
+                    f"{turma_casa or 'Turma não informada'} × "
+                    f"{turma_visitante or 'Turma não informada'}",
+
+                'start':
+                    f"{e['dia_evento']}T"
+                    f"{e['hora_inicio']}",
+
+                'end':
+                    f"{e['dia_evento']}T"
+                    f"{e['hora_fim']}",
+
+                'backgroundColor':
+                    cor,
+
+                'borderColor':
+                    cor,
+
+                'textColor':
+                    texto,
+
+                'extendedProps': {
+
+                    'esporte':
+                        e['fk_esporte'],
+
+                    'genero':
+                        e['fk_genero'],
+
+                    'etapa':
+                        etapas.get(
+                            e['etapa'],
+                            f"Rodada {e['etapa']}"
+                        ),
+
+                    'turma_casa':
+                        turma_casa,
+
+                    'turma_visitante':
+                        turma_visitante,
+
+                    'turmas':
+                        turmas
+                }
+            })
+
+        return jsonify(eventos)
+
+    except Exception as erro:
+
+        print(
+            'Erro ao carregar calendário:',
+            erro
+        )
+
+        return jsonify({
+            'erro':
+                'Não foi possível carregar o calendário.'
+        }), 500
+
+    finally:
+
+        cursor.close()
+        conexao.close()
+
+
+# =====================================================
+# FILTROS
+# =====================================================
+
+@app.route('/calendario/filtros')
+def filtrosCalendario():
+
+    conexao = criarConexao()
+    cursor = conexao.cursor()
+
+    try:
+
+        # -------------------------------------------------
+        # MODALIDADES
+        # -------------------------------------------------
+
+        cursor.execute("""
+            SELECT DISTINCT fk_esporte
+            FROM partidas
+
+            WHERE fk_esporte IS NOT NULL
+              AND fk_equipe_casa IS NOT NULL
+              AND fk_equipe_visitante IS NOT NULL
+
+            ORDER BY fk_esporte
+        """)
+
+        esportes = [
+            linha[0]
+            for linha in cursor.fetchall()
+        ]
+
+
+        # -------------------------------------------------
+        # GÊNEROS
+        # -------------------------------------------------
+
+        cursor.execute("""
+            SELECT DISTINCT fk_genero
+            FROM partidas
+
+            WHERE fk_genero IS NOT NULL
+              AND fk_equipe_casa IS NOT NULL
+              AND fk_equipe_visitante IS NOT NULL
+
+            ORDER BY fk_genero
+        """)
+
+        generos = [
+            linha[0]
+            for linha in cursor.fetchall()
+        ]
+
+
+        # -------------------------------------------------
+        # TURMAS
+        # -------------------------------------------------
+
+        cursor.execute("""
+            SELECT pk_nome_turma
+            FROM turmas
+            ORDER BY pk_nome_turma
+        """)
+
+        turmas = [
+            linha[0]
+            for linha in cursor.fetchall()
+        ]
+
+
+        return jsonify({
+            'esportes': esportes,
+            'generos': generos,
+            'turmas': turmas
+        })
+
+    except Exception as erro:
+
+        print(
+            'Erro ao carregar filtros:',
+            erro
+        )
+
+        return jsonify({
+            'esportes': [],
+            'generos': [],
+            'turmas': []
+        }), 500
+
+    finally:
+
+        cursor.close()
+        conexao.close()
+
+
+# =====================================================
+# PARTIDAS DISPONÍVEIS PARA ADICIONAR
+# =====================================================
+
+@app.route('/calendario/partidas')
+def partidasCalendario():
+
+    esporte = request.args.get('esporte')
+    genero = request.args.get('genero')
+    etapa = request.args.get(
+        'etapa',
+        type=int
+    )
+
+    if not esporte or not genero or etapa is None:
+        return jsonify([])
+
+    conexao = criarConexao()
+    cursor = conexao.cursor(dictionary=True)
+
+    try:
+
+        cursor.execute("""
+            SELECT
+
+                p.pk_partida,
+                p.fk_esporte,
+                p.fk_genero,
+                p.etapa,
+
+                ec.fk_nome_turma AS turma_casa,
+                ev.fk_nome_turma AS turma_visitante
+
+            FROM partidas p
+
+            INNER JOIN equipes ec
+                ON p.fk_equipe_casa = ec.pk_equipe
+
+            INNER JOIN equipes ev
+                ON p.fk_equipe_visitante = ev.pk_equipe
+
+            LEFT JOIN calendario c
+                ON c.fk_partida = p.pk_partida
+
+            WHERE p.fk_esporte = %s
+              AND p.fk_genero = %s
+              AND p.etapa = %s
+              AND c.fk_partida IS NULL
+
+            ORDER BY p.pk_partida
+        """, (
+            esporte,
+            genero,
+            etapa
+        ))
+
+        partidas = []
+
+        for p in cursor.fetchall():
+
+            partidas.append({
+
+                'pk_partida':
+                    p['pk_partida'],
+
+                'fk_esporte':
+                    p['fk_esporte'],
+
+                'fk_genero':
+                    p['fk_genero'],
+
+                'etapa':
+                    p['etapa'],
+
+                # Mantido para compatibilidade com o JS
+                'equipe_casa':
+                    p['turma_casa']
+                    or 'Turma não informada',
+
+                'equipe_visitante':
+                    p['turma_visitante']
+                    or 'Turma não informada',
+
+                'turma_casa':
+                    p['turma_casa'],
+
+                'turma_visitante':
+                    p['turma_visitante']
+            })
+
+        return jsonify(partidas)
+
+    except Exception as erro:
+
+        print(
+            'Erro ao buscar partidas do calendário:',
+            erro
+        )
+
+        return jsonify([]), 500
+
+    finally:
+
+        cursor.close()
+        conexao.close()
+
+
+# =====================================================
+# ADICIONAR PARTIDA
+# =====================================================
+
+@app.route(
+    '/calendario/adicionar',
+    methods=['POST']
+)
+def adicionarCalendario():
+
+    if session.get('nivel') not in [
+        'Administrador',
+        'AlunoMonitor'
+    ]:
+
+        return jsonify({
+            'mensagem':
+                'Apenas o Administrador ou Aluno Monitor pode alterar o calendário.'
+        }), 403
+
+
+    dados = request.get_json(
+        silent=True
+    ) or {}
+
+
+    data_evento = dados.get('data')
+    partida = dados.get('fk_partida')
+    inicio = dados.get('hora_inicio')
+    fim = dados.get('hora_fim')
+
+
+    if not all([
+        data_evento,
+        partida,
+        inicio,
+        fim
+    ]):
+
+        return jsonify({
+            'mensagem':
+                'Preencha todos os campos.'
+        }), 400
+
+
+    if fim <= inicio:
+
+        return jsonify({
+            'mensagem':
+                'O horário final deve ser maior que o inicial.'
+        }), 400
+
+
+    conexao = criarConexao()
+    cursor = conexao.cursor()
+
+    try:
+
+        # Verifica se a partida existe
+        # e possui as duas equipes.
+        cursor.execute("""
+            SELECT pk_partida
+
+            FROM partidas
+
+            WHERE pk_partida = %s
+              AND fk_equipe_casa IS NOT NULL
+              AND fk_equipe_visitante IS NOT NULL
+        """, (partida,))
+
+
+        if not cursor.fetchone():
+
+            return jsonify({
+                'mensagem':
+                    'Partida inválida.'
+            }), 400
+
+
+        # Não permite cadastrar a mesma
+        # partida duas vezes.
+        cursor.execute("""
+            SELECT pk_evento
+
+            FROM calendario
+
+            WHERE fk_partida = %s
+        """, (partida,))
+
+
+        if cursor.fetchone():
+
+            return jsonify({
+                'mensagem':
+                    'Essa partida já está no calendário.'
+            }), 400
+
+
+        cursor.execute("""
+            INSERT INTO calendario (
+                dia_evento,
+                fk_partida,
+                hora_inicio,
+                hora_fim
+            )
+
+            VALUES (%s, %s, %s, %s)
+        """, (
+            data_evento,
+            partida,
+            inicio,
+            fim
+        ))
+
+        cursor.execute("""
+            UPDATE partidas
+
+            SET data_hora = CONCAT(%s, ' ', %s)
+
+            WHERE pk_partida = %s
+        """, (
+            data_evento,
+            inicio,
+            partida
+        ))
+
+        conexao.commit()
+
+
+        return jsonify({
+            'mensagem':
+                'Partida adicionada!'
+        })
+
+
+    except Exception as erro:
+
+        conexao.rollback()
+
+        print(
+            'Erro ao adicionar partida:',
+            erro
+        )
+
+        return jsonify({
+            'mensagem':
+                'Erro ao adicionar partida.'
+        }), 500
+
+    finally:
+
+        cursor.close()
+        conexao.close()
+
+
+# =====================================================
+# EDITAR PARTIDA
+# =====================================================
+
+@app.route(
+    '/calendario/editar',
+    methods=['POST']
+)
+def editarCalendario():
+
+    if session.get('nivel') not in [
+        'Administrador',
+        'AlunoMonitor'
+    ]:
+
+        return jsonify({
+            'mensagem':
+                'Apenas o Administrador ou Aluno Monitor pode editar.'
+        }), 403
+
+
+    dados = request.get_json(
+        silent=True
+    ) or {}
+
+
+    evento = dados.get('id')
+    inicio = dados.get('hora_inicio')
+    fim = dados.get('hora_fim')
+
+
+    if not all([
+        evento,
+        inicio,
+        fim
+    ]):
+
+        return jsonify({
+            'mensagem':
+                'Dados incompletos.'
+        }), 400
+
+
+    if fim <= inicio:
+
+        return jsonify({
+            'mensagem':
+                'O horário final deve ser maior que o inicial.'
+        }), 400
+
+
+    conexao = criarConexao()
+    cursor = conexao.cursor()
+
+    try:
+
+        cursor.execute("""
+            UPDATE calendario
+
+            SET
+                hora_inicio = %s,
+                hora_fim = %s
+
+            WHERE pk_evento = %s
+        """, (
+            inicio,
+            fim,
+            evento
+        ))
+
+
+        if cursor.rowcount == 0:
+
+            conexao.rollback()
+
+            return jsonify({
+                'mensagem':
+                    'Evento não encontrado no calendário.'
+            }), 404
+
+
+        conexao.commit()
+
+
+        return jsonify({
+            'mensagem':
+                'Horário atualizado!'
+        })
+
+
+    except Exception as erro:
+
+        conexao.rollback()
+
+        print(
+            'Erro ao editar:',
+            erro
+        )
+
+        return jsonify({
+            'mensagem':
+                'Erro ao editar horário.'
+        }), 500
+
+    finally:
+
+        cursor.close()
+        conexao.close()
+
+
+# =====================================================
+# REMOVER PARTIDA
+# =====================================================
+
+@app.route(
+    '/calendario/remover',
+    methods=['POST']
+)
+def removerCalendario():
+
+    if session.get('nivel') not in [
+        'Administrador',
+        'AlunoMonitor'
+    ]:
+
+        return jsonify({
+            'mensagem':
+                'Apenas o Administrador ou Aluno Monitor pode remover.'
+        }), 403
+
+
+    dados = request.get_json(
+        silent=True
+    ) or {}
+
+
+    evento = dados.get('id')
+
+
+    if not evento:
+
+        return jsonify({
+            'mensagem':
+                'Evento inválido.'
+        }), 400
+
+
+    conexao = criarConexao()
+    cursor = conexao.cursor()
+
+    try:
+
+        cursor.execute("""
+            DELETE FROM calendario
+
+            WHERE pk_evento = %s
+        """, (evento,))
+
+
+        if cursor.rowcount == 0:
+
+            conexao.rollback()
+
+            return jsonify({
+                'mensagem':
+                    'Evento não encontrado no calendário.'
+            }), 404
+
+
+        conexao.commit()
+
+
+        return jsonify({
+            'mensagem':
+                'Partida removida do calendário!'
+        })
+
+
+    except Exception as erro:
+
+        conexao.rollback()
+
+        print(
+            'Erro ao remover:',
+            erro
+        )
+
+        return jsonify({
+            'mensagem':
+                'Erro ao remover partida.'
+        }), 500
+
+    finally:
+
+        cursor.close()
+        conexao.close()
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

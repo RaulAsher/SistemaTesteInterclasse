@@ -540,3 +540,34 @@ h2 {
 
     box-shadow:0 8px 18px rgba(0,0,0,.25);
 }
+
+small{
+  font-weight: bold;
+  border-radius: 4px;
+  padding: 5px;
+  border: 1px solid rgb(192, 192, 192)
+}
+
+.header[esporte='Futsal'] {
+  border-left: 8px solid #047857;
+}
+
+.header[esporte='Basquete'] {
+  border-left: 8px solid #b91c1c;
+}
+
+.header[esporte='Vôlei'] {
+  border-left: 8px solid #bce81e;
+}
+
+.header[esporte='Xadrez'] {
+  border-left: 8px solid #000000;
+}
+
+.header[esporte='Tênis de Mesa'] {
+  border-left: 8px solid #d09a12;
+}
+
+.header[esporte='Handebol'] {
+  border-left: 8px solid #23f454;
+}
