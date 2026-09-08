@@ -329,7 +329,7 @@ def tabelaAtletismoProvas():
         nome_prova = request.form.get("nome_prova")
         tipo_resultado = request.form.get("tipo_resultado")
         unidade_medida = request.form.get("unidade_medida")
-        data_hora = request.form.get("data_hora")
+        data_prova = request.form.get("data_prova")
 
         if not (fk_modalidade and fk_genero and nome_prova and tipo_resultado and unidade_medida):
             flash("Preencha todos os campos obrigatórios.", "error")
@@ -342,11 +342,11 @@ def tabelaAtletismoProvas():
                 nome_prova,
                 tipo_resultado,
                 unidade_medida,
-                data_hora if data_hora else None
+                data_prova if data_prova else None
             )
             flash("Prova cadastrada com sucesso!", "success")
-        except Exception as erro:
-            print("ERRO AO CADASTRAR PROVA:", erro)
+        except Exception as e:
+            print(20 * "===", "ERRO AO CADASTRAR PROVA:", e, 20 * "===")
             flash("Erro ao cadastrar a prova.", "error")
 
         return redirect(url_for("tabelaAtletismoProvas"))
@@ -1030,30 +1030,48 @@ def exibirGerenciarEstatisticas():
 
     estatisticas = buscarEstatisticasRegistradas()
     esportesComEst = buscarEstatisticasDeModalidade()
-    return render_template('gerenciarEstatisticas.html', esportes=esportes, estatisticas=estatisticas, esportesComEst=esportesComEst)
+    return render_template('gerenciarEstatisticas.html', 
+                            esportes=esportes, 
+                            estatisticas=estatisticas, 
+                            esportesComEst=esportesComEst
+                            )
 
 @app.route('/criarEstatistica', methods=['POST'])
 @requerAdmin
 def processarCriarEstatistica():
-    estatistica = request.form['estatistica']
-    estatistica = estatistica.title()
-    criarEstatisticas(estatistica)
-    return redirect(f'/gerenciarEstatisticas')
+    try:
+        estatistica = request.form['estatistica']
+        estatistica = estatistica.title()
+        criarEstatisticas(estatistica)
+        return redirect(f'/gerenciarEstatisticas')
+    except Exception as e:
+        flash('A estatística que você tentou cadastrar já existe.', 'error')
+        return redirect(f'/gerenciarEstatisticas')
 
 @app.route('/removerEstatistica', methods=['POST'])
 @requerAdmin
 def processarRemoverEstatistica():
-    estatistica = request.form['estatistica']
-    removerEstatisticas(estatistica)
-    return redirect(f'/gerenciarEstatisticas')
+    try:
+        estatistica = request.form['estatistica']
+        removerEstatisticas(estatistica)
+        return redirect(f'/gerenciarEstatisticas')
+    except Exception as e:
+        flash('A estatística que você tentou deletar não existe.', 'error')
+        return redirect(f'/gerenciarEstatisticas')
+        
 
 @app.route("/cadastrarEstatisticasParaModalidade", methods=['POST'])
 def processarCadastrarEstatisticaModalidade():
-    esporte = request.form['esporte']
-    estatistica = request.form['estatistica']
-    principal = request.form.get("estatistica_principal") == "true"
-    cadastrarEstatisticasParaModalidade(esporte, estatistica, principal)
-    return redirect(f'/gerenciarEstatisticas')
+    try:
+        esporte = request.form['esporte']
+        estatistica = request.form['estatistica']
+        principal = request.form.get("estatistica_principal") == "true"
+        cadastrarEstatisticasParaModalidade(esporte, estatistica, principal)
+        return redirect(f'/gerenciarEstatisticas')
+    except Exception as e:
+        flash('O esporte que você escolheu já possui essa estatística.', 'error')
+        return redirect('/gerenciarEstatisticas')
+
 
 #Remove estatistica de determinada modalidade
 @app.route("/removerEstatisticasParaModalidade", methods=["POST"])

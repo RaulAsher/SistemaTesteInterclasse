@@ -12,12 +12,12 @@ def buscarProvas():
                 p.nome_prova,         -- [3]
                 p.tipo_resultado,     -- [4]
                 p.unidade_medida,     -- [5]
-                p.ativo,              -- [6]
+                p.status,              -- [6]
                 COUNT(i.fk_matricula) AS total_participantes, -- [7]
                 COALESCE(p.status, 'nao_iniciada') AS status   -- [8] Coluna de status
             FROM provas_atletismo p
             LEFT JOIN inscricoes_provas_atletismo i ON p.pk_prova = i.fk_prova
-            WHERE p.ativo = 1
+            WHERE p.status = 'em_andamento' or p.status = 'nao_iniciada'
             GROUP BY p.pk_prova;
         """
     cursor.execute(query)

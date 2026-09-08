@@ -11,6 +11,7 @@ def buscarEstatisticasPorModalidade(modalidade):
     except:
         conexao.rollback()
         flash('Ocorreu um erro inesperado', 'erro')
+        return []
     finally:
         cursor.close()
         conexao.close()

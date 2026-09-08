@@ -7,7 +7,7 @@ def cadastrarProvaAtletismo(
     nome_prova,
     tipo_resultado,
     unidade_medida,
-    data_hora
+    data_prova
 ):
 
     conexao = criarConexao()
@@ -20,10 +20,10 @@ def cadastrarProvaAtletismo(
             nome_prova,
             tipo_resultado,
             unidade_medida,
-            data_hora,
-            ativo
+            data_prova,
+            status
         )
-        VALUES (%s, %s, %s, %s, %s, %s, 1)
+        VALUES (%s, %s, %s, %s, %s, %s, 'nao_iniciada')
     """
 
     valores = (
@@ -32,7 +32,7 @@ def cadastrarProvaAtletismo(
         nome_prova,
         tipo_resultado,
         unidade_medida,
-        data_hora
+        data_prova
     )
 
     cursor.execute(query, valores)

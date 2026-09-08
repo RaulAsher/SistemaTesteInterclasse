@@ -17,7 +17,7 @@ def buscarProvasProximas():
                     p.nome_prova,
                     p.tipo_resultado,
                     p.unidade_medida,
-                    p.data_hora,
+                    p.data_prova,
 
                     m.nome_modalidade,
                     c.pk_genero
@@ -30,10 +30,10 @@ def buscarProvasProximas():
                 INNER JOIN {database}.classificacao c
                     ON p.fk_genero = c.pk_genero
 
-                WHERE p.data_hora >= NOW()
-                  AND p.data_hora <= DATE_ADD(NOW(), INTERVAL 2 HOUR)
+                WHERE p.data_prova >= NOW()
+                  AND p.data_prova <= DATE_ADD(NOW(), INTERVAL 2 HOUR)
 
-                ORDER BY p.data_hora ASC
+                ORDER BY p.data_prova ASC
             """)
 
             return cursor.fetchall()
