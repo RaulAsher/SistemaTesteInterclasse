@@ -3,7 +3,11 @@
 <link rel="stylesheet" href=" {{ url_for('static', filename='css/estatisticas.css') }} ">
 
 <div class="container">
+    {% if nivel == "AlunoMonitor" and esporte_monitor != esporte %}
+    <h2 class="msg-partida">Você não tem acesso as partidas deste esporte.</h2>
 
+    {%else%}
+    
     <h1 class="titulo-esporte">{{ esporte }}</h1>
     {% if equipe_casa != None and equipe_visitante != None%}
     <div class="placar-header">
@@ -165,6 +169,7 @@
         <h1 class="msg-partida">A Equipe dessa partida foi classificada de forma automatica pelo sistema para manter os dados de forma correta</h1>
     </div>
     {%endif%}
+    {% endif %}
 </div>
 
 <script>

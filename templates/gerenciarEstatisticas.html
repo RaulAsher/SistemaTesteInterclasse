@@ -9,6 +9,21 @@
    <link rel="stylesheet" href="/static/css/gerenciamento.css">
    <link rel="stylesheet" href="/static/css/menu.css">
    <link rel="stylesheet" href="/static/css/card.css">
+
+   <link rel="stylesheet" href="/static/css/style.css">
+
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        <div class="toast-container">
+            {% for categoria, mensagem in mensagens %}
+                <div class="toast {{ categoria }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
    <script src="/static/js/menu.js" defer></script>
    <title>ETEPlacar - Gerenciar Modalidades</title>
 </head>
@@ -141,7 +156,7 @@
         }
     }
     </script>
-    {% extends 'baseflash.html' %}
+
     </div>  
 </body>
 </html>

@@ -36,6 +36,7 @@ from .Buscar.buscarProvas import buscarProvas
 from .Buscar.buscarProvaPorID import buscarProvaPorID
 from .Buscar.buscarPartidasDoDia import buscarPartidasDoDia
 from .Buscar.buscarProvasProximas import buscarProvasProximas
+from .Buscar.buscarEsporteMonitor import buscarEsporteMonitor
 from .Cadastrar.cadastrarAluno import cadastrarAluno
 from .Cadastrar.cadastrarEquipe import cadastrarEquipe
 from .Cadastrar.cadastrarEsportes import cadastrarEsportes

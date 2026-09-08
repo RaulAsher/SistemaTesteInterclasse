@@ -715,19 +715,30 @@ def gerenciarModalidades():
 @app.route('/cadastrarModalidades', methods=['POST'])
 @requerAdmin
 def processarCadastroModalidades():
-    esporte = request.form['esporte']
-    esporte = esporte.title()
-    grupo = request.form['grupo']
-    qtdJogadores = request.form['qtdJogadores']
-    cadastrarEsportes(esporte, grupo, qtdJogadores)
-    return redirect('/gerenciarModalidades')
+    try:
+        esporte = request.form['esporte']
+        esporte = esporte.title()
+        grupo = request.form['grupo']
+        qtdJogadores = request.form['qtdJogadores']
+        cadastrarEsportes(esporte, grupo, qtdJogadores)
+        flash("Modalidade cadastrada com sucesso!", "success")
+        return redirect('/gerenciarModalidades')
+    except Exception as e:
+        print(f"Erro ao cadastrar modalidade: {e}")
+        flash("Erro ao cadastrar modalidade. Verifique os dados e tente novamente.", "error")
+        return redirect('/gerenciarModalidades')
 
 @app.route('/removerModalidades', methods=['POST'])
 @requerAdmin
 def apagarModalidade():
-    esporte = request.form['esporte'].title()
-    removerModalidade(esporte)
-    return redirect('/gerenciarModalidades')
+    try:
+        esporte = request.form['esporte'].title()
+        removerModalidade(esporte)
+        return redirect('/gerenciarModalidades')
+    except Exception as e:
+        print(f"Erro ao remover modalidade: {e}")
+        flash("Erro ao remover modalidade. Verifique os dados e tente novamente.", "error")
+        return redirect('/gerenciarModalidades')
 
 
 ## ----------------CHAVEAMENTO------------------ ##
@@ -850,6 +861,7 @@ def verEstatisticas(partida_id):
     fk_equipe_visitante = partida["fk_equipe_visitante"]
     definida = partida["definida"]
     nivel = session["nivel"]
+    esporte_monitor = buscarEsporteMonitor(session["nome"])
     equipe_casa = None
     equipe_visitante = None
     alunoCasa = None
@@ -861,14 +873,16 @@ def verEstatisticas(partida_id):
         equipe_visitante = equipes[1]
     else:
         redirect(url_for('chaveamentoTeste'))
-    
-    estatisticasList = buscarEstatisticasPorModalidade(esporte)
-    estatisticas = []
-    for estatistica, principal in estatisticasList:
-        if principal == 1:
-            estatisticas.insert(0, estatistica)
-        else:
-            estatisticas.append(estatistica)
+    try:
+        estatisticasList = buscarEstatisticasPorModalidade(esporte)
+        estatisticas = []
+        for estatistica, principal in estatisticasList:
+            if principal == 1:
+                estatisticas.insert(0, estatistica)
+            else:
+                estatisticas.append(estatistica)
+    except:
+        estatisticas = []
 
     usuario = buscarUsuarioPorNome(session["nome"])
     if usuario != None:
@@ -898,6 +912,7 @@ def verEstatisticas(partida_id):
     tipoModalidade=tipoModalidade,
     alunoCasa=alunoCasa,
     alunoVisitante=alunoVisitante,
+    esporte_monitor=esporte_monitor
     )
 
 @app.route("/salvarEstatisticas", methods=["POST"])
@@ -1044,37 +1059,63 @@ def exibirGerenciarEstatisticas():
 @app.route('/criarEstatistica', methods=['POST'])
 @requerAdmin
 def processarCriarEstatistica():
-    estatistica = request.form['estatistica']
-    estatistica = estatistica.title()
-    criarEstatisticas(estatistica)
-    return redirect(f'/gerenciarEstatisticas')
+    try:
+        estatistica = request.form['estatistica']
+        estatistica = estatistica.title()
+        criarEstatisticas(estatistica)
+        flash("Estatística criada com sucesso!", "success")
+        return redirect(f'/gerenciarEstatisticas')
+    except Exception as e:
+        print(f"Erro ao criar estatística: {e}")
+        flash("Erro ao criar estatística. Verifique os dados e tente novamente.", "error")
+        return redirect(f'/gerenciarEstatisticas')
 
 @app.route('/removerEstatistica', methods=['POST'])
 @requerAdmin
 def processarRemoverEstatistica():
-    estatistica = request.form['estatistica']
-    removerEstatisticas(estatistica)
-    return redirect(f'/gerenciarEstatisticas')
+    try:
+        estatistica = request.form['estatistica']
+        estatistica = estatistica.title()
+        removerEstatisticas(estatistica)
+        flash("Estatística removida com sucesso!", "success")
+        return redirect(f'/gerenciarEstatisticas')
+    except Exception as e:
+        print(f"Erro ao remover estatística: {e}")
+        flash("Erro ao remover estatística. Verifique os dados e tente novamente.", "error")
+        return redirect(f'/gerenciarEstatisticas')
+    
 
 @app.route("/cadastrarEstatisticasParaModalidade", methods=['POST'])
 def processarCadastrarEstatisticaModalidade():
-    esporte = request.form['esporte']
-    estatistica = request.form['estatistica']
-    principal = request.form.get("estatistica_principal") == "true"
-    cadastrarEstatisticasParaModalidade(esporte, estatistica, principal)
-    return redirect(f'/gerenciarEstatisticas')
+    try:
+        esporte = request.form['esporte']
+        estatistica = request.form['estatistica']
+        principal = request.form.get("estatistica_principal") == "true"
+        cadastrarEstatisticasParaModalidade(esporte, estatistica, principal)
+        flash("Estatística vinculada à modalidade com sucesso!", "success")
+        return redirect(f'/gerenciarEstatisticas')
+    except Exception as e:
+        print(f"Erro ao vincular estatística à modalidade: {e}")
+        flash("Erro ao vincular estatística à modalidade. Verifique os dados e tente novamente.", "error")
+        return redirect(f'/gerenciarEstatisticas')
 
 #Remove estatistica de determinada modalidade
 @app.route("/removerEstatisticasParaModalidade", methods=["POST"])
 @requerAdmin
 def processarRemoverEstatisticaModalidade():
-    esporte = request.form['esporte']
-    estatistica = request.form['estatistica']
-    if esporte == '':
-        flash('Selecione um esporte valido!', 'erro')
-    else:
-        removerEstatisticasDaModalidade(esporte,estatistica)
-    return redirect(f'/gerenciarEstatisticas')
+    try:
+        esporte = request.form['esporte']
+        estatistica = request.form['estatistica']
+        if esporte == '':
+            flash('Selecione um esporte valido!', 'erro')
+        else:
+            removerEstatisticasDaModalidade(esporte,estatistica)
+            flash("Estatística removida da modalidade com sucesso!", "success")
+        return redirect(f'/gerenciarEstatisticas')
+    except Exception as e:
+        print(f"Erro ao remover estatística da modalidade: {e}")
+        flash("Erro ao remover estatística da modalidade. Verifique os dados e tente novamente.", "error")
+        return redirect(f'/gerenciarEstatisticas')
 
 #API relacionada a tela de gerenciar estatisticas na função remover estatisticas para modalidade
 @app.route('/api/estatisticasPorModalidade/<string:esporte>')

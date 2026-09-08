@@ -73,5 +73,6 @@ from .funcoesBD import (
     buscarPartidasDoDia,
     salvarOuAtualizarEstatistica,
     getAlunoEquipe,
-    buscarTipoModalidade
+    buscarTipoModalidade,
+    buscarEsporteMonitor
 )
