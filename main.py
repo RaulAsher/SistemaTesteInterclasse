@@ -2,8 +2,6 @@ from flask import Flask, render_template, redirect, request, session, jsonify, f
 from functools import wraps
 from datetime import timedelta
 from model import *
-import mysql.connector
-import traceback
 
 print("Main iniciado")
 # Assumindo que seu gestao_chaveamento.py está em model/funcoesBD/Chaveamento
@@ -22,11 +20,12 @@ def requerAdmin(f):
     @wraps(f)
     def requerindoAdmin(*args, **kwargs):
 
-        nivel = session.get('nivel', 'Visitante')
+        if session['nivel'] != "Administrador":
+            return redirect('/')
 
-        if nivel != "Administrador":
+        if session['nivel'] != "Administrador":
             flash("Faça login como Administrador para ativar esta função.", "error")
-            return redirect(url_for('homeRedirect'))
+            return redirect('/')
         
         return f(*args, **kwargs)
     return requerindoAdmin
@@ -36,7 +35,7 @@ def requerAdminOuMonitor(f):
     @wraps(f)
     def requerindo(*args, **kwargs):
         
-        if session.get('nivel', 'Visitante') not in ["Administrador", "AlunoMonitor"]:
+        if session['nivel'] not in ["Administrador", "AlunoMonitor"]:
 
             flash("Faça login para ativar esta função.", "warning")
             return redirect('/')
@@ -73,53 +72,6 @@ def obterAcessoDoUsuario():
 app = Flask(__name__)
 app.secret_key = '29bfd352-ed9e-4818-b05b-498b8f77e4e3'
 app.permanent_session_lifetime = timedelta(days=30)
-
-
-@app.errorhandler(mysql.connector.Error)
-def tratarErroBanco(erro):
-    """Evita que erros do MySQL exibam uma página de erro genérica."""
-    print(f"[ERRO MYSQL] {erro}")
-
-    if request.path.startswith('/api/') or request.path.startswith('/salvarEstatisticas'):
-        return jsonify({
-            "sucesso": False,
-            "mensagem": "Não foi possível acessar o banco de dados. Verifique se o MySQL está funcionando."
-        }), 500
-
-    flash(
-        "Não foi possível acessar o banco de dados. Verifique se o MySQL está em execução.",
-        "error"
-    )
-    return render_template(
-        'home.html',
-        nome_usuario=session.get('nome', 'Visitante'),
-        nivel=session.get('nivel', 'Visitante'),
-        partidas=[]
-    ), 503
-
-
-@app.errorhandler(RuntimeError)
-def tratarErroRuntime(erro):
-    """Trata principalmente as falhas controladas de conexão com o banco."""
-    mensagem = str(erro)
-    print(f"[ERRO DO SISTEMA] {mensagem}")
-
-    if "banco de dados MySQL" in mensagem or "conectar ao banco" in mensagem:
-        if request.path.startswith('/api/') or request.path.startswith('/salvarEstatisticas'):
-            return jsonify({
-                "sucesso": False,
-                "mensagem": mensagem
-            }), 500
-
-        flash(mensagem, "error")
-        return render_template(
-            'home.html',
-            nome_usuario=session.get('nome', 'Visitante'),
-            nivel=session.get('nivel', 'Visitante'),
-            partidas=[]
-        ), 503
-
-    raise erro
 
 @app.route("/")
 def home():
@@ -493,21 +445,11 @@ def turma():
     print(turmas[0]['pk_nome_turma'])
     return render_template("turma.html", turmas=turmas)
 
-@app.route("/alunosPorTurma/<path:turma>")
+@app.route("/alunosPorTurma/<turma>")
 def alunosPorTurma(turma):
     alunos = buscarAlunosPorTurma(turma)
-
-    icone_url = None
-    if alunos and len(alunos[0]) >= 5:
-        icone_url = alunos[0][4]
-
-    return jsonify({
-        "alunos": [
-            {"matricula": aluno[0], "nome": aluno[1]}
-            for aluno in alunos
-        ],
-        "icone_url": icone_url
-    })
+    # função do model que retorna lista de alunos da turma
+    return jsonify({"alunos": [{"matricula": a[0], "nome": a[1]} for a in alunos]})
 
 ## ----------------CADASTRAR ALUNOS---------------##
 
@@ -804,35 +746,6 @@ def paginaGerarChaveamento():
 
 
 
-@app.route("/chaveamento/equipes", methods=["GET"])
-@requerAdmin
-def rotaBuscarEquipesChaveamento():
-    esporte = request.args.get("esporte")
-    classificacao = request.args.get("classificacao")
-
-    if not esporte or not classificacao:
-        return jsonify({
-            "status": "erro",
-            "mensagem": "Esporte e classificação são obrigatórios."
-        }), 400
-
-    try:
-        equipes = buscarEquipesPorModCla(esporte, classificacao)
-
-        return jsonify({
-            "status": "sucesso",
-            "equipes": equipes
-        })
-    except Exception as erro:
-        print(f"Erro ao buscar equipes para o chaveamento: {erro}")
-        traceback.print_exc()
-
-        return jsonify({
-            "status": "erro",
-            "mensagem": "Não foi possível carregar as equipes da modalidade selecionada."
-        }), 500
-
-
 @app.route("/chaveamento/gerar", methods=["POST"])
 @requerAdmin
 def rotaGerarChaveamento():
@@ -932,39 +845,24 @@ def chaveamentoTeste():
 def verEstatisticas(partida_id):
     partida = buscarPartidaPorId(partida_id)
 
-    # A partida pode ter sido removida ou o ID pode ser inválido.
-    if not partida:
-        flash("A partida solicitada não foi encontrada.", "error")
-        return redirect(url_for('chaveamentoTeste'))
-
-    esporte = partida.get("fk_esporte")
-    fk_equipe_casa = partida.get("fk_equipe_casa")
-    fk_equipe_visitante = partida.get("fk_equipe_visitante")
-    definida = partida.get("definida")
-    nivel = session.get("nivel", "Visitante")
+    esporte = partida["fk_esporte"]
+    fk_equipe_casa = partida["fk_equipe_casa"]
+    fk_equipe_visitante = partida["fk_equipe_visitante"]
+    definida = partida["definida"]
+    nivel = session["nivel"]
     equipe_casa = None
     equipe_visitante = None
     alunoCasa = None
     alunoVisitante = None
 
-    # Só tenta buscar equipes quando os dois IDs existem.
     if fk_equipe_casa is not None and fk_equipe_visitante is not None:
         equipes = buscarEquipesPorID(fk_equipe_casa, fk_equipe_visitante)
-
-        if not equipes:
-            flash("Não foi possível localizar as equipes desta partida.", "error")
-            return redirect(url_for('chaveamentoTeste'))
-
-        equipe_casa, equipe_visitante = equipes
+        equipe_casa = equipes[0]
+        equipe_visitante = equipes[1]
     else:
-        flash("Esta partida ainda não possui duas equipes válidas.", "warning")
-        return redirect(url_for('chaveamentoTeste'))
-
-    if not esporte:
-        flash("A partida não possui uma modalidade válida.", "error")
-        return redirect(url_for('chaveamentoTeste'))
+        redirect(url_for('chaveamentoTeste'))
     
-    estatisticasList = buscarEstatisticasPorModalidade(esporte) or []
+    estatisticasList = buscarEstatisticasPorModalidade(esporte)
     estatisticas = []
     for estatistica, principal in estatisticasList:
         if principal == 1:
@@ -972,10 +870,11 @@ def verEstatisticas(partida_id):
         else:
             estatisticas.append(estatistica)
 
-    usuario = buscarUsuarioPorNome(session.get("nome"))
-    estatistica_permitida = usuario.get("fk_estatistica_permitida") if usuario else None
+    usuario = buscarUsuarioPorNome(session["nome"])
+    if usuario != None:
+        estatistica_permitida = usuario["fk_estatistica_permitida"]
     
-    if nivel == "AlunoMonitor" and estatistica_permitida:
+    if nivel == "AlunoMonitor":
         estatisticas = [estatistica_permitida]
 
     estatisticas_partida = buscarEstatisticasDasPartidas(partida_id)
@@ -1343,11 +1242,7 @@ def eventosCalendario():
                 }
             })
 
-        resposta = jsonify(eventos)
-        resposta.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        resposta.headers["Pragma"] = "no-cache"
-        resposta.headers["Expires"] = "0"
-        return resposta
+        return jsonify(eventos)
 
     except Exception as erro:
 
@@ -1698,12 +1593,10 @@ def adicionarCalendario():
         conexao.commit()
 
 
-        resposta = jsonify({
+        return jsonify({
             'mensagem':
                 'Partida adicionada!'
         })
-        resposta.headers["Cache-Control"] = "no-store"
-        return resposta
 
 
     except Exception as erro:
@@ -1715,12 +1608,10 @@ def adicionarCalendario():
             erro
         )
 
-        resposta = jsonify({
+        return jsonify({
             'mensagem':
                 'Erro ao adicionar partida.'
-        })
-        resposta.headers["Cache-Control"] = "no-store"
-        return resposta, 500
+        }), 500
 
     finally:
 

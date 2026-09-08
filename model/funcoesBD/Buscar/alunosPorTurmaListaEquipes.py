@@ -1,29 +1,25 @@
 from ..Cadastrar.criarConexao import criarConexao
 
-
+# Buscar alunos de uma turma
 def alunosPorTurmaListaEquipes(nome_turma, classificacao):
     conexao = criarConexao()
     try:
         with conexao.cursor(dictionary=True) as cursor:
             if classificacao == "Misto":
                 query = """
-                    SELECT
-                        pk_matricula AS matricula,
+                    SELECT pk_matricula AS matricula,
                         nome_aluno AS nome
                     FROM alunos
                     WHERE fk_nome_turma = %s
-                    ORDER BY nome_aluno ASC
                 """
                 cursor.execute(query, (nome_turma,))
             else:
                 query = """
-                    SELECT
-                        pk_matricula AS matricula,
-                        nome_aluno AS nome
+                    SELECT pk_matricula AS matricula,
+                    nome_aluno AS nome
                     FROM alunos
                     WHERE fk_nome_turma = %s
-                      AND fk_classificacao = %s
-                    ORDER BY nome_aluno ASC
+                    AND fk_classificacao = %s
                 """
                 cursor.execute(query, (nome_turma, classificacao))
 

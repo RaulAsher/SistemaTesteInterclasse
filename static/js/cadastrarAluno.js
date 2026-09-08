@@ -48,35 +48,10 @@ const btnCancelar = document.getElementById("btnCancelar");
 const btnConfirmar = document.getElementById("btnConfirmar");
 
 function confirmarDelecao(matricula, nome) {
-    textoConfirmacao.textContent =
-        `Deseja realmente excluir o aluno "${nome}"?`;
-
-    const descricao = document.getElementById("descricaoConfirmacao");
-
-    if (descricao) {
-        descricao.textContent =
-            `Matrícula: ${matricula}. Esta ação não poderá ser desfeita.`;
-    }
-
+    textoConfirmacao.textContent = `Deseja realmente deletar ${nome}?`;
     btnConfirmar.href = "/deletarAluno/" + matricula;
     modalConfirmacao.style.display = "block";
 }
-
-formEdicao.addEventListener("submit", function (event) {
-
-    const nome = document.getElementById("editNome").value.trim();
-    const matricula = document.getElementById("editMatricula").value.trim();
-
-    const confirmou = window.confirm(
-        `Deseja realmente alterar os dados do aluno "${nome}"?\n\n` +
-        `Matrícula: ${matricula}`
-    );
-
-    if (!confirmou) {
-        event.preventDefault();
-    }
-
-});
 
 btnCancelar.onclick = () => modalConfirmacao.style.display = "none";
 window.onclick = (event) => {

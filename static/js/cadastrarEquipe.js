@@ -54,69 +54,29 @@ const btnCancelar = document.getElementById("btnCancelar");
 const btnConfirmar = document.getElementById("btnConfirmar");
 
 function confirmarDelecao(id, equipe) {
-
-    textoConfirmacao.textContent =
-        `Deseja realmente excluir a equipe "${equipe}"?`;
-
-    const descricao =
-        document.getElementById("descricaoConfirmacao");
-
-    if (descricao) {
-        descricao.textContent =
-            `ID da equipe: ${id}\n` +
-            `Esta ação não poderá ser desfeita.`;
-    }
-
+    textoConfirmacao.textContent = `Deseja realmente deletar a equipe ${equipe}?`;
     btnConfirmar.onclick = function () {
-
-        fetch(`/deletarEquipe/${id}`)
+        fetch(`/deletarEquipe/${id}`) // <-- sem method: "DELETE"
             .then(response => response.text())
             .then(result => {
-
                 modalConfirmacao.style.display = "none";
 
                 if (result === "OK") {
                     location.reload();
                 } else {
-                    alert("Erro ao excluir a equipe.");
+                    alert("Erro ao deletar a equipe.");
                     console.error("Resposta:", result);
                 }
-
             })
             .catch(error => {
-
                 modalConfirmacao.style.display = "none";
-
-                alert("Erro ao tentar excluir a equipe.");
-
+                alert("Erro ao tentar deletar a equipe.");
                 console.error(error);
             });
     };
 
     modalConfirmacao.style.display = "block";
 }
-formEdicao.addEventListener("submit", function (event) {
-
-    const id =
-        document.getElementById("editId").value;
-
-    const turma =
-        document.getElementById("editTurma").value;
-
-    const esporte =
-        document.getElementById("editEsporte").value;
-
-    const confirmou = window.confirm(
-        `Deseja realmente alterar a equipe ${id}?\n\n` +
-        `Turma: ${turma}\n` +
-        `Esporte: ${esporte}`
-    );
-
-    if (!confirmou) {
-        event.preventDefault();
-    }
-
-});
 
 
 btnCancelar.onclick = () => modalConfirmacao.style.display = "none";

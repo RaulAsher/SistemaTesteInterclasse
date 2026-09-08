@@ -5,15 +5,173 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerar Chaveamento - Jogos Internos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chaveamento.css') }}">
-</head>
+    
+    <style>
 
+        :root {
+        --cor-primaria: #122f4a;
+        --cor-secundaria: #9cc7ec;
+        --cor-fundo: #f5f7fb;
+        --border: #e5e7eb;
+
+        --radius: 0.5rem;
+        --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        --transition: 0.3s ease;
+        }
+
+        html{
+            overflow:hidden;
+        }
+        /* Estilos existentes */
+        main {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            min-width: 80vw;
+            overflow: hidden;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            width: 60%;
+            margin-bottom: 20px; /* Adiciona espaço abaixo do container de geração */
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid var(--cor-primaria);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box; 
+        }
+
+        /* Botão Gerar */
+        .btn-gerar {
+            background-color: var(--cor-primaria);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-gerar:hover {
+            background-color: #0b2237;
+        }
+        #status-message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* NOVOS ESTILOS PARA VISUALIZAÇÃO DE PARTIDAS */
+        #partidas-listagem {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #ccc;
+        }
+        .partida-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .partida-info {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+        .times-placar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .times-placar:last-child {
+            border-bottom: none;
+        }
+        .equipe-nome {
+            width: 60%;
+            text-align: left;
+        }
+        .equipe-placar {
+            width: 15%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .btn-vencedor {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            width: 25%;
+        }
+        .btn-vencedor:hover {
+            background-color: #1e7e34;
+        }
+        .partida-resolvida {
+            background-color: #e6ffed;
+            border-left: 5px solid #28a745;
+            opacity: 0.7;
+        }
+        .partida-resolvida .btn-vencedor {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
 <main>
-{% if session['nivel'] == 'Administrador' %}
+
+{%if session['nivel'] == 'Administrador'%}
 <div class="container">
     <h1>Gerar Chaveamento</h1>
-
+    
     <form id="chaveamento-form">
+        
         <div class="form-group">
             <label for="esporte">Esporte:</label>
             <select id="esporte" name="esporte" required>
@@ -34,174 +192,106 @@
             </select>
         </div>
 
-        <section id="equipes-preview" class="equipes-preview" hidden>
-            <div class="equipes-preview-header">
-                <div>
-                    <h2>Equipes que participarão</h2>
-                    <p id="equipes-preview-resumo">Selecione os filtros para visualizar as equipes.</p>
-                </div>
-                <span id="equipes-preview-total" class="equipes-count">0</span>
-            </div>
-            <div id="equipes-preview-lista" class="equipes-preview-lista"></div>
-        </section>
-
-        <div id="equipes-loading" class="equipes-loading" hidden>
-            Carregando equipes...
-        </div>
-
-        <div id="equipes-error" class="equipes-error" hidden></div>
-
-        <button type="submit" class="btn-gerar">
-            Gerar e Salvar Chaveamento
-        </button>
+        <button type="submit" class="btn-gerar">Gerar e Salvar Chaveamento</button>
     </form>
 
     <div id="status-message"></div>
 </div>
-{% endif %}
-</main>
+{%endif%}
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("chaveamento-form");
-    const esporteSelect = document.getElementById("esporte");
-    const classificacaoSelect = document.getElementById("classificacao");
-    const preview = document.getElementById("equipes-preview");
-    const lista = document.getElementById("equipes-preview-lista");
-    const resumo = document.getElementById("equipes-preview-resumo");
-    const total = document.getElementById("equipes-preview-total");
-    const loading = document.getElementById("equipes-loading");
-    const errorBox = document.getElementById("equipes-error");
-    const statusDiv = document.getElementById("status-message");
+    // --- LÓGICA DE GERAÇÃO ---
 
-    if (!form) return;
+    document.getElementById('chaveamento-form').addEventListener('submit', function(event) {
 
-    function limparPreview() {
-        preview.hidden = true;
-        loading.hidden = true;
-        errorBox.hidden = true;
-        lista.innerHTML = "";
-        total.textContent = "0";
-        resumo.textContent = "Selecione os filtros para visualizar as equipes.";
-    }
-
-    function carregarEquipes() {
-        const esporte = esporteSelect.value;
-        const classificacao = classificacaoSelect.value;
-
-        limparPreview();
-
-        if (!esporte || !classificacao) return;
-
-        loading.hidden = false;
-
-        fetch(
-            `/chaveamento/equipes?esporte=${encodeURIComponent(esporte)}&classificacao=${encodeURIComponent(classificacao)}`
-        )
-        .then(response => response.json().then(data => ({ ok: response.ok, data })))
-        .then(({ ok, data }) => {
-            loading.hidden = true;
-
-            if (!ok || data.status !== "sucesso") {
-                throw new Error(data.mensagem || "Não foi possível carregar as equipes.");
-            }
-
-            const equipes = data.equipes || [];
-            preview.hidden = false;
-            total.textContent = equipes.length;
-            resumo.textContent = equipes.length
-                ? `${equipes.length} equipe(s) encontrada(s) para os filtros selecionados.`
-                : "Nenhuma equipe cadastrada para os filtros selecionados.";
-
-            if (!equipes.length) {
-                lista.innerHTML = `<div class="equipe-vazia">Nenhuma equipe encontrada.</div>`;
-                return;
-            }
-
-            equipes.forEach((equipe, index) => {
-                const card = document.createElement("article");
-                card.className = "equipe-preview-card";
-                card.innerHTML = `
-                    <div class="equipe-preview-numero">${index + 1}</div>
-                    <div class="equipe-preview-info">
-                        <strong>${equipe.nome_equipe || `Equipe ${equipe.pk_equipe}`}</strong>
-                        <span>Turma: ${equipe.turma || "-"}</span>
-                    </div>
-                `;
-                lista.appendChild(card);
-            });
-        })
-        .catch(error => {
-            loading.hidden = true;
-            errorBox.hidden = false;
-            errorBox.textContent = error.message;
-        });
-    }
-
-    esporteSelect.addEventListener("change", carregarEquipes);
-    classificacaoSelect.addEventListener("change", carregarEquipes);
-
-    form.addEventListener("submit", function (event) {
         event.preventDefault();
 
-        const esporte = esporteSelect.value;
-        const classificacao = classificacaoSelect.value;
+        const esporte = document.getElementById('esporte').value;
+        const classificacao = document.getElementById('classificacao').value;
+        const statusDiv = document.getElementById('status-message');
 
-        if (!esporte || !classificacao) {
-            statusDiv.style.display = "block";
-            statusDiv.className = "error";
-            statusDiv.textContent = "Selecione o esporte e a classificação.";
-            return;
-        }
+        statusDiv.style.display = 'block';
+        statusDiv.className = '';
+        statusDiv.textContent = 'Gerando chaveamento...';
 
-        const confirmou = window.confirm(
-            `Deseja realmente gerar o chaveamento de ${esporte} (${classificacao})?\n\n` +
-            "As partidas serão geradas e salvas no sistema."
-        );
+        const endpoint = '/chaveamento/gerar';
 
-        if (!confirmou) return;
-
-        statusDiv.style.display = "block";
-        statusDiv.className = "";
-        statusDiv.textContent = "Gerando chaveamento...";
-
-        fetch("/chaveamento/gerar", {
-            method: "POST",
+        fetch(endpoint, {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                esporte,
-                classificacao
+                esporte: esporte,
+                classificacao: classificacao
             })
         })
-        .then(response => response.json().then(data => ({ ok: response.ok, data })))
-        .then(({ ok, data }) => {
-            if (!ok) {
-                throw new Error(data.mensagem || `Erro do servidor: Status desconhecido`);
+
+        .then(response => {
+
+            if (!response.ok) {
+
+                return response.json().then(errorData => {
+
+                    throw new Error(
+                        errorData.mensagem ||
+                        `Erro do servidor: Status ${response.status}`
+                    );
+
+                });
             }
 
-            if (data.status === "redirecionar") {
+            return response.json();
+        })
+
+        .then(data => {
+
+            // ==========================================
+            // ATLETISMO
+            // ==========================================
+
+            if (data.status === 'redirecionar') {
+
                 window.location.href = data.url;
+
                 return;
             }
 
-            if (data.status === "sucesso") {
-                statusDiv.className = "success";
+
+            // ==========================================
+            // OUTROS ESPORTES
+            // ==========================================
+
+            if (data.status === 'sucesso') {
+
+                statusDiv.className = 'success';
+
                 statusDiv.textContent =
-                    `${data.mensagem} Total de partidas da 1ª rodada salvas: ${data.total_partidas}.`;
+                    `${data.mensagem} | Total de partidas da 1ª rodada salvas: ${data.total_partidas}`;
+
             } else {
-                statusDiv.className = "error";
-                statusDiv.textContent = data.mensagem || "Falha ao gerar o chaveamento.";
+
+                statusDiv.className = 'error';
+
+                statusDiv.textContent =
+                    data.mensagem ||
+                    'Falha ao gerar o chaveamento.';
             }
         })
+
         .catch(error => {
-            console.error("Erro na requisição:", error);
-            statusDiv.className = "error";
-            statusDiv.textContent = `Falha ao gerar o chaveamento: ${error.message}`;
+
+            console.error('Erro na requisição:', error);
+
+            statusDiv.className = 'error';
+
+            statusDiv.textContent =
+                `Falha Crítica: ${error.message}`;
         });
+
     });
-});
 </script>
+
+</main>
 
 {% include 'footer.html' %}

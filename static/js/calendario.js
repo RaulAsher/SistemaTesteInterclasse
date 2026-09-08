@@ -4,11 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!calendarEl) return;
 
-    // Permissão enviada pelo Flask através do atributo
-    // data-pode-editar do elemento #calendar.
-    const usuarioPodeEditar =
-        calendarEl.dataset.podeEditar === 'true';
-
 
     // =====================================================
     // FILTROS
@@ -59,13 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             eventOrder: 'start,title',
 
-            // No modo Dia, o calendário será ajustado automaticamente
-            // para começar no horário da primeira partida e terminar
-            // pouco depois da última.
-
-            slotMinTime: '08:00:00',
-            slotMaxTime: '18:00:00',
-            scrollTime: '08:00:00',
 
             // Eventos
             events: carregarEventos,
@@ -78,12 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Clique no dia
             dateClick: info => {
                 abrirPopupDia(info.dateStr);
-            },
-
-            // Ajusta automaticamente o início/fim da visualização
-            // no modo Dia conforme os jogos existentes.
-            eventsSet: eventos => {
-                ajustarHorarioDoDia(eventos);
             }
 
         }
@@ -92,129 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     calendar.render();
 
-
-
-    // =====================================================
-    // AJUSTAR HORÁRIO DO MODO DIA
-    // =====================================================
-
-    function ajustarHorarioDoDia(eventos) {
-
-        if (!calendar) return;
-
-        const view = calendar.view;
-
-        if (!view || view.type !== 'timeGridDay') {
-            return;
-        }
-
-        const dataAtual = view.currentStart;
-
-        const eventosDoDia = eventos.filter(evento => {
-
-            if (!evento.start) return false;
-
-            return (
-                evento.start.getFullYear() === dataAtual.getFullYear() &&
-                evento.start.getMonth() === dataAtual.getMonth() &&
-                evento.start.getDate() === dataAtual.getDate()
-            );
-
-        });
-
-        // Caso não existam jogos no dia, mantém um horário padrão.
-        if (!eventosDoDia.length) {
-
-            calendar.setOption('slotMinTime', '08:00:00');
-            calendar.setOption('slotMaxTime', '18:00:00');
-            calendar.setOption('scrollTime', '08:00:00');
-
-            return;
-        }
-
-        let primeiraPartida = null;
-        let ultimaPartida = null;
-
-        eventosDoDia.forEach(evento => {
-
-            if (!evento.start) return;
-
-            if (
-                primeiraPartida === null ||
-                evento.start < primeiraPartida
-            ) {
-                primeiraPartida = evento.start;
-            }
-
-            const fim =
-                evento.end ||
-                new Date(
-                    evento.start.getTime() + 60 * 60 * 1000
-                );
-
-            if (
-                ultimaPartida === null ||
-                fim > ultimaPartida
-            ) {
-                ultimaPartida = fim;
-            }
-
-        });
-
-        if (!primeiraPartida) return;
-
-        /*
-         * Começa na hora cheia da primeira partida.
-         * Ex.: jogo às 10:30 -> começa às 10:00.
-         */
-        const inicioHora =
-            primeiraPartida.getHours();
-
-        const inicio = `${String(inicioHora).padStart(2, '0')}:00:00`;
-
-        /*
-         * Termina uma hora depois do fim do último jogo,
-         * deixando espaço visual para a partida.
-         */
-        const fimComMargem =
-            new Date(
-                ultimaPartida.getTime() +
-                60 * 60 * 1000
-            );
-
-        let horaFim =
-            fimComMargem.getHours();
-
-        const minutosFim =
-            fimComMargem.getMinutes();
-
-        if (minutosFim > 0) {
-            horaFim += 1;
-        }
-
-        horaFim = Math.min(
-            Math.max(horaFim, inicioHora + 1),
-            23
-        );
-
-        const fim =
-            `${String(horaFim).padStart(2, '0')}:00:00`;
-
-        calendar.setOption(
-            'slotMinTime',
-            inicio
-        );
-
-        calendar.setOption(
-            'slotMaxTime',
-            fim
-        );
-
-        calendar.setOption(
-            'scrollTime',
-            inicio
-        );
-    }
 
     // =====================================================
     // ELEMENTOS DO FILTRO
@@ -262,11 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const resposta =
                 await fetch(
-                    `/calendario/eventos?_=${Date.now()}`,
-                    {
-                        method: 'GET',
-                        cache: 'no-store'
-                    }
+                    '/calendario/eventos'
                 );
 
 
@@ -503,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         const botoes =
-            usuarioPodeEditar
+            window.usuarioPodeEditar
 
                 ? `
 
@@ -1262,7 +1117,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Atualiza o calendário
                     await calendar.refetchEvents();
-                    calendar.updateSize();
 
 
                     // Mostra novamente os jogos daquele dia
