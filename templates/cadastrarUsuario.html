@@ -108,7 +108,7 @@
                     id="fk_esporte"
                     onchange="filtrarEstatisticas('cadastro')">
 
-                    <option value="">Selecione</option>
+                    <option value="">Nenhum</option>
 
                     {% for esporte in esportes %}
                     <option value="{{ esporte['pk_esporte'] }}">
@@ -123,7 +123,7 @@
                 <label for="fk_estatistica">Estatística:</label>
 
                 <select name="fk_estatistica" id="fk_estatistica">
-                    <option value="">Selecione</option>
+                    <option value="">Nenhuma</option>
 
                     {% for estatistica in estatisticas %}
                     <option
