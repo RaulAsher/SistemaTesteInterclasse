@@ -646,7 +646,7 @@ def paginaCadastrarUsuario():
     return render_template("cadastrarUsuario.html", 
     usuarios=usuarios, 
     turmas=turmas, 
-    esportes=esportes, 
+    esportes=esportes,
     estatisticas=estatisticas,
     )
 
