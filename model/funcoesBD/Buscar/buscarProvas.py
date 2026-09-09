@@ -1,27 +1,36 @@
-from ..Cadastrar.criarConexao import criarConexao, database
+from ..Cadastrar.criarConexao import criarConexao
+
 
 def buscarProvas():
-
+    """Retorna todas as provas, inclusive as finalizadas, com total de inscritos."""
     conexao = criarConexao()
-    cursor = conexao.cursor()
-    query = """
-            SELECT 
-                p.pk_prova,           -- [0]
-                p.fk_modalidade,      -- [1]
-                p.fk_genero,          -- [2]
-                p.nome_prova,         -- [3]
-                p.tipo_resultado,     -- [4]
-                p.unidade_medida,     -- [5]
-                p.status,              -- [6]
-                COUNT(i.fk_matricula) AS total_participantes, -- [7]
-                COALESCE(p.status, 'nao_iniciada') AS status   -- [8] Coluna de status
-            FROM provas_atletismo p
-            LEFT JOIN inscricoes_provas_atletismo i ON p.pk_prova = i.fk_prova
-            WHERE p.status = 'em_andamento' or p.status = 'nao_iniciada'
-            GROUP BY p.pk_prova;
-        """
-    cursor.execute(query)
-    provas = cursor.fetchall()
-    cursor.close()
-    conexao.close()
-    return provas
+    try:
+        with conexao.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    p.pk_prova,
+                    p.fk_modalidade,
+                    p.fk_genero,
+                    p.nome_prova,
+                    p.tipo_resultado,
+                    p.unidade_medida,
+                    COALESCE(p.status, 'nao_iniciada') AS status,
+                    COUNT(DISTINCT i.fk_matricula) AS total_participantes
+                FROM provas_atletismo p
+                LEFT JOIN inscricoes_provas_atletismo i
+                    ON i.fk_prova = p.pk_prova
+                GROUP BY
+                    p.pk_prova,
+                    p.fk_modalidade,
+                    p.fk_genero,
+                    p.nome_prova,
+                    p.tipo_resultado,
+                    p.unidade_medida,
+                    p.status
+                ORDER BY p.data_prova IS NULL, p.data_prova, p.nome_prova
+                """
+            )
+            return cursor.fetchall()
+    finally:
+        conexao.close()

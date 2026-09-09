@@ -1,1276 +1,193 @@
+
+
 {% include 'head.html' %}
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/atletismo.css') }}">
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Provas do Atletismo</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    >
-
-
-{% with mensagens = get_flashed_messages(with_categories=true) %}
-    {% if mensagens %}
-        <div class="toast-container">
-            {% for categoria, mensagem in mensagens %}
-                <div class="toast {{ categoria }}">
-                    {{ mensagem }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
-
-
-</head>
-
-<body>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/atletismo-ranking.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <main class="provas-atletismo-page">
-
-    <!-- =====================================================
-         CABEÇALHO
-         ===================================================== -->
-
     <header class="provas-atletismo-header">
-
         <div class="provas-atletismo-header-texto">
-
-            <h1>
-                Provas do Atletismo
-            </h1>
-
-            <p>
-                Acompanhe as provas, participantes e resultados.
-            </p>
-
+            <h1>Provas do Atletismo</h1>
+            <p>Gerencie as provas, inscrições, resultados e classificações.</p>
         </div>
-
-        <a
-            href="#"
-            class="btn-nova-prova"
-            id="btnAbrirModalProva"
-        >
-            <i class="fa-solid fa-plus"></i>
-            Nova prova
-        </a>
-
+        <div class="provas-atletismo-header-acoes">
+            <a href="{{ url_for('atletasAtletismo') }}" class="btn-ranking">
+                <i class="fa-solid fa-ranking-star"></i>
+                Atletas e ranking
+            </a>
+            {% if session.get('nivel') in ['Administrador', 'AlunoMonitor'] %}
+            <button type="button" class="btn-nova-prova" id="btnAbrirModalProva">
+                <i class="fa-solid fa-plus"></i>
+                Nova prova
+            </button>
+            {% endif %}
+        </div>
     </header>
 
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+        <div class="toast-container" aria-live="polite">
+            {% for categoria, mensagem in mensagens %}
+            <div class="toast {{ categoria }}">{{ mensagem }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
 
-    <!-- =====================================================
-         FILTROS
-         ===================================================== -->
-
-    <section class="provas-filtros">
-
+    <section class="provas-filtros" aria-label="Filtros de provas">
         <div class="provas-pesquisa">
-
-            <i class="fa-solid fa-magnifying-glass"></i>
-
-            <input
-                type="text"
-                id="buscarProva"
-                placeholder="Buscar prova..."
-            >
-
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <label class="sr-only" for="buscarProva">Pesquisar provas</label>
+            <input type="search" id="buscarProva" placeholder="Nome, gênero, tipo ou unidade..." autocomplete="off">
         </div>
-
-        <select id="filtroGenero">
-
-            <option value="">
-                Todos os gêneros
-            </option>
-
-            <option value="Masculino">
-                Masculino
-            </option>
-
-            <option value="Feminino">
-                Feminino
-            </option>
-
+        <select id="filtroGenero" aria-label="Filtrar por gênero">
+            <option value="">Todos os gêneros</option>
+            {% for genero in filtros_provas.generos %}<option value="{{ genero }}">{{ genero }}</option>{% endfor %}
         </select>
-
-        <select id="filtroStatus">
-
-            <option value="">
-                Todos os status
-            </option>
-
-            <option value="nao_iniciada">
-                Não iniciada
-            </option>
-
-            <option value="em_andamento">
-                Em andamento
-            </option>
-
-            <option value="finalizada">
-                Finalizada
-            </option>
-
+        <select id="filtroTipo" aria-label="Filtrar por tipo de resultado">
+            <option value="">Todos os tipos</option>
+            {% for tipo in filtros_provas.tipos %}<option value="{{ tipo }}">{{ tipo|capitalize }}</option>{% endfor %}
         </select>
-
+        <select id="filtroUnidade" aria-label="Filtrar por unidade de medida">
+            <option value="">Todas as unidades</option>
+            {% for unidade in filtros_provas.unidades %}<option value="{{ unidade }}">{{ unidade }}</option>{% endfor %}
+        </select>
+        <select id="filtroStatus" aria-label="Filtrar por status">
+            <option value="">Todos os status</option>
+            <option value="nao_iniciada">Não iniciada</option>
+            <option value="em_andamento">Em andamento</option>
+            <option value="finalizada">Finalizada</option>
+        </select>
+        <button type="button" id="limparFiltros" class="btn-limpar-filtros">Limpar</button>
     </section>
 
-
-    <!-- =====================================================
-         RESUMO
-         ===================================================== -->
-
-    <section class="provas-resumo">
-
-        <div class="provas-resumo-card">
-
-            <span>
-                Total de provas
-            </span>
-
-            <strong>
-                {{ provas|length }}
-            </strong>
-
-        </div>
-
-
-        <div class="provas-resumo-card">
-
-            <span>
-                Em andamento
-            </span>
-
-            <strong>
-                {{ provas | selectattr(8, 'equalto', 'em_andamento') | list | length }}
-            </strong>
-
-        </div>
-
-
-        <div class="provas-resumo-card">
-
-            <span>
-                Finalizadas
-            </span>
-
-            <strong>
-                {{ provas | selectattr(8, 'equalto', 'finalizada') | list | length }}
-            </strong>
-
-        </div>
-
-
-        <div class="provas-resumo-card">
-
-            <span>
-                Participantes
-            </span>
-
-            <strong>
-
-                {% if provas %}
-
-                    {{ provas | map(attribute=7) | sum }}
-
-                {% else %}
-
-                    0
-
-                {% endif %}
-
-            </strong>
-
-        </div>
-
+    <section class="provas-resumo" aria-label="Resumo das provas">
+        <div class="provas-resumo-card"><span>Exibidas</span><strong id="resumoTotal">{{ provas|length }}</strong></div>
+        <div class="provas-resumo-card"><span>Em andamento</span><strong id="resumoAndamento">{{ provas | selectattr(6, 'equalto', 'em_andamento') | list | length }}</strong></div>
+        <div class="provas-resumo-card"><span>Finalizadas</span><strong id="resumoFinalizadas">{{ provas | selectattr(6, 'equalto', 'finalizada') | list | length }}</strong></div>
+        <div class="provas-resumo-card"><span>Participantes</span><strong id="resumoParticipantes">{{ provas | map(attribute=7) | sum if provas else 0 }}</strong></div>
     </section>
-
-
-    <!-- =====================================================
-         LISTA DE PROVAS
-         ===================================================== -->
 
     <section class="provas-atletismo-section">
-
         {% if provas %}
-
-            <div class="provas-lista">
-
-                {% for prova in provas %}
-
-                    <div
-                        class="prova-atletismo-card"
-                        data-genero="{{ prova[2] }}"
-                        data-status="{{ prova[8] or 'nao_iniciada' }}"
-                    >
-
-                        <!-- =================================
-                             PARTE PRINCIPAL
-                             ================================= -->
-
-                        <div class="prova-atletismo-principal">
-
-                            <div class="prova-atletismo-icone">
-
-                                <i class="fa-solid fa-person-running"></i>
-
-                            </div>
-
-
-                            <div class="prova-atletismo-info">
-
-                                <h2>
-                                    {{ prova[3] }}
-                                </h2>
-
-
-                                <div class="prova-atletismo-meta">
-
-                                    <span>
-
-                                        <i class="fa-solid fa-venus-mars"></i>
-
-                                        {{ prova[2] }}
-
-                                    </span>
-
-
-                                    <span>
-
-                                        <i class="fa-solid fa-stopwatch"></i>
-
-                                        {{ prova[4] }}
-
-                                    </span>
-
-
-                                    <span>
-
-                                        <i class="fa-solid fa-ruler"></i>
-
-                                        {{ prova[5] }}
-
-                                    </span>
-
-                                </div>
-
-                            </div>
-
+        <div class="provas-lista" id="listaProvas">
+            {% for prova in provas %}
+            <article class="prova-atletismo-card"
+                data-nome="{{ prova[3] }}"
+                data-genero="{{ prova[2] }}"
+                data-tipo="{{ prova[4] }}"
+                data-unidade="{{ prova[5] }}"
+                data-status="{{ prova[6] }}"
+                data-participantes="{{ prova[7] }}">
+                <div class="prova-atletismo-principal">
+                    <div class="prova-atletismo-icone"><i class="fa-solid fa-person-running" aria-hidden="true"></i></div>
+                    <div class="prova-atletismo-info">
+                        <h2>{{ prova[3] }}</h2>
+                        <div class="prova-atletismo-meta">
+                            <span><i class="fa-solid fa-venus-mars"></i>{{ prova[2] }}</span>
+                            <span><i class="fa-solid fa-chart-simple"></i>{{ prova[4]|capitalize }}</span>
+                            <span><i class="fa-solid fa-ruler"></i>{{ prova[5] }}</span>
                         </div>
-
-
-                        <!-- =================================
-                             PARTE DIREITA
-                             ================================= -->
-
-                        <div class="prova-atletismo-direita">
-
-
-                            <!-- STATUS -->
-
-                            {% if prova[8] == 'em_andamento' %}
-
-                                <span
-                                    class="prova-status andamento"
-                                    style="color: #d9534f; font-weight: bold;"
-                                >
-                                    <i class="fa-solid fa-spinner fa-spin"></i>
-                                    Em andamento
-                                </span>
-
-
-                            {% elif prova[8] == 'finalizada' %}
-
-                                <span
-                                    class="prova-status finalizada"
-                                >
-                                    <i class="fa-solid fa-check"></i>
-                                    Finalizada
-                                </span>
-
-
-                            {% else %}
-
-                                <span
-                                    class="prova-status nao-iniciada"
-                                >
-                                    Não iniciada
-                                </span>
-
+                    </div>
+                </div>
+                <div class="prova-atletismo-direita">
+                    <span class="prova-status {{ prova[6].replace('_', '-') }}">
+                        {% if prova[6] == 'em_andamento' %}Em andamento{% elif prova[6] == 'finalizada' %}Finalizada{% else %}Não iniciada{% endif %}
+                    </span>
+                    <div class="prova-participantes"><strong>{{ prova[7] }}</strong><span>participantes</span></div>
+                    <div class="prova-acoes">
+                        <a href="{{ url_for('atletasAtletismo', prova=prova[0]) }}" class="btn-acessar-prova">Ver atletas</a>
+                        {% if session.get('nivel') in ['Administrador', 'AlunoMonitor'] %}
+                            {% if prova[6] == 'nao_iniciada' %}
+                            <form action="{{ url_for('alterarStatusProva') }}" method="POST"><input type="hidden" name="fk_prova" value="{{ prova[0] }}"><input type="hidden" name="status" value="em_andamento"><button type="submit" class="btn-iniciar-prova">Iniciar</button></form>
+                            {% elif prova[6] == 'em_andamento' %}
+                            <form action="{{ url_for('alterarStatusProva') }}" method="POST"><input type="hidden" name="fk_prova" value="{{ prova[0] }}"><input type="hidden" name="status" value="finalizada"><button type="submit" class="btn-finalizar-prova">Encerrar</button></form>
                             {% endif %}
-
-
-                            <!-- PARTICIPANTES -->
-
-                            <div class="prova-participantes">
-
-                                <strong>
-                                    {{ prova[7] }}
-                                </strong>
-
-                                <span>
-                                    participantes
-                                </span>
-
-                            </div>
-
-
-                            <!-- =================================
-                                 AÇÕES
-                                 ================================= -->
-
-                            <div
-                                class="prova-acoes"
-                                style="
-                                    display: flex;
-                                    gap: 8px;
-                                    align-items: center;
-                                    flex-wrap: wrap;
-                                "
-                            >
-
-                                <!-- ==========================
-                                     INICIAR PROVA
-                                     ========================== -->
-
-                                {% if prova[8] == 'nao_iniciada' or not prova[8] %}
-
-                                    <form
-                                        action="{{ url_for('alterarStatusProva') }}"
-                                        method="POST"
-                                        style="margin: 0;"
-                                    >
-
-                                        <input
-                                            type="hidden"
-                                            name="fk_prova"
-                                            value="{{ prova[0] }}"
-                                        >
-
-                                        <input
-                                            type="hidden"
-                                            name="status"
-                                            value="em_andamento"
-                                        >
-
-                                        <button
-                                            type="submit"
-                                            class="btn-iniciar-prova"
-                                            style="
-                                                background-color: #28a745;
-                                                color: white;
-                                                border: none;
-                                                padding: 6px 12px;
-                                                border-radius: 4px;
-                                                cursor: pointer;
-                                            "
-                                        >
-
-                                            <i class="fa-solid fa-play"></i>
-
-                                            Iniciar
-
-                                        </button>
-
-                                    </form>
-
-
-                                <!-- ==========================
-                                     ENCERRAR PROVA
-                                     ========================== -->
-
-                                {% elif prova[8] == 'em_andamento' %}
-
-                                    <form
-                                        action="{{ url_for('alterarStatusProva') }}"
-                                        method="POST"
-                                        style="margin: 0;"
-                                    >
-
-                                        <input
-                                            type="hidden"
-                                            name="fk_prova"
-                                            value="{{ prova[0] }}"
-                                        >
-
-                                        <input
-                                            type="hidden"
-                                            name="status"
-                                            value="finalizada"
-                                        >
-
-                                        <button
-                                            type="submit"
-                                            class="btn-finalizar-prova"
-                                            style="
-                                                background-color: #dc3545;
-                                                color: white;
-                                                border: none;
-                                                padding: 6px 12px;
-                                                border-radius: 4px;
-                                                cursor: pointer;
-                                            "
-                                        >
-
-                                            <i class="fa-solid fa-stop"></i>
-
-                                            Encerrar
-
-                                        </button>
-
-                                    </form>
-
-                                {% endif %}
-
-
-                                <!-- ==========================
-                                     INSCRIBIR ATLETA
-                                     ========================== -->
-
-                                <button
-                                    type="button"
-                                    class="btn-cadastrar-atleta"
-                                    onclick="abrirModalInscricao(
-                                        '{{ prova[0] }}',
-                                        '{{ prova[3] }}'
-                                    )"
-                                >
-
-                                    <i class="fa-solid fa-user-plus"></i>
-
-                                    Inscrever
-
-                                </button>
-
-                                
-
-
-
-                                <!-- ==========================
-                                     EXCLUIR PROVA
-                                     ========================== -->
-
-                                <form
-                                    action="{{ url_for('deletarProvaAtletismoRota') }}"
-                                    method="POST"
-                                    style="margin: 0;"
-                                    onsubmit="return confirm(
-                                        'Tem certeza que deseja excluir permanentemente a prova {{ prova[3] }}? Esta ação não pode ser desfeita.'
-                                    );"
-                                >
-
-                                    <input
-                                        type="hidden"
-                                        name="pk_prova"
-                                        value="{{ prova[0] }}"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="btn-excluir-prova"
-                                        style="
-                                            background-color: #dc3545;
-                                            color: white;
-                                            border: none;
-                                            padding: 6px 12px;
-                                            border-radius: 4px;
-                                            cursor: pointer;
-                                        "
-                                        title="Excluir permanentemente"
-                                    >
-
-                                        <i class="fa-solid fa-trash"></i>
-
-                                        Excluir
-
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </div>
-
+                            <button type="button" class="btn-cadastrar-atleta" data-prova-id="{{ prova[0] }}" data-prova-nome="{{ prova[3] }}"><i class="fa-solid fa-user-plus"></i> Inscrever</button>
+                        {% endif %}
+                        {% if session.get('nivel') == 'Administrador' %}
+                        <form action="{{ url_for('deletarProvaAtletismoRota') }}" method="POST" onsubmit="return confirm('Excluir a prova {{ prova[3] }} e todos os seus dados?');"><input type="hidden" name="pk_prova" value="{{ prova[0] }}"><button type="submit" class="btn-excluir-prova">Excluir</button></form>
+                        {% endif %}
                     </div>
-
-                {% endfor %}
-
-            </div>
-
-
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <p id="provasSemResultado" class="provas-vazio" hidden>Nenhuma prova encontrada com esses filtros.</p>
         {% else %}
-
-            <div class="provas-vazio">
-
-                <i class="fa-solid fa-person-running"></i>
-
-                <h2>
-                    Nenhuma prova cadastrada
-                </h2>
-
-                <p>
-                    Cadastre uma prova para começar a organizar o atletismo.
-                </p>
-
-            </div>
-
+        <div class="provas-vazio"><i class="fa-solid fa-person-running"></i><h2>Nenhuma prova cadastrada</h2><p>Cadastre uma prova para começar a organizar o atletismo.</p></div>
         {% endif %}
-
     </section>
-
-
-    <!-- =====================================================
-         DESTAQUES
-         ===================================================== -->
-
-    <section class="atletismo-destaques">
-
-
-        <!-- =================================================
-             PROVAS EM ANDAMENTO
-             ================================================= -->
-
-        <div class="atletismo-destaque-bloco">
-
-            <div class="atletismo-destaque-header">
-
-                <div>
-
-                    <span class="destaque-indicador ao-vivo"></span>
-
-                    <h2>
-                        Provas em andamento
-                    </h2>
-
-                </div>
-
-
-                {% set provas_em_andamento = provas
-                    | selectattr(8, 'equalto', 'em_andamento')
-                    | list
-                    if provas else [] %}
-
-
-                <span class="destaque-contador">
-
-                    {{ provas_em_andamento|length }}
-
-                    {% if provas_em_andamento|length == 1 %}
-                        prova
-                    {% else %}
-                        provas
-                    {% endif %}
-
-                </span>
-
-            </div>
-
-
-            <div class="atletismo-destaque-lista">
-
-                {% if provas_em_andamento %}
-
-                    {% for prova in provas_em_andamento %}
-
-                        <div class="atletismo-destaque-card andamento">
-
-
-                            <div class="destaque-prova-info">
-
-
-                                <div class="destaque-icone">
-
-                                    <i class="fa-solid fa-person-running"></i>
-
-                                </div>
-
-
-                                <div>
-
-                                    <h3>
-                                        {{ prova[3] }}
-                                    </h3>
-
-
-                                    <div class="destaque-meta">
-
-                                        <span>
-
-                                            <i class="fa-solid fa-venus-mars"></i>
-
-                                            {{ prova[2] }}
-
-                                        </span>
-
-
-                                        <span>
-
-                                            <i class="fa-solid fa-users"></i>
-
-                                            {{ prova[7] }}
-                                            participantes
-
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="destaque-prova-acoes">
-
-                                <span class="badge-ao-vivo">
-
-                                    <span></span>
-
-                                    AO VIVO
-
-                                </span>
-
-
-                                <form
-                                    action="{{ url_for('alterarStatusProva') }}"
-                                    method="POST"
-                                    style="margin: 0;"
-                                >
-
-                                    <input
-                                        type="hidden"
-                                        name="fk_prova"
-                                        value="{{ prova[0] }}"
-                                    >
-
-                                    <input
-                                        type="hidden"
-                                        name="status"
-                                        value="finalizada"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="btn-destaque-prova"
-                                    >
-
-                                        Encerrar
-
-                                        <i class="fa-solid fa-stop"></i>
-
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </div>
-
-                    {% endfor %}
-
-
-                {% else %}
-
-                    <div class="proximas-provas-vazio">
-
-                        <p class="sem-provas">
-                            Nenhuma prova acontecendo no momento.
-                        </p>
-
-                    </div>
-
-                {% endif %}
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             PRÓXIMAS PROVAS
-             ================================================= -->
-
-        <div class="atletismo-destaque-bloco">
-
-
-            <div class="atletismo-destaque-header">
-
-                <div>
-
-                    <i class="fa-regular fa-clock destaque-relogio"></i>
-
-                    <h2>
-                        Próximas provas
-                    </h2>
-
-                </div>
-
-
-                <span class="destaque-contador">
-                    Hoje
-                </span>
-
-            </div>
-
-
-            <div class="proximas-provas-lista">
-
-
-                {% if provasProximas %}
-
-
-                    {% for prova in provasProximas %}
-
-                        <div class="proxima-prova-card">
-
-
-                            <!-- HORÁRIO -->
-
-                            <div class="proxima-prova-horario">
-
-                                <strong>
-                                    {{ prova.data_prova.strftime('%H:%M') }}
-                                </strong>
-
-                                <span>
-                                    Hoje
-                                </span>
-
-                            </div>
-
-
-                            <!-- LINHA -->
-
-                            <div class="proxima-prova-linha"></div>
-
-
-                            <!-- INFORMAÇÕES -->
-
-                            <div class="proxima-prova-info">
-
-                                <h3>
-                                    {{ prova.nome_prova }}
-                                </h3>
-
-
-                                <div>
-
-                                    <span>
-                                        {{ prova.pk_genero }}
-                                    </span>
-
-                                    <span>
-                                        {{ prova.nome_modalidade }}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- BOTÃO -->
-
-                            <a
-                                href="#"
-                                class="btn-proxima-prova"
-                            >
-
-                                Ver prova
-
-                                <i class="fa-solid fa-chevron-right"></i>
-
-                            </a>
-
-                        </div>
-
-                    {% endfor %}
-
-
-                {% else %}
-
-                    <div class="proximas-provas-vazio">
-
-                        <p>
-                            Nenhuma prova está prevista para as próximas 2 horas.
-                        </p>
-
-                    </div>
-
-                {% endif %}
-
-            </div>
-
-        </div>
-
-    </section>
-
 </main>
 
-
-<!-- =====================================================
-     MODAL - CADASTRAR NOVA PROVA
-     ===================================================== -->
-
-<div
-    id="modalNovaProva"
-    class="modal"
->
-
-    <div class="modal-content">
-
-        <span
-            class="close"
-            id="btnFecharModalProva"
-        >
-            &times;
-        </span>
-
-
-        <h2>
-            Cadastrar Nova Prova
-        </h2>
-
-
-        <form
-            action="{{ url_for('tabelaAtletismoProvas') }}"
-            method="POST"
-            id="formNovaProva"
-        >
-
-
-            <!-- MODALIDADE -->
-
-            <div class="form-group">
-
-                <label for="fk_modalidade">
-                    Modalidade:
-                </label>
-
-
-                <select
-                    name="fk_modalidade"
-                    id="fk_modalidade"
-                    required
-                >
-
-                    <option value="">
-                        Selecione
-                    </option>
-
-
-                    {% for modalidade in modalidades %}
-
-                        <option
-                            value="{{ modalidade.pk_modalidade }}"
-                        >
-                            {{ modalidade.nome_modalidade }}
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
-            </div>
-
-
-            <!-- GÊNERO -->
-
-            <div class="form-group">
-
-                <label for="fk_genero">
-                    Gênero:
-                </label>
-
-
-                <select
-                    name="fk_genero"
-                    id="fk_genero"
-                    required
-                >
-
-                    <option value="">
-                        Selecione
-                    </option>
-
-
-                    {% for genero in generos %}
-
-                        {% if genero.pk_genero != 'Misto' %}
-
-                            <option
-                                value="{{ genero.pk_genero }}"
-                            >
-                                {{ genero.pk_genero }}
-                            </option>
-
-                        {% endif %}
-
-                    {% endfor %}
-
-                </select>
-
-            </div>
-
-
-            <!-- NOME -->
-
-            <div class="form-group">
-
-                <label for="nome_prova">
-                    Nome da prova:
-                </label>
-
-
-                <input
-                    type="text"
-                    name="nome_prova"
-                    id="nome_prova"
-                    placeholder="Ex.: 100 metros rasos"
-                    required
-                >
-
-            </div>
-
-
-            <!-- TIPO DE RESULTADO -->
-
-            <div class="form-group">
-
-                <label for="tipo_resultado">
-                    Tipo de resultado:
-                </label>
-
-
-                <select
-                    name="tipo_resultado"
-                    id="tipo_resultado"
-                    required
-                >
-
-                    <option value="">
-                        Selecione
-                    </option>
-
-                    <option value="tempo">
-                        Tempo
-                    </option>
-
-                    <option value="distancia">
-                        Distância
-                    </option>
-
-                    <option value="altura">
-                        Altura
-                    </option>
-
-                    <option value="pontos">
-                        Pontos
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- UNIDADE -->
-
-            <div class="form-group">
-
-                <label for="unidade_medida">
-                    Unidade de medida:
-                </label>
-
-
-                <input
-                    type="text"
-                    name="unidade_medida"
-                    id="unidade_medida"
-                    placeholder="Ex.: segundos, metros, pontos"
-                    required
-                >
-
-            </div>
-
-
-            <!-- DATA E HORÁRIO -->
-
-            <div class="form-group">
-
-                <label for="data_prova">
-                    Data e horário:
-                </label>
-
-
-                <input
-                    type="datetime-local"
-                    name="data_prova"
-                    id="data_prova"
-                >
-
-            </div>
-
-
-            <!-- BOTÃO -->
-
-            <div class="form-actions">
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Cadastrar
-                </button>
-
-            </div>
-
+{% if session.get('nivel') in ['Administrador', 'AlunoMonitor'] %}
+<div id="modalNovaProva" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="tituloModalProva">
+        <button type="button" class="close" id="btnFecharModalProva" aria-label="Fechar">&times;</button>
+        <h2 id="tituloModalProva">Cadastrar nova prova</h2>
+        <form action="{{ url_for('tabelaAtletismoProvas') }}" method="POST">
+            <div class="form-group"><label for="fk_modalidade">Modalidade</label><select name="fk_modalidade" id="fk_modalidade" required><option value="">Selecione</option>{% for modalidade in modalidades %}<option value="{{ modalidade.pk_modalidade }}">{{ modalidade.nome_modalidade }}</option>{% endfor %}</select></div>
+            <div class="form-group"><label for="fk_genero">Gênero</label><select name="fk_genero" id="fk_genero" required><option value="">Selecione</option>{% for genero in generos %}{% if genero.pk_genero != 'Misto' %}<option value="{{ genero.pk_genero }}">{{ genero.pk_genero }}</option>{% endif %}{% endfor %}</select></div>
+            <div class="form-group"><label for="nome_prova">Nome da prova</label><input type="text" name="nome_prova" id="nome_prova" maxlength="100" required></div>
+            <div class="form-group"><label for="tipo_resultado">Tipo de resultado</label><select name="tipo_resultado" id="tipo_resultado" required><option value="">Selecione</option><option value="tempo">Tempo</option><option value="distancia">Distância</option><option value="altura">Altura</option><option value="pontos">Pontos</option></select></div>
+            <div class="form-group"><label for="unidade_medida">Unidade de medida</label><input type="text" name="unidade_medida" id="unidade_medida" maxlength="20" placeholder="Ex.: segundos, metros ou pontos" required></div>
+            <div class="form-group"><label for="data_prova">Data e horário</label><input type="datetime-local" name="data_prova" id="data_prova"></div>
+            <div class="form-actions"><button type="submit" class="btn btn-primary">Cadastrar</button></div>
         </form>
-
     </div>
-
 </div>
 
-
-<!-- =====================================================
-     MODAL - INSCRIÇÃO DE ATLETA
-     ===================================================== -->
-
-<dialog
-    id="modalInscricaoAtleta"
-    style="
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        max-width: 400px;
-        width: 100%;
-    "
->
-
-    <form
-        action="{{ url_for('inscreverAtletaProva') }}"
-        method="POST"
-        onsubmit="return validarSelecaoAluno(event)"
-    >
-
-        <h3>
-            Inscrever Atleta
-        </h3>
-
-
-        <p
-            id="nomeProvaModal"
-            style="
-                font-weight: bold;
-                color: #555;
-                margin-bottom: 15px;
-            "
-        ></p>
-
-
-        <!-- ID DA PROVA -->
-
-        <input
-            type="hidden"
-            name="fk_prova"
-            id="modal_fk_prova"
-            value=""
-        >
-
-
-        <!-- MATRÍCULA DO ALUNO -->
-
-        <input
-            type="hidden"
-            name="fk_matricula"
-            id="fk_matricula_hidden"
-            value=""
-        >
-
-
-        <div style="margin-bottom: 15px;">
-
-            <label for="aluno_busca">
-                Buscar Aluno (Nome ou Matrícula):
-            </label>
-
-
-            <input
-                type="text"
-                id="aluno_busca"
-                list="lista_alunos"
-                placeholder="Digite o nome ou matrícula..."
-                autocomplete="off"
-                required
-                style="
-                    width: 100%;
-                    padding: 8px;
-                    margin-top: 5px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                "
-            >
-
-
-            <!-- LISTA DE ALUNOS -->
-
-            <datalist id="lista_alunos">
-
-                {% for aluno in alunos %}
-
-                    <option
-                        data-id="{{ aluno[0] }}"
-                        value="{{ aluno[1] }} (Matrícula: {{ aluno[0] }})"
-                    ></option>
-
-                {% endfor %}
-
-            </datalist>
-
-        </div>
-
-
-        <div
-            style="
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-            "
-        >
-
-            <button
-                type="button"
-                onclick="fecharModalInscricao()"
-            >
-                Cancelar
-            </button>
-
-
-            <button
-                type="submit"
-                style="
-                    background-color: #28a745;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                "
-            >
-                Confirmar
-            </button>
-
-        </div>
-
+<dialog id="modalInscricaoAtleta" class="modal-inscricao" aria-labelledby="tituloInscricao">
+    <form action="{{ url_for('inscreverAtletaProva') }}" method="POST">
+        <button type="button" class="close" id="btnFecharInscricao" aria-label="Fechar">&times;</button>
+        <h2 id="tituloInscricao">Inscrever atleta</h2>
+        <p id="nomeProvaModal"></p>
+        <input type="hidden" name="fk_prova" id="modal_fk_prova">
+        <div class="form-group"><label for="fk_matricula">Atleta</label><select name="fk_matricula" id="fk_matricula" required><option value="">Selecione o atleta</option>{% for aluno in alunos %}<option value="{{ aluno[0] }}">{{ aluno[1] }} — {{ aluno[2] }} — {{ aluno[0] }}</option>{% endfor %}</select></div>
+        <div class="form-actions"><button type="button" id="btnCancelarInscricao">Cancelar</button><button type="submit" class="btn btn-primary">Confirmar inscrição</button></div>
     </form>
-
 </dialog>
-
-
-<!-- =====================================================
-     JAVASCRIPT - INSCRIÇÃO
-     ===================================================== -->
+{% endif %}
 
 <script>
-
-    function abrirModalInscricao(idProva, nomeProva) {
-
-        document.getElementById('modal_fk_prova').value = idProva;
-
-        document.getElementById('nomeProvaModal').innerText = nomeProva;
-
-        document.getElementById('aluno_busca').value = '';
-
-        document.getElementById('fk_matricula_hidden').value = '';
-
-        document
-            .getElementById('modalInscricaoAtleta')
-            .showModal();
-    }
-
-
-    function fecharModalInscricao() {
-
-        document
-            .getElementById('modalInscricaoAtleta')
-            .close();
-
-    }
-
-
-    function validarSelecaoAluno(event) {
-
-        const inputTexto =
-            document.getElementById('aluno_busca').value;
-
-        const opcoes =
-            document.querySelectorAll('#lista_alunos option');
-
-        let matriculaEncontrada = null;
-
-
-        opcoes.forEach(function(op) {
-
-            if (op.value === inputTexto) {
-
-                matriculaEncontrada =
-                    op.getAttribute('data-id');
-
-            }
-
+(() => {
+    const normalize = (value) => (value || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const cards = [...document.querySelectorAll('.prova-atletismo-card')];
+    const controls = ['buscarProva', 'filtroGenero', 'filtroTipo', 'filtroUnidade', 'filtroStatus'].map((id) => document.getElementById(id));
+    const summary = { total: document.getElementById('resumoTotal'), andamento: document.getElementById('resumoAndamento'), finalizadas: document.getElementById('resumoFinalizadas'), participantes: document.getElementById('resumoParticipantes') };
+    const noResults = document.getElementById('provasSemResultado');
+    function filtrar() {
+        const [text, genero, tipo, unidade, status] = controls.map((control) => normalize(control?.value));
+        const visible = cards.filter((card) => {
+            const search = normalize([card.dataset.nome, card.dataset.genero, card.dataset.tipo, card.dataset.unidade].join(' '));
+            const matches = (!text || search.includes(text)) && (!genero || normalize(card.dataset.genero) === genero) && (!tipo || normalize(card.dataset.tipo) === tipo) && (!unidade || normalize(card.dataset.unidade) === unidade) && (!status || normalize(card.dataset.status) === status);
+            card.hidden = !matches;
+            return matches;
         });
-
-
-        if (!matriculaEncontrada) {
-
-            alert(
-                'Por favor, selecione um aluno válido da lista de sugestões.'
-            );
-
-            event.preventDefault();
-
-            return false;
-
-        }
-
-
-        document
-            .getElementById('fk_matricula_hidden')
-            .value = matriculaEncontrada;
-
-
-        return true;
-
+        if (summary.total) summary.total.textContent = visible.length;
+        if (summary.andamento) summary.andamento.textContent = visible.filter((card) => card.dataset.status === 'em_andamento').length;
+        if (summary.finalizadas) summary.finalizadas.textContent = visible.filter((card) => card.dataset.status === 'finalizada').length;
+        if (summary.participantes) summary.participantes.textContent = visible.reduce((total, card) => total + Number(card.dataset.participantes || 0), 0);
+        if (noResults) noResults.hidden = visible.length > 0;
     }
+    controls.forEach((control) => control?.addEventListener(control.id === 'buscarProva' ? 'input' : 'change', filtrar));
+    document.getElementById('limparFiltros')?.addEventListener('click', () => { controls.forEach((control) => { control.value = ''; }); filtrar(); });
 
+    const modalProva = document.getElementById('modalNovaProva');
+    document.getElementById('btnAbrirModalProva')?.addEventListener('click', () => { modalProva.style.display = 'block'; modalProva.setAttribute('aria-hidden', 'false'); });
+    const fecharProva = () => { modalProva.style.display = 'none'; modalProva.setAttribute('aria-hidden', 'true'); };
+    document.getElementById('btnFecharModalProva')?.addEventListener('click', fecharProva);
+    modalProva?.addEventListener('click', (event) => { if (event.target === modalProva) fecharProva(); });
+
+    const inscricao = document.getElementById('modalInscricaoAtleta');
+    document.querySelectorAll('.btn-cadastrar-atleta').forEach((button) => button.addEventListener('click', () => { document.getElementById('modal_fk_prova').value = button.dataset.provaId; document.getElementById('nomeProvaModal').textContent = button.dataset.provaNome; inscricao.showModal(); }));
+    const fecharInscricao = () => inscricao?.close();
+    document.getElementById('btnFecharInscricao')?.addEventListener('click', fecharInscricao);
+    document.getElementById('btnCancelarInscricao')?.addEventListener('click', fecharInscricao);
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') fecharProva(); });
+})();
 </script>
-
-
-<!-- =====================================================
-     JAVASCRIPT - CADASTRO DE PROVA
-     ===================================================== -->
-
-<script
-    src="{{ url_for('static', filename='js/cadastrarProvaAtletismo.js') }}"
-></script>
-
-
-</body>
-
-</html>
-
 {% include 'footer.html' %}

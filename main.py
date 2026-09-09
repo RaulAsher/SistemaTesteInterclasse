@@ -355,20 +355,24 @@ def tabelaAtletismoProvas():
     # CARREGAR PÁGINA (GET)
     # =========================
     dadosAtletismo = buscarModalidades()
-
-    # (OPCIONAL) Crie ou importe essa função para buscar os alunos cadastrados
-    alunos = buscarAlunos() 
+    provas = buscarProvas()
+    filtros_provas = {
+        "generos": sorted({prova[2] for prova in provas if prova[2]}),
+        "tipos": sorted({prova[4] for prova in provas if prova[4]}),
+        "unidades": sorted({prova[5] for prova in provas if prova[5]}),
+    }
 
     return render_template(
         "tabelaAtletismoProvas.html",
-        provas=buscarProvas(),
-        provasProximas=buscarProvasProximas(),
+        provas=provas,
         modalidades=dadosAtletismo["modalidades_atletismo"],
         generos=buscarClassificacoes(),
-        alunos=alunos  # <--- Passando a lista de alunos para o template
+        alunos=buscarAlunos(),
+        filtros_provas=filtros_provas,
     )
 
 @app.route("/tabelaAtletismo/Provas/Inscrever", methods=["POST"])
+@requerAdminOuMonitor
 def inscreverAtletaProva():
     fk_prova = request.form.get("fk_prova")
     fk_matricula = request.form.get("fk_matricula")
@@ -378,19 +382,25 @@ def inscreverAtletaProva():
         return redirect(url_for("tabelaAtletismoProvas"))
 
     try:
-        # Função no seu Model para inserir na tabela associativa
-        cadastrarAtletaAtletismo(fk_prova, fk_matricula) 
+        cadastrarAtletaAtletismo(fk_prova, fk_matricula)
         flash("Atleta inscrito com sucesso!", "success")
+    except ValueError as erro:
+        flash(str(erro), "error")
     except Exception as erro:
         print("ERRO AO INSCREVER ATLETA:", erro)
-        flash("Este atleta já está inscrito nesta prova ou ocorreu um erro.", "error")
+        flash("Não foi possível inscrever o atleta.", "error")
 
     return redirect(url_for("tabelaAtletismoProvas"))
 
 @app.route("/tabelaAtletismo/Provas/AlterarStatus", methods=["POST"])
+@requerAdminOuMonitor
 def alterarStatusProva():
     fk_prova = request.form.get("fk_prova")
     novo_status = request.form.get("status") # Ex: 'em_andamento', 'finalizada'
+
+    if not fk_prova or novo_status not in {"nao_iniciada", "em_andamento", "finalizada"}:
+        flash("Dados inválidos para atualizar o status.", "error")
+        return redirect(url_for("tabelaAtletismoProvas"))
 
     if fk_prova and novo_status:
         try:
@@ -409,6 +419,59 @@ def alterarStatusProva():
             flash("Erro ao atualizar status da prova.", "error")
 
     return redirect(url_for("tabelaAtletismoProvas"))
+
+
+@app.route("/tabelaAtletismo/Atletas")
+def atletasAtletismo():
+    atletas = buscarAtletasAtletismo()
+    provas = [
+        {"pk_prova": prova[0], "nome_prova": prova[3]}
+        for prova in buscarProvas()
+    ]
+    ranking_por_prova = {}
+
+    for atleta in atletas:
+        if atleta["resultado"] is None:
+            continue
+        ranking = ranking_por_prova.setdefault(
+            atleta["pk_prova"],
+            {
+                "pk_prova": atleta["pk_prova"],
+                "nome_prova": atleta["nome_prova"],
+                "tipo_resultado": atleta["tipo_resultado"],
+                "unidade_medida": atleta["unidade_medida"],
+                "atletas": [],
+            },
+        )
+        ranking["atletas"].append(atleta)
+
+    return render_template(
+        "atletismoAtletas.html",
+        atletas=atletas,
+        provas=provas,
+        turmas=sorted({atleta["turma"] for atleta in atletas if atleta["turma"]}),
+        ranking_por_prova=list(ranking_por_prova.values()),
+        prova_selecionada=request.args.get("prova", ""),
+    )
+
+
+@app.route("/tabelaAtletismo/Atletas/Resultado", methods=["POST"])
+@requerAdminOuMonitor
+def salvarResultadoAtleta():
+    try:
+        salvarResultadoAtletaAtletismo(
+            request.form.get("fk_prova"),
+            request.form.get("fk_matricula"),
+            request.form.get("resultado"),
+        )
+        flash("Resultado salvo e ranking atualizado.", "success")
+    except ValueError as erro:
+        flash(str(erro), "error")
+    except Exception as erro:
+        print("Erro ao salvar resultado de atletismo:", erro)
+        flash("Não foi possível salvar o resultado.", "error")
+
+    return redirect(url_for("atletasAtletismo", prova=request.form.get("fk_prova", "")))
 
 @app.route("/tabelaAtletismo/Provas/Deletar", methods=["POST"])
 @requerAdmin

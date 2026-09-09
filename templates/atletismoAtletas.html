@@ -1,0 +1,113 @@
+{% include 'head.html' %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/atletismo.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/atletismo-ranking.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<main class="provas-atletismo-page atletas-atletismo-page">
+    <header class="provas-atletismo-header">
+        <div class="provas-atletismo-header-texto">
+            <h1>Atletas e ranking</h1>
+            <p>Consulte os inscritos, registre resultados e acompanhe a classificação por prova.</p>
+        </div>
+        <a href="{{ url_for('tabelaAtletismoProvas') }}" class="btn-ranking"><i class="fa-solid fa-arrow-left"></i> Voltar às provas</a>
+    </header>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}<div class="toast-container" aria-live="polite">{% for categoria, mensagem in mensagens %}<div class="toast {{ categoria }}">{{ mensagem }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+
+    <section class="provas-filtros atletas-filtros" aria-label="Filtros de atletas">
+        <div class="provas-pesquisa"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><label class="sr-only" for="filtroNomeAtleta">Filtrar por nome</label><input id="filtroNomeAtleta" type="search" placeholder="Pesquisar por nome..." autocomplete="off"></div>
+        <div class="provas-pesquisa pesquisa-matricula"><i class="fa-solid fa-id-card" aria-hidden="true"></i><label class="sr-only" for="filtroMatriculaAtleta">Filtrar por matrícula</label><input id="filtroMatriculaAtleta" type="search" inputmode="numeric" placeholder="Matrícula..." autocomplete="off"></div>
+        <select id="filtroTurmaAtleta" aria-label="Filtrar por turma"><option value="">Todas as turmas</option>{% for turma in turmas %}<option value="{{ turma }}">{{ turma }}</option>{% endfor %}</select>
+        <select id="filtroProvaAtleta" aria-label="Filtrar por prova"><option value="">Todas as provas</option>{% for prova in provas %}<option value="{{ prova.pk_prova }}" {% if prova_selecionada|string == prova.pk_prova|string %}selected{% endif %}>{{ prova.nome_prova }}</option>{% endfor %}</select>
+        <button type="button" id="limparFiltrosAtletas" class="btn-limpar-filtros">Limpar</button>
+    </section>
+
+    <section class="provas-resumo" aria-label="Resumo dos atletas">
+        <div class="provas-resumo-card"><span>Inscrições exibidas</span><strong id="totalInscricoes">{{ atletas|length }}</strong></div>
+        <div class="provas-resumo-card"><span>Atletas com resultado</span><strong id="totalComResultado">{{ atletas | selectattr('resultado') | list | length }}</strong></div>
+        <div class="provas-resumo-card"><span>Provas com ranking</span><strong id="totalProvasRanking">{{ ranking_por_prova|length }}</strong></div>
+        <div class="provas-resumo-card"><span>Turmas representadas</span><strong id="totalTurmas">{{ turmas|length }}</strong></div>
+    </section>
+
+    <section class="atletas-listagem-section" aria-labelledby="tituloInscritos">
+        <div class="secao-titulo"><h2 id="tituloInscritos">Atletas inscritos</h2><span id="contadorAtletas">{{ atletas|length }} inscrição(ões)</span></div>
+        {% if atletas %}
+        <div class="tabela-responsiva">
+            <table class="tabela-atletas">
+                <thead><tr><th>Atleta</th><th>Matrícula</th><th>Turma</th><th>Prova</th><th>Resultado</th><th>Posição</th>{% if session.get('nivel') in ['Administrador', 'AlunoMonitor'] %}<th>Ação</th>{% endif %}</tr></thead>
+                <tbody id="corpoAtletas">
+                    {% for atleta in atletas %}
+                    <tr data-nome="{{ atleta.nome_aluno }}" data-matricula="{{ atleta.matricula }}" data-turma="{{ atleta.turma }}" data-prova="{{ atleta.pk_prova }}" data-resultado="{{ 'sim' if atleta.resultado is not none else 'nao' }}">
+                        <td><strong>{{ atleta.nome_aluno }}</strong><small>{{ atleta.genero }}</small></td>
+                        <td>{{ atleta.matricula }}</td><td>{{ atleta.turma }}</td><td>{{ atleta.nome_prova }}</td>
+                        <td>{% if atleta.resultado is not none %}{{ atleta.resultado }} {{ atleta.unidade_medida }}{% else %}<span class="sem-resultado">Não informado</span>{% endif %}</td>
+                        <td>{% if atleta.posicao %}<span class="posicao-ranking posicao-{{ atleta.posicao if atleta.posicao <= 3 else 'outra' }}">{{ atleta.posicao }}º</span>{% else %}—{% endif %}</td>
+                        {% if session.get('nivel') in ['Administrador', 'AlunoMonitor'] %}<td><button type="button" class="btn-resultado" data-prova="{{ atleta.pk_prova }}" data-matricula="{{ atleta.matricula }}" data-atleta="{{ atleta.nome_aluno }}" data-prova-nome="{{ atleta.nome_prova }}" data-unidade="{{ atleta.unidade_medida }}" data-resultado="{{ atleta.resultado if atleta.resultado is not none else '' }}">{% if atleta.resultado is not none %}Editar{% else %}Registrar{% endif %}</button></td>{% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p id="atletasSemResultado" class="provas-vazio" hidden>Nenhum atleta corresponde aos filtros.</p>
+        {% else %}<div class="provas-vazio"><i class="fa-solid fa-users"></i><h2>Nenhum atleta inscrito</h2><p>As inscrições realizadas nas provas aparecerão aqui.</p></div>{% endif %}
+    </section>
+
+    <section class="ranking-section" aria-labelledby="tituloRanking">
+        <div class="secao-titulo"><h2 id="tituloRanking">Ranking por prova</h2><span>Tempo: menor resultado vence. Demais tipos: maior resultado vence.</span></div>
+        {% if ranking_por_prova %}
+        <div class="ranking-grid" id="rankingGrid">
+            {% for ranking in ranking_por_prova %}
+            <article class="ranking-card" data-prova="{{ ranking.pk_prova }}">
+                <header><h3>{{ ranking.nome_prova }}</h3><span>{{ ranking.tipo_resultado|capitalize }} · {{ ranking.unidade_medida }}</span></header>
+                <ol>{% for atleta in ranking.atletas %}<li><span class="posicao-ranking posicao-{{ atleta.posicao if atleta.posicao <= 3 else 'outra' }}">{{ atleta.posicao }}º</span><div><strong>{{ atleta.nome_aluno }}</strong><small>{{ atleta.turma }} · {{ atleta.matricula }}</small></div><b>{{ atleta.resultado }} {{ ranking.unidade_medida }}</b></li>{% endfor %}</ol>
+            </article>
+            {% endfor %}
+        </div>
+        <p id="rankingSemResultado" class="provas-vazio" hidden>Não há ranking para a prova selecionada.</p>
+        {% else %}<div class="provas-vazio"><i class="fa-solid fa-ranking-star"></i><h2>Ranking aguardando resultados</h2><p>Registre os resultados dos atletas inscritos para criar a classificação.</p></div>{% endif %}
+    </section>
+</main>
+
+{% if session.get('nivel') in ['Administrador', 'AlunoMonitor'] %}
+<dialog id="modalResultado" class="modal-inscricao" aria-labelledby="tituloResultado">
+    <form action="{{ url_for('salvarResultadoAtleta') }}" method="POST">
+        <button type="button" class="close" id="fecharModalResultado" aria-label="Fechar">&times;</button>
+        <h2 id="tituloResultado">Registrar resultado</h2><p id="descricaoResultado"></p>
+        <input type="hidden" name="fk_prova" id="resultadoProva"><input type="hidden" name="fk_matricula" id="resultadoMatricula">
+        <div class="form-group"><label for="valorResultado">Resultado (<span id="unidadeResultado"></span>)</label><input type="number" name="resultado" id="valorResultado" min="0" step="0.001" required></div>
+        <div class="form-actions"><button type="button" id="cancelarResultado">Cancelar</button><button type="submit" class="btn btn-primary">Salvar resultado</button></div>
+    </form>
+</dialog>
+{% endif %}
+
+<script>
+(() => {
+    const normalize = (value) => (value || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const rows = [...document.querySelectorAll('#corpoAtletas tr')];
+    const cards = [...document.querySelectorAll('.ranking-card')];
+    const fields = ['filtroNomeAtleta', 'filtroMatriculaAtleta', 'filtroTurmaAtleta', 'filtroProvaAtleta'].map((id) => document.getElementById(id));
+    function filter() {
+        const [nome, matricula, turma, prova] = fields.map((field) => normalize(field?.value));
+        const visible = rows.filter((row) => { const show = (!nome || normalize(row.dataset.nome).includes(nome)) && (!matricula || normalize(row.dataset.matricula).includes(matricula)) && (!turma || normalize(row.dataset.turma) === turma) && (!prova || row.dataset.prova === prova); row.hidden = !show; return show; });
+        const showRanking = prova ? cards.filter((card) => card.dataset.prova === prova) : cards;
+        cards.forEach((card) => { card.hidden = !showRanking.includes(card); });
+        document.getElementById('contadorAtletas')?.replaceChildren(document.createTextNode(`${visible.length} inscrição(ões)`));
+        document.getElementById('totalInscricoes')?.replaceChildren(document.createTextNode(visible.length));
+        document.getElementById('totalComResultado')?.replaceChildren(document.createTextNode(visible.filter((row) => row.dataset.resultado === 'sim').length));
+        document.getElementById('atletasSemResultado').hidden = visible.length > 0;
+        document.getElementById('rankingSemResultado').hidden = showRanking.length > 0;
+    }
+    fields.forEach((field) => field?.addEventListener(field.id.startsWith('filtro') && field.tagName === 'INPUT' ? 'input' : 'change', filter));
+    document.getElementById('limparFiltrosAtletas')?.addEventListener('click', () => { fields.forEach((field) => { field.value = ''; }); filter(); });
+
+    const modal = document.getElementById('modalResultado');
+    document.querySelectorAll('.btn-resultado').forEach((button) => button.addEventListener('click', () => { document.getElementById('resultadoProva').value = button.dataset.prova; document.getElementById('resultadoMatricula').value = button.dataset.matricula; document.getElementById('descricaoResultado').textContent = `${button.dataset.atleta} — ${button.dataset.provaNome}`; document.getElementById('unidadeResultado').textContent = button.dataset.unidade; document.getElementById('valorResultado').value = button.dataset.resultado; modal.showModal(); }));
+    const closeModal = () => modal?.close();
+    document.getElementById('fecharModalResultado')?.addEventListener('click', closeModal);
+    document.getElementById('cancelarResultado')?.addEventListener('click', closeModal);
+})();
+</script>
+{% include 'footer.html' %}

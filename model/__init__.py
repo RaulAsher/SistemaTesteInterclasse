@@ -21,6 +21,7 @@ from .funcoesBD import (
     buscarTurmas,
     buscarUsuarioPorNome,
     buscarUsuarios,
+    buscarAtletasAtletismo,
     buscarEventosCalendario,
     buscarEventosCalendarioFiltros,
     buscarProvas,
@@ -74,5 +75,6 @@ from .funcoesBD import (
     salvarOuAtualizarEstatistica,
     getAlunoEquipe,
     buscarTipoModalidade,
-    buscarEsporteMonitor
+    buscarEsporteMonitor,
+    salvarResultadoAtletaAtletismo
 )

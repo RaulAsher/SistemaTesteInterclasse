@@ -1,0 +1,286 @@
+/* Acrescente este arquivo depois de atletismo.css. */
+
+.provas-atletismo-header-acoes,
+.prova-acoes {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-ranking,
+.btn-limpar-filtros,
+.btn-resultado {
+    border: 1px solid var(--cor-primaria);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--cor-primaria);
+    padding: 10px 14px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-ranking:hover,
+.btn-limpar-filtros:hover,
+.btn-resultado:hover {
+    background: var(--cor-primaria);
+    color: #fff;
+}
+
+.btn-iniciar-prova,
+.btn-finalizar-prova,
+.btn-cadastrar-atleta,
+.btn-excluir-prova {
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 11px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-iniciar-prova {
+    background: #16803a;
+}
+
+.btn-finalizar-prova,
+.btn-excluir-prova {
+    background: #c53030;
+}
+
+.btn-cadastrar-atleta {
+    background: var(--cor-primaria);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.modal-inscricao {
+    width: min(460px, calc(100% - 32px));
+    border: 0;
+    border-radius: 14px;
+    padding: 26px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+}
+
+.modal-inscricao::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.modal-inscricao .close {
+    float: right;
+    border: 0;
+    background: transparent;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+.modal-inscricao p {
+    color: #52606d;
+}
+
+.modal-inscricao select,
+.modal-inscricao input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.modal-inscricao .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.atletas-listagem-section,
+.ranking-section {
+    width: 100%;
+    max-width: 1050px;
+    margin: 36px auto 0;
+}
+
+.secao-titulo {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: baseline;
+    margin-bottom: 14px;
+}
+
+.secao-titulo h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #111;
+}
+
+.secao-titulo span {
+    color: #5b6470;
+    font-size: 13px;
+}
+
+.tabela-responsiva {
+    overflow-x: auto;
+    border: 1px solid #e1e5e9;
+    border-radius: 14px;
+}
+
+.tabela-atletas {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+    background: #fff;
+}
+
+.tabela-atletas th,
+.tabela-atletas td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #edf0f2;
+}
+
+.tabela-atletas th {
+    background: #f8fafc;
+    color: #3b4552;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.tabela-atletas td small,
+.ranking-card small {
+    display: block;
+    margin-top: 3px;
+    color: #687385;
+}
+
+.sem-resultado {
+    color: #7b8794;
+    font-style: italic;
+}
+
+.posicao-ranking {
+    display: inline-grid;
+    place-items: center;
+    min-width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #edf2f7;
+    color: #334155;
+    font-weight: 800;
+}
+
+.posicao-1 {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.posicao-2 {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.posicao-3 {
+    background: #fee2d5;
+    color: #9a3412;
+}
+
+.ranking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
+}
+
+.ranking-card {
+    border: 1px solid #e1e5e9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.ranking-card header {
+    padding: 18px;
+    border-bottom: 1px solid #edf0f2;
+}
+
+.ranking-card h3 {
+    margin: 0 0 5px;
+    color: #111;
+    font-size: 18px;
+}
+
+.ranking-card header span {
+    color: #687385;
+    font-size: 13px;
+}
+
+.ranking-card ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ranking-card li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #edf0f2;
+}
+
+.ranking-card li:last-child {
+    border: 0;
+}
+
+.ranking-card li b {
+    white-space: nowrap;
+    color: #1f2937;
+    font-size: 13px;
+}
+
+.pesquisa-matricula {
+    flex: 0 1 180px;
+}
+
+strong{
+    color: black;
+}
+
+td{
+    color: black;
+}
+
+@media (max-width: 700px) {
+    .provas-atletismo-header-acoes {
+        width: 100%;
+    }
+
+    .provas-atletismo-header-acoes > * {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .secao-titulo {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .atletas-filtros .provas-pesquisa {
+        min-width: 100%;
+    }
+
+    .pesquisa-matricula {
+        flex-basis: 100%;
+    }
+}
