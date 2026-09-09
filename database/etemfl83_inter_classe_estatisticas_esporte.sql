@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.46, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
 --
 -- Host: localhost    Database: etemfl83_inter_classe
 -- ------------------------------------------------------
--- Server version	8.0.46-0ubuntu0.24.04.3
+-- Server version	8.0.46
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -32,16 +32,6 @@ CREATE TABLE `estatisticas_esporte` (
   CONSTRAINT `estatisticas_esporte_ibfk_2` FOREIGN KEY (`fk_nome_estatistica`) REFERENCES `tipo_estatistica` (`pk_nome_estatistica`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `estatisticas_esporte`
---
-
-LOCK TABLES `estatisticas_esporte` WRITE;
-/*!40000 ALTER TABLE `estatisticas_esporte` DISABLE KEYS */;
-INSERT INTO `estatisticas_esporte` VALUES ('Basquete','Arremessos de Três',0),('Basquete','Passes',0),('Basquete','Pontos',0),('Futsal','Finalizações',0),('Futsal','Gols',0),('Futsal','Passes',0),('Queimada','Eliminações',0),('Tênis de Mesa','Sets',0),('Vôlei','Passes',0),('Vôlei','Pontos',0),('Vôlei','Sets',1),('Xadrez','Sets',0);
-/*!40000 ALTER TABLE `estatisticas_esporte` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -52,4 +42,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-12  4:27:57
+-- Dump completed on 2026-09-08 23:10:55
