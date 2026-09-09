@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.44, for Win64 (x86_64)
 --
 -- Host: localhost    Database: etemfl83_inter_classe
 -- ------------------------------------------------------
--- Server version	8.0.46
+-- Server version	8.0.44
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -29,8 +29,18 @@ CREATE TABLE `modalidades_atletismo` (
   `ativo` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`pk_modalidade`),
   UNIQUE KEY `uk_nome_modalidade` (`nome_modalidade`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `modalidades_atletismo`
+--
+
+LOCK TABLES `modalidades_atletismo` WRITE;
+/*!40000 ALTER TABLE `modalidades_atletismo` DISABLE KEYS */;
+INSERT INTO `modalidades_atletismo` VALUES (1,'Corrida','Modalidades de corrida do atletismo',1),(3,'Salto','Modalidades de salto',1),(4,'Arremesso','Modalidades de arremesso',1),(8,'Natação','Esporte olímpico de natação',1);
+/*!40000 ALTER TABLE `modalidades_atletismo` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -41,4 +51,4 @@ CREATE TABLE `modalidades_atletismo` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-08 23:10:57
+-- Dump completed on 2026-09-09  2:06:42

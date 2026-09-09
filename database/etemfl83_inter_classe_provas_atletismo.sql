@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.44, for Win64 (x86_64)
 --
 -- Host: localhost    Database: etemfl83_inter_classe
 -- ------------------------------------------------------
--- Server version	8.0.46
+-- Server version	8.0.44
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -30,13 +30,25 @@ CREATE TABLE `provas_atletismo` (
   `tipo_resultado` enum('tempo','distancia','altura','pontos') CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `unidade_medida` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `ativo` tinyint(1) NOT NULL DEFAULT '1',
+  `data_prova` datetime DEFAULT NULL,
+  `status` enum('nao_iniciada','em_andamento','finalizada') COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT 'nao_iniciada',
   PRIMARY KEY (`pk_prova`),
   KEY `idx_modalidade` (`fk_modalidade`),
   KEY `idx_genero` (`fk_genero`),
   CONSTRAINT `fk_prova_genero` FOREIGN KEY (`fk_genero`) REFERENCES `classificacao` (`pk_genero`),
   CONSTRAINT `fk_prova_modalidade` FOREIGN KEY (`fk_modalidade`) REFERENCES `modalidades_atletismo` (`pk_modalidade`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `provas_atletismo`
+--
+
+LOCK TABLES `provas_atletismo` WRITE;
+/*!40000 ALTER TABLE `provas_atletismo` DISABLE KEYS */;
+INSERT INTO `provas_atletismo` VALUES (1,4,'Masculino','Arremesso de Peso (10kg)','distancia','metros',1,'2026-09-09 02:00:00','nao_iniciada');
+/*!40000 ALTER TABLE `provas_atletismo` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -47,4 +59,4 @@ CREATE TABLE `provas_atletismo` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-08 23:10:56
+-- Dump completed on 2026-09-09  2:06:42
