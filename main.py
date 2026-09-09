@@ -532,21 +532,24 @@ def paginacadastrarAluno():
 @app.route("/cadastrarAluno", methods=["POST"])
 @requerAdminOuMonitor
 def rotaCadastrarAluno():
+    try:
+        nome = request.form.get("nome")
+        matricula = request.form.get("matricula")
+        genero = request.form.get("genero")
 
-    nome = request.form.get("nome")
-    matricula = request.form.get("matricula")
-    genero = request.form.get("genero")
+        if session['nivel'] == 'Administrador':
+            turma = request.form.get("turma")
+        else:
+            turma = session["turma"]
 
-    if session['nivel'] == 'Administrador':
-        turma = request.form.get("turma")
-    else:
-        turma = session["turma"]
+        usuario_logado = session["nome"]
 
-    usuario_logado = session["nome"]
+        cadastrarAluno(matricula, nome, turma, genero, usuario_logado)
 
-    cadastrarAluno(matricula, nome, turma, genero, usuario_logado)
-
-    return redirect(url_for("paginacadastrarAluno"))
+        return redirect(url_for("paginacadastrarAluno"))
+    except Exception as e:
+        flash("O aluno nao foi inserido.", "error")
+        return redirect(url_for("paginacadastrarAluno"))
 
 @app.route("/editarAluno/<antiga_matricula>", methods=["POST"])
 @requerAdminOuMonitor
