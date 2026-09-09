@@ -24,22 +24,24 @@
             <tbody>
                 {% if turmas %}
                 {% for turma in turmas %}
-                <tr>
-                    <td class="cor-tx">{{ turma.pk_nome_turma }}</td>
-                    <td class="actions">
-                        <button class="btn btn-primary" onclick="abrirModalAlunos('{{ turma.pk_nome_turma }}')">
-                            Alunos
-                        </button>
-                        {% if session['nivel'] == 'AlunoMonitor' or session['nivel'] == 'Administrador'%}
-                        <button class="btn btn-edit" onclick="abrirModalEdicao('{{ turma.pk_nome_turma }}')">
-                            Editar
-                        </button>
-                        <button class="btn btn-delete" onclick="confirmarDelecao('{{ turma.pk_nome_turma }}')">
-                            Deletar
-                        </button>
-                        {%endif%}
-                    </td>
-                </tr>
+                    {% if turma.pk_nome_turma != 'Mestre' %}
+                    <tr>
+                        <td class="cor-tx">{{ turma.pk_nome_turma }}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="abrirModalAlunos('{{ turma.pk_nome_turma }}')">
+                                Alunos
+                            </button>
+                            {% if session['nivel'] == 'AlunoMonitor' or session['nivel'] == 'Administrador'%}
+                            <button class="btn btn-edit" onclick="abrirModalEdicao('{{ turma.pk_nome_turma }}')">
+                                Editar
+                            </button>
+                            <button class="btn btn-delete" onclick="confirmarDelecao('{{ turma.pk_nome_turma }}')">
+                                Deletar
+                            </button>
+                            {%endif%}
+                        </td>
+                    </tr>
+                    {% endif %}
                 {% endfor %}
                 {% else %}
                 <tr>

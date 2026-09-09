@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, flash, url_for
 from functools import wraps
-from datetime import timedelta
+from datetime import timedelta, datetime
 from model import *
 
 print("Main iniciado")
@@ -554,14 +554,34 @@ def paginaCadastrarEquipe():
 
     acesso = obterAcessoDoUsuario()
 
+    prazo_edicao = buscarConfiguracao("prazo_edicao_equipes")
+    data_inicio = buscarConfiguracao("inicio_prazo_edicao_equipes")
+
+    if prazo_edicao and data_inicio:
+
+        prazo_edicao = int(prazo_edicao)
+
+        if isinstance(data_inicio, str):
+            data_inicio = datetime.strptime(
+                data_inicio,
+                "%Y-%m-%d %H:%M:%S"
+            )
+
+        data_fim = data_inicio + timedelta(days=prazo_edicao)
+
+    else:
+        data_fim = None
+
     return render_template(
         "cadastrarEquipe.html",
         equipes=acesso["equipes"],
         turmas=acesso["turmas"],
-        esportes = buscarEsportes(),
-        classificacoes = buscarClassificacoes(),
+        esportes=buscarEsportes(),
+        classificacoes=buscarClassificacoes(),
         nivel=acesso["nivel"],
-        prazo_edicao=buscarConfiguracao("prazo_edicao_equipes")
+        prazo_edicao=prazo_edicao,
+        data_inicio=data_inicio,
+        data_fim=data_fim
     )
 
 
@@ -603,12 +623,39 @@ def alterarPrazo():
 
     prazo = request.form.get("prazo")
 
-    alterarConfiguracao(
-        "prazo_edicao_equipes",
-        prazo
-    )
+    if not prazo:
+        flash("Informe um prazo válido.", "error")
+        return redirect(url_for("paginaCadastrarEquipe"))
 
-    flash("Prazo atualizado com sucesso!", "success")
+    try:
+        prazo = int(prazo)
+
+        if prazo < 0:
+            flash("O prazo não pode ser negativo.", "error")
+            return redirect(url_for("paginaCadastrarEquipe"))
+
+        # Atualiza a quantidade de dias
+        alterarConfiguracao(
+            "prazo_edicao_equipes",
+            prazo
+        )
+
+        # REINICIA o prazo a partir deste momento
+        alterarConfiguracao(
+            "inicio_prazo_edicao_equipes",
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
+
+        flash(
+            "Prazo atualizado com sucesso!",
+            "success"
+        )
+
+    except ValueError:
+        flash(
+            "O prazo deve ser um número inteiro.",
+            "error"
+        )
 
     return redirect(url_for("paginaCadastrarEquipe"))
 
@@ -647,7 +694,7 @@ def paginaCadastrarUsuario():
     usuarios=usuarios, 
     turmas=turmas, 
     esportes=esportes,
-    estatisticas=estatisticas,
+    estatisticas=estatisticas
     )
 
 # Inserção no banco

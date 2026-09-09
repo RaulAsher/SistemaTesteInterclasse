@@ -1,590 +1,133 @@
-/* =========================================================
-   CONFIGURAÇÃO GERAL
-========================================================= */
-
 body {
     font-family: "Poppins", sans-serif;
     background-color: #ebf0f7;
     margin: 0;
     padding: 0;
-    color: #18314f;
 }
 
+/* Card principal */
 
-/* =========================================================
-   PÁGINA
-========================================================= */
-
-.pagina-estatisticas {
-    width: min(1100px, 92%);
-    margin: 40px auto 70px;
-}
-
-
-/* =========================================================
-   CABEÇALHO DA PÁGINA
-========================================================= */
-
-.cabecalho-pagina {
-    margin-bottom: 30px;
-}
-
-.cabecalho-pagina h1 {
-    margin: 0 0 8px;
-
-    color: #18314f;
-
-    font-size: 2.2rem;
-    font-weight: 700;
-}
-
-.cabecalho-pagina p {
-    margin: 0;
-
-    color: #65758a;
-
-    font-size: 0.95rem;
-}
-
-
-/* =========================================================
-   GRID DOS CARDS
-========================================================= */
-
-.grid-estatisticas {
-    display: grid;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 24px;
-}
-
-
-/* =========================================================
-   CARDS
-========================================================= */
-
-.card-estatistica {
-    background: #ffffff;
-
-    border: 1px solid #d7dde6;
+.caixa {
+    width: 850px;
+    margin: 30px auto;
+    padding: 30px;
+    background: #f8fafc;
     border-radius: 14px;
-
-    padding: 28px;
-
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
 }
 
+/* Cada seção */
 
-/* Cards que ocupam a largura inteira */
-
-.card-estatistica.card-grande {
-    grid-column: span 2;
+.divisao {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid #d7dde6;
 }
 
+/* Títulos */
 
-/* =========================================================
-   TÍTULO DOS CARDS
-========================================================= */
-
-.card-titulo {
-    display: flex;
-    align-items: flex-start;
-
-    gap: 15px;
-
+.divisao h3 {
+    color: #18314f;
+    font-size: 2rem;
+    margin-top: 0;
     margin-bottom: 25px;
 }
 
+/* Labels */
 
-/* Título */
-
-.card-titulo h2 {
-    margin: 0 0 5px;
-
-    color: #18314f;
-
-    font-size: 1.35rem;
-    font-weight: 700;
-}
-
-
-/* Descrição */
-
-.card-titulo p {
-    margin: 0;
-
-    color: #718096;
-
-    font-size: 0.85rem;
-    line-height: 1.5;
-}
-
-
-/* =========================================================
-   ÍCONE DO CARD
-========================================================= */
-
-.icone-card {
-    width: 42px;
-    height: 42px;
-
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 10px;
-
-    background: #e7f2fc;
-
-    color: #2d8ad7;
-
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   LABELS
-========================================================= */
-
-.card-estatistica label {
+label {
     display: block;
-
     color: #18314f;
-
-    font-size: 0.9rem;
     font-weight: 600;
-
     margin-bottom: 8px;
+    margin-top: 15px;
 }
 
+/* Inputs */
 
-/* =========================================================
-   CAMPOS
-========================================================= */
+input,
+select {
+    width: 100%;
+    max-width: 350px;
+    height: 38px;
+    padding: 0 15px;
+    border: 1px solid #c9d1db;
+    border-radius: 6px;
+    background: white;
+    font-size: .95rem;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #2b78c5;
+    box-shadow: 0 0 5px rgba(43,120,197,.2);
+}
+
+/* Botões */
+
+button {
+    background: #2d8ad7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: .95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+}
+
+button:hover {
+    background: #226fb0;
+}
+
+/* Linha de formulário */
+
+.form-linha {
+    display: flex;
+    align-items: end;
+    gap: 15px;
+    flex-wrap: wrap;
+}
 
 .campo {
     display: flex;
     flex-direction: column;
-
-    gap: 7px;
 }
 
-
-/* =========================================================
-   INPUTS E SELECTS
-========================================================= */
-
-.card-estatistica input[type="text"],
-.card-estatistica select {
-    width: 100%;
-    height: 44px;
-
-    padding: 0 13px;
-
-    box-sizing: border-box;
-
-    border: 1px solid #c9d1db;
-    border-radius: 7px;
-
-    background-color: #ffffff;
-
-    color: #18314f;
-
-    font-family: "Poppins", sans-serif;
-    font-size: 0.9rem;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background-color 0.2s ease;
-}
-
-
-/* Hover */
-
-.card-estatistica input[type="text"]:hover,
-.card-estatistica select:hover {
-    border-color: #aebdcd;
-}
-
-
-/* Foco */
-
-.card-estatistica input[type="text"]:focus,
-.card-estatistica select:focus {
-    outline: none;
-
-    border-color: #2d8ad7;
-
-    box-shadow:
-        0 0 0 3px rgba(45, 138, 215, 0.12);
-}
-
-
-/* Placeholder */
-
-.card-estatistica input::placeholder {
-    color: #9aa7b5;
-}
-
-
-/* =========================================================
-   FORMULÁRIOS
-========================================================= */
-
-.form-estatistica {
-    display: flex;
-    flex-direction: column;
-
-    gap: 20px;
-}
-
-
-/* =========================================================
-   INPUT + BOTÃO
-========================================================= */
-
-.campo-botao {
-    display: flex;
-    align-items: flex-end;
-
-    gap: 10px;
-
-    margin-top: 5px;
-}
-
-
-/* Input/select ocupa o espaço disponível */
-
-.campo-botao input,
-.campo-botao select {
-    flex: 1;
-
-    margin: 0;
-}
-
-
-/* =========================================================
-   BOTÕES
-========================================================= */
-
-.btn {
-    height: 44px;
-
-    padding: 0 20px;
-
-    border: none;
-    border-radius: 7px;
-
-    font-family: "Poppins", sans-serif;
-
-    font-size: 0.85rem;
-    font-weight: 600;
-
-    cursor: pointer;
-
-    white-space: nowrap;
-
-    transition:
-        background-color 0.2s ease,
-        transform 0.15s ease,
-        box-shadow 0.2s ease;
-}
-
-
-/* Botão principal */
-
-.btn.primario {
-    background-color: #2d8ad7;
-    color: #ffffff;
-}
-
-.btn.primario:hover {
-    background-color: #226fb0;
-
-    box-shadow:
-        0 4px 10px rgba(45, 138, 215, 0.25);
-
-    transform: translateY(-1px);
-}
-
-
-/* Botão de perigo */
-
-.btn.perigo {
-    background-color: #e05252;
-    color: #ffffff;
-}
-
-.btn.perigo:hover {
-    background-color: #c63e3e;
-
-    box-shadow:
-        0 4px 10px rgba(224, 82, 82, 0.25);
-
-    transform: translateY(-1px);
-}
-
-
-/* Clique */
-
-.btn:active {
-    transform: translateY(0);
-}
-
-
-/* Botão ocupando toda a largura */
-
-.btn-largo {
-    width: 100%;
-}
-
-
-/* =========================================================
-   CHECKBOX
-========================================================= */
-
-.checkbox-container {
-    display: flex !important;
-    align-items: center;
-
-    gap: 10px;
-
-    width: 100%;
-
-    box-sizing: border-box;
-
-    padding: 13px 15px;
-
-    margin: 0 !important;
-
-    border: 1px solid #d7dde6;
-    border-radius: 8px;
-
-    background-color: #f8fafc;
-
-    cursor: pointer;
-
-    transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease;
-}
-
-
-/* Hover */
-
-.checkbox-container:hover {
-    background-color: #f1f6fb;
-
-    border-color: #c2d1df;
-}
-
-
-/* Checkbox */
-
-.checkbox-container input[type="checkbox"] {
-    width: 19px;
-    height: 19px;
-
-    flex-shrink: 0;
-
-    margin: 0;
-
-    cursor: pointer;
-
-    accent-color: #2d8ad7;
-}
-
-
-/* Texto */
-
-.checkbox-container span {
-    color: #18314f;
-
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-
-/* =========================================================
-   TOAST / FLASH
-========================================================= */
-
-.toast-container {
-    position: fixed;
-
-    top: 80px;
-    right: 25px;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 10px;
-
-    width: min(380px, calc(100vw - 40px));
-
-    z-index: 9999;
-}
-
-
-/* Toast */
-
-.toast {
-    box-sizing: border-box;
-
-    width: 100%;
-
-    padding: 15px 18px;
-
-    border-radius: 9px;
-
-    background-color: #ffffff;
-
-    color: #18314f;
-
-    font-size: 0.85rem;
-    font-weight: 600;
-
-    line-height: 1.4;
-
-    box-shadow:
-        0 6px 18px rgba(0, 0, 0, 0.15);
-
-    border-left: 5px solid #2d8ad7;
-}
-
-
-/* Erro */
-
-.toast.error {
-    border-left-color: #e05252;
-}
-
-
-/* Sucesso */
-
-.toast.success {
-    border-left-color: #32a852;
-}
-
-
-/* =========================================================
-   SEPARAÇÃO ENTRE CARDS
-========================================================= */
-
-.card-estatistica + .card-estatistica {
-    margin-top: 0;
-}
-
-
-/* =========================================================
-   RESPONSIVIDADE
-========================================================= */
+/* Responsividade */
 
 @media (max-width: 900px) {
 
-    .pagina-estatisticas {
+    .caixa {
         width: calc(100% - 40px);
-
-        margin: 25px 20px 50px;
+        margin: 20px;
+        padding: 20px;
     }
 
-
-    .grid-estatisticas {
-        grid-template-columns: 1fr;
+    .divisao h3 {
+        font-size: 1.8rem;
     }
 
-
-    .card-estatistica.card-grande {
-        grid-column: span 1;
+    input,
+    select {
+        max-width: 100%;
+        width: 100%;
     }
 
-
-    .campo-botao {
+    .form-linha {
         flex-direction: column;
-
         align-items: stretch;
     }
 
-
-    .campo-botao .btn {
+    button {
         width: 100%;
     }
 
 }
 
-
-/* =========================================================
-   CELULAR
-========================================================= */
-
-@media (max-width: 600px) {
-
-    .pagina-estatisticas {
-        width: calc(100% - 24px);
-
-        margin: 20px 12px 40px;
-    }
-
-
-    .cabecalho-pagina {
-        margin-bottom: 20px;
-    }
-
-
-    .cabecalho-pagina h1 {
-        font-size: 1.7rem;
-    }
-
-
-    .cabecalho-pagina p {
-        font-size: 0.85rem;
-    }
-
-
-    .grid-estatisticas {
-        gap: 16px;
-    }
-
-
-    .card-estatistica {
-        padding: 20px;
-
-        border-radius: 12px;
-    }
-
-
-    .card-titulo {
-        gap: 12px;
-
-        margin-bottom: 20px;
-    }
-
-
-    .card-titulo h2 {
-        font-size: 1.15rem;
-    }
-
-
-    .icone-card {
-        width: 38px;
-        height: 38px;
-
-        font-size: 1.3rem;
-    }
-
-
-    .toast-container {
-        top: 65px;
-        right: 12px;
-
-        width: calc(100vw - 24px);
-    }
-
-}
