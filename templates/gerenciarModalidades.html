@@ -1,5 +1,19 @@
 {% include 'head.html' %}
+
 <link rel="stylesheet" href="/static/css/gerenciamento.css">
+<link rel="stylesheet" href="/static/css/style.css">
+
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        <div class="toast-container">
+            {% for categoria, mensagem in mensagens %}
+                <div class="toast {{ categoria }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -188,7 +202,6 @@
 
     }
     </script>
-    {% extends 'baseflash.html' %}
 
 </body>
 </html>

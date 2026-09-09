@@ -1,6 +1,8 @@
 from .Buscar.alunosPorTurmaListaEquipes import alunosPorTurmaListaEquipes
 from .Buscar.buscarAlunos import buscarAlunos
 from .Buscar.buscarAlunosPorTurma import buscarAlunosPorTurma
+from .Buscar.buscarAlunoPorEquipe import getAlunoEquipe
+from .Buscar.buscarTipoDaModalidade import buscarTipoModalidade
 from .Buscar.buscarClassificacoes import buscarClassificacoes
 from .Buscar.buscarEquipes import buscarEquipes
 from .Buscar.buscarEquipesPorEsporte import buscarEquipesPorEsporte
@@ -34,6 +36,7 @@ from .Buscar.buscarProvas import buscarProvas
 from .Buscar.buscarProvaPorID import buscarProvaPorID
 from .Buscar.buscarPartidasDoDia import buscarPartidasDoDia
 from .Buscar.buscarProvasProximas import buscarProvasProximas
+from .Buscar.buscarEsporteMonitor import buscarEsporteMonitor
 from .Cadastrar.cadastrarAluno import cadastrarAluno
 from .Cadastrar.cadastrarEquipe import cadastrarEquipe
 from .Cadastrar.cadastrarEsportes import cadastrarEsportes

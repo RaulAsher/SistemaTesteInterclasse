@@ -3,19 +3,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="icon" href="{{ url_for('static', filename='css/logo.jpeg') }}">
+   <link rel="stylesheet" href="/static/css/gerenciamento.css">
+   <link rel="stylesheet" href="/static/css/menu.css">
+   <link rel="stylesheet" href="/static/css/card.css">
 
-    <link rel="icon" href="{{ url_for('static', filename='css/logo.jpeg') }}">
+   <link rel="stylesheet" href="/static/css/style.css">
 
-    <link rel="stylesheet" href="/static/css/gerenciamento.css">
-    <link rel="stylesheet" href="/static/css/menu.css">
-    <link rel="stylesheet" href="/static/css/card.css">
-    <link rel="stylesheet" href="/static/css/style.css">
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        <div class="toast-container">
+            {% for categoria, mensagem in mensagens %}
+                <div class="toast {{ categoria }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
 
-    <script src="/static/js/menu.js" defer></script>
-
-    <title>ETEPlacar - Gerenciar Estatísticas</title>
+   <script src="/static/js/menu.js" defer></script>
+   <title>ETEPlacar - Gerenciar Modalidades</title>
 </head>
 
 <body>
@@ -439,8 +449,6 @@
 
     </script>
 
-
-    {% include 'footer.html' %}
-
+    </div>  
 </body>
 </html>

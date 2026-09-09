@@ -220,11 +220,11 @@
 
     text-overflow: ellipsis;
 
-    color: inherit;
+    color: rgb(233, 231, 231);
 
     font-size: 12px;
     font-weight: 700;
-
+    
     line-height: 1.2;
 }
 

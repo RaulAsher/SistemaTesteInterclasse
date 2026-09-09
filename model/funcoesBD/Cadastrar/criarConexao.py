@@ -9,7 +9,8 @@ def criarConexao():
     conexaoBD = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='root',
+        password='1234',
+        port=3307,
         database=database
     )
     return conexaoBD
