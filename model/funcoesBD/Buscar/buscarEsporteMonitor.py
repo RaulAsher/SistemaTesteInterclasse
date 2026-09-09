@@ -8,7 +8,7 @@ def buscarEsporteMonitor(session_nome):
                     SELECT fk_esporte from login where pk_usuario = %s
                 """
             cursor.execute(query, (session_nome,))
-            return cursor.fetchall()[0]
+            return cursor.fetchall()[0][0]
     finally:
         conexao.close()
     

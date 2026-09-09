@@ -131,3 +131,281 @@ button:hover {
 
 }
 
+
+/* =========================================
+   ESTATÍSTICAS
+   Não interfere em Modalidades
+   ========================================= */
+
+.pagina-estatisticas {
+    width: 850px;
+    margin: 30px auto;
+    padding: 30px;
+    background: #f8fafc;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   CABEÇALHO
+   ========================================= */
+
+.pagina-estatisticas .cabecalho-pagina {
+    margin-bottom: 30px;
+}
+
+.pagina-estatisticas .cabecalho-pagina h1 {
+    color: #18314f;
+    font-size: 2rem;
+    margin: 0 0 10px;
+}
+
+.pagina-estatisticas .cabecalho-pagina p {
+    color: #18314f;
+    font-size: 1rem;
+    margin: 0;
+}
+
+
+/* =========================================
+   GRID
+   ========================================= */
+
+.pagina-estatisticas .grid-estatisticas {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+
+/* =========================================
+   CARDS
+   ========================================= */
+
+.pagina-estatisticas .card-estatistica {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    margin: 0;
+    border: 1px solid #d7dde6;
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   TÍTULOS
+   ========================================= */
+
+.pagina-estatisticas .card-titulo {
+    margin-bottom: 25px;
+}
+
+.pagina-estatisticas .card-titulo h2 {
+    color: #18314f;
+    font-size: 2rem;
+    margin: 0 0 10px;
+}
+
+.pagina-estatisticas .card-titulo p {
+    color: #18314f;
+    margin: 0;
+}
+
+
+/* Esconde os símbolos + - ↔ ×
+   para ficar igual à tela de Modalidades */
+
+.pagina-estatisticas .icone-card {
+    display: none;
+}
+
+
+/* =========================================
+   LABELS
+   ========================================= */
+
+.pagina-estatisticas .card-estatistica label {
+    display: block;
+    color: #18314f;
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-top: 15px;
+}
+
+
+/* =========================================
+   INPUTS E SELECTS
+   ========================================= */
+
+.pagina-estatisticas .card-estatistica input[type="text"],
+.pagina-estatisticas .card-estatistica input[type="number"],
+.pagina-estatisticas .card-estatistica select {
+    width: 100%;
+    max-width: 350px;
+    height: 38px;
+    padding: 0 15px;
+    border: 1px solid #c9d1db;
+    border-radius: 6px;
+    background: white;
+    font-size: .95rem;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+
+.pagina-estatisticas .card-estatistica input:focus,
+.pagina-estatisticas .card-estatistica select:focus {
+    outline: none;
+    border-color: #2b78c5;
+    box-shadow: 0 0 5px rgba(43, 120, 197, .2);
+}
+
+
+/* =========================================
+   LINHA INPUT + BOTÃO
+   ========================================= */
+
+.pagina-estatisticas .campo-botao {
+    display: flex;
+    align-items: end;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================
+   CAMPOS
+   ========================================= */
+
+.pagina-estatisticas .campo {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================================
+   BOTÕES
+   ========================================= */
+
+.pagina-estatisticas .btn {
+    background: #2d8ad7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    height: auto;
+    font-size: .95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+}
+
+
+.pagina-estatisticas .btn:hover {
+    background: #226fb0;
+}
+
+
+/* =========================================
+   FORMULÁRIO DE ASSOCIAÇÃO
+   ========================================= */
+
+.pagina-estatisticas .form-estatistica {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 15px;
+}
+
+
+/* =========================================
+   CHECKBOX
+   ========================================= */
+
+.pagina-estatisticas .checkbox-container {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    margin: 0 !important;
+}
+
+
+.pagina-estatisticas .checkbox-container input[type="checkbox"] {
+    width: auto;
+    max-width: none;
+    height: auto;
+    margin: 0;
+}
+
+
+/* =========================================
+   BOTÃO LARGO
+   ========================================= */
+
+.pagina-estatisticas .btn-largo {
+    width: fit-content;
+}
+
+
+/* =========================================
+   RESPONSIVIDADE
+   ========================================= */
+
+@media (max-width: 900px) {
+
+    .pagina-estatisticas {
+        width: calc(100% - 40px);
+        margin: 20px;
+        padding: 20px;
+    }
+
+
+    .pagina-estatisticas .card-estatistica {
+        padding: 20px;
+    }
+
+
+    .pagina-estatisticas .card-titulo h2 {
+        font-size: 1.8rem;
+    }
+
+
+    .pagina-estatisticas .campo-botao {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+
+    .pagina-estatisticas .campo-botao input,
+    .pagina-estatisticas .campo-botao select {
+        max-width: 100%;
+        width: 100%;
+    }
+
+
+    .pagina-estatisticas .campo-botao .btn {
+        width: 100%;
+    }
+
+
+    .pagina-estatisticas .form-estatistica {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+
+    .pagina-estatisticas .form-estatistica .campo select {
+        max-width: 100%;
+        width: 100%;
+    }
+
+
+    .pagina-estatisticas .btn-largo {
+        width: 100%;
+    }
+
+}
+
